@@ -1,3 +1,4 @@
+//backend>database.js
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./reactiva.db');
 
@@ -15,17 +16,18 @@ db.serialize(() => {
     `);
 
     db.run(`
-        CREATE TABLE IF NOT EXISTS leads (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            clinic_id INTEGER,
-            message TEXT,
-            timestamp TEXT,
-            status TEXT,
-            response_time INTEGER,
-            FOREIGN KEY (clinic_id) REFERENCES users(id)
-        )
-    `);
-
+       CREATE TABLE IF NOT EXISTS leads (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    clinic_id INTEGER,
+    name TEXT,
+    phone TEXT,
+    message TEXT,
+    timestamp TEXT,
+    status TEXT,
+    response_time INTEGER,
+    FOREIGN KEY (clinic_id) REFERENCES users(id)
+)
+`);
     db.run(`
         CREATE TABLE IF NOT EXISTS pagos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
