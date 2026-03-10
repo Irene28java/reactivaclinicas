@@ -1,3 +1,4 @@
+//backend>routes>pagos.js
 const express = require("express");
 const router = express.Router();
 const db = require("../database");
@@ -5,7 +6,7 @@ const auth = require("../middleware/auth");
 
 // Crear pago
 router.post("/", auth, (req,res)=>{
-    const {email,amount,plan,paypal_order_id} = req.body;
+    const {amount,plan,paypal_order_id} = req.body;
     const clinic_id = req.user.id;
     db.run(`INSERT INTO pagos (clinic_id,email,amount,plan,paypal_order_id,created_at) VALUES (?,?,?,?,?,?)`,
         [clinic_id,email,amount,plan,paypal_order_id,new Date().toISOString()],

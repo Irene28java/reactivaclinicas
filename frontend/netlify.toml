@@ -1,22 +1,25 @@
 # ══════════════════════════════════════════════
-#  netlify.toml — Configuración de deploy Netlify
-#  Coloca este archivo en la raíz del frontend
+# netlify.toml — Configuración de deploy Netlify
+# Coloca este archivo en la raíz del proyecto
 # ══════════════════════════════════════════════
 
 [build]
-  publish = "."
+  # El directorio donde están tus archivos HTML/JS/CSS
+  publish = "frontend"
 
-# Redirige todas las rutas al index por si añades un router en el futuro
+# Redirige llamadas a tu backend en Railway
 [[redirects]]
   from = "/api/*"
-  to = "https://reactiva-backend.up.railway.app/api/:splat"
+  to = "https://reactiva-backend.up.railway.app/:splat"
   status = 200
   force = false
 
+# Cabeceras de seguridad
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
+  X-Frame-Options = "DENY"
+  X-XSS-Protection = "1; mode=block"
+  X-Content-Type-Options = "nosniff"
+  Referrer-Policy = "strict-origin-when-cross-origin"
+  Strict-Transport-Security = "max-age=31536000; includeSubDomains"

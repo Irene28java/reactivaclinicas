@@ -632,92 +632,199 @@ nav {
 </div>
 
 <!-- ⚠️ Reemplaza TU_CLIENT_ID_PAYPAL con tu Client ID real de PayPal -->
-<script src="https://www.paypal.com/sdk/js?client-id=TU_CLIENT_ID_PAYPAL&currency=EUR"></script>
-<script>
-const BACKEND_URL = "https://reactiva-backend.up.railway.app";
-let planSeleccionado = null, precioSeleccionado = null, paypalRendered = false;
+<script src="https://www.paypal.com/sdk/js?client-id=Aft4TzRPGR5XowQhpdLGPy5GAJ-GHk9211eKnr_FTfS2CM7T01cwnTSWNyg5Dw-7B5ZfgSZAswhjA1N-&currency=EUR"></script>
 
-function abrirModal(plan, precio) {
-  planSeleccionado = plan; precioSeleccionado = precio;
+<script>
+
+const BACKEND_URL = "https://reactiva-backend.up.railway.app";
+
+let planSeleccionado = null;
+let precioSeleccionado = null;
+let paypalRendered = false;
+
+
+function abrirModal(plan, precio){
+
+  planSeleccionado = plan;
+  precioSeleccionado = precio;
+
   document.getElementById("modalOverlay").classList.add("active");
   document.body.style.overflow = "hidden";
-  if (!paypalRendered && typeof paypal !== 'undefined') {
+
+  if(!paypalRendered && typeof paypal !== "undefined"){
+
     paypalRendered = true;
+
     paypal.Buttons({
-      style: { layout:'horizontal', color:'gold', shape:'rect', label:'pay', height:44 },
-      createOrder: async (data, actions) => {
-        const c = document.getElementById("inputClinica").value.trim();
-        const e = document.getElementById("inputEmail").value.trim();
-        const p = document.getElementById("inputPass").value.trim();
-        if (!c || !e || !p) { mostrarError("Rellena todos los campos antes de pagar."); return; }
-        return actions.order.create({ purchase_units:[{ amount:{ value: precioSeleccionado.toString(), currency_code:"EUR" }, description:`ReActiva — Plan ${planSeleccionado}` }] });
+
+      style:{
+        layout:"horizontal",
+        color:"gold",
+        shape:"rect",
+        label:"pay",
+        height:44
       },
-      onApprove: async (data, actions) => { const o = await actions.order.capture(); await completarRegistro(o.id); },
-      onError: (err) => { mostrarError("Error en el pago. Inténtalo de nuevo."); console.error(err); }
-    }).render('#paypal-button-container');
+
+      createOrder: async (data, actions)=>{
+
+        const clinica = document.getElementById("inputClinica").value.trim();
+        const email = document.getElementById("inputEmail").value.trim();
+        const pass = document.getElementById("inputPass").value.trim();
+
+        if(!clinica || !email || !pass){
+          mostrarError("Rellena todos los campos antes de pagar.");
+          throw new Error("Campos incompletos");
+        }
+
+        if(pass.length < 8){
+          mostrarError("La contraseña debe tener mínimo 8 caracteres.");
+          throw new Error("Password inválido");
+        }
+
+        if(!email.includes("@")){
+          mostrarError("Email no válido.");
+          throw new Error("Email inválido");
+        }
+
+        try{
+
+          const res = await fetch(`${BACKEND_URL}/api/auth/register`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+              clinic_name:clinica,
+              email:email,
+              password:pass
+            })
+          });
+
+          const data = await res.json();
+
+          if(!res.ok && !data.error?.includes("registrado")){
+            throw new Error(data.error || "Error registrando usuario");
+          }
+
+        }catch(err){
+
+          mostrarError(err.message);
+          throw err;
+
+        }
+
+        return actions.order.create({
+          purchase_units:[{
+            amount:{
+              value:precioSeleccionado.toString(),
+              currency_code:"EUR"
+            },
+            description:`ReActiva — Plan ${planSeleccionado}`
+          }]
+        });
+
+      },
+
+      onApprove: async (data, actions)=>{
+
+        const order = await actions.order.capture();
+
+        await completarRegistro(order.id);
+
+      },
+
+      onError:(err)=>{
+
+        console.error(err);
+        mostrarError("Error en el pago. Inténtalo otra vez.");
+
+      }
+
+    }).render("#paypal-button-container");
+
   }
+
 }
 
-function cerrarModal() {
+
+function cerrarModal(){
+
   document.getElementById("modalOverlay").classList.remove("active");
-  document.body.style.overflow = "";
+  document.body.style.overflow="";
+
 }
 
-function mostrarError(msg) {
+
+function mostrarError(msg){
+
   const el = document.getElementById("errorMsg");
-  el.textContent = msg; el.style.display = "block";
+  el.textContent = msg;
+  el.style.display = "block";
+
 }
 
-async function registrarYPagar() {
-  const clinica = document.getElementById("inputClinica").value.trim();
-  const email   = document.getElementById("inputEmail").value.trim();
-  const pass    = document.getElementById("inputPass").value.trim();
-  if (!clinica || !email || !pass) return mostrarError("Todos los campos son obligatorios.");
-  if (pass.length < 8) return mostrarError("La contraseña debe tener al menos 8 caracteres.");
-  if (!email.includes("@")) return mostrarError("Email no válido.");
-  document.getElementById("errorMsg").style.display = "none";
-  document.getElementById("btnTexto").style.display = "none";
-  document.getElementById("spinner").style.display = "block";
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ clinic_name:clinica, email, password:pass })
-    });
-    const data = await res.json();
-    if (!res.ok && !data.error?.includes("registrado")) throw new Error(data.error || "Error al registrar");
-  } catch(e) {
-    document.getElementById("btnTexto").style.display = "block";
-    document.getElementById("spinner").style.display = "none";
-    return mostrarError(e.message);
-  }
-  document.getElementById("btnTexto").style.display = "block";
-  document.getElementById("spinner").style.display = "none";
-}
 
-async function completarRegistro(paypalOrderId) {
+async function completarRegistro(paypalOrderId){
+
   const email = document.getElementById("inputEmail").value.trim();
-  const pass  = document.getElementById("inputPass").value.trim();
-  const loginRes = await fetch(`${BACKEND_URL}/api/auth/login`, {
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ email, password:pass })
-  });
-  const loginData = await loginRes.json();
-  if (!loginData.token) return mostrarError("Error al iniciar sesión tras el pago.");
-  await fetch(`${BACKEND_URL}/api/payment`, {
-    method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":`Bearer ${loginData.token}`},
-    body: JSON.stringify({ plan:planSeleccionado, paypal_order_id:paypalOrderId, amount:precioSeleccionado })
-  });
-  localStorage.setItem("reactiva_token", loginData.token);
-  document.getElementById("formScreen").style.display = "none";
-  document.getElementById("successScreen").style.display = "block";
+  const pass = document.getElementById("inputPass").value.trim();
+
+  try{
+
+    const loginRes = await fetch(`${BACKEND_URL}/api/auth/login`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:email,
+        password:pass
+      })
+    });
+
+    const loginData = await loginRes.json();
+
+    if(!loginData.token){
+      throw new Error("Error al iniciar sesión tras el pago.");
+    }
+
+    await fetch(`${BACKEND_URL}/api/payment`,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${loginData.token}`
+      },
+      body:JSON.stringify({
+        plan:planSeleccionado,
+        paypal_order_id:paypalOrderId,
+        amount:precioSeleccionado
+      })
+    });
+
+    localStorage.setItem("reactiva_token",loginData.token);
+
+    document.getElementById("formScreen").style.display="none";
+    document.getElementById("successScreen").style.display="block";
+
+  }catch(err){
+
+    console.error(err);
+    mostrarError(err.message);
+
+  }
+
 }
 
-function toggleFaq(el) { el.classList.toggle("open"); }
 
-document.getElementById("modalOverlay").addEventListener("click", function(e) {
-  if (e.target === this) cerrarModal();
+function toggleFaq(el){
+
+  el.classList.toggle("open");
+
+}
+
+
+document.getElementById("modalOverlay").addEventListener("click",function(e){
+
+  if(e.target === this){
+    cerrarModal();
+  }
+
 });
+
 </script>
-</body>
-</html>

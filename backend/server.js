@@ -1,317 +1,150 @@
-//backend>server.js
+require("dotenv").config();
 
-require('dotenv').config();
-const express    = require('express');
-const cors       = require('cors');
-const http       = require('http');
+const express = require("express");
+const cors = require("cors");
+const http = require("http");
+const jwt = require("jsonwebtoken");
+const rateLimit = require("express-rate-limit");
 const { Server } = require("socket.io");
 const nodemailer = require("nodemailer");
-const db         = require('./database');
 
-const authRoutes     = require('./routes/auth');
-const leadsRoutes    = require('./routes/leads');
-const authMiddleware = require('./middleware/auth');
+const db = require("./database");
 
-const app    = express();
+// ───── RUTAS ─────
+const leadsRoutes = require("./routes/leads");
+const authRoutes  = require("./routes/auth");
+const dashboardRoutes = require("./routes/dashboard");
+const webhookRoutes  = require("./routes/webhook");
+// const pagosRouter = require("./routes/pagos"); // si lo vas a usar
+
+const authMiddleware = require("./middleware/auth");
+const reminders = require("./reminders");
+
+const app = express();
 const server = http.createServer(app);
+const JWT_SECRET = process.env.JWT_SECRET || "reactiva_secret";
 
-// ══════════════════════════════════════════════
-// MIDDLEWARE
-// ══════════════════════════════════════════════
+// ───── MIDDLEWARE ─────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
 
-const allowedOrigins = (process.env.FRONTEND_URL || "*").split(",").map(o => o.trim());
+// CORS
+const allowedOrigins = (process.env.FRONTEND_URL || "*")
+  .split(",")
+  .map(o => o.trim());
 
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("CORS: origen no permitido → " + origin));
-        }
-    },
-    credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS bloqueado " + origin));
+    }
+  },
+  credentials: true
 }));
 
-// ══════════════════════════════════════════════
-// SOCKET.IO
-// ══════════════════════════════════════════════
+// ───── SOCKET.IO ─────
 const io = new Server(server, {
-    cors: {
-        origin: allowedOrigins.includes("*") ? "*" : allowedOrigins,
-        methods: ["GET", "POST"]
-    }
+  cors: { origin: allowedOrigins.includes("*") ? "*" : allowedOrigins }
 });
 
 io.on("connection", (socket) => {
+  console.log("Cliente conectado", socket.id);
 
-    console.log("🔌 Cliente conectado:", socket.id);
+  socket.on("join_clinic", (clinicId) => {
+    socket.join("clinic_" + clinicId);
+  });
 
-    socket.on("join_clinic", (clinic_id) => {
-        socket.join(`clinic_${clinic_id}`);
-        console.log(`Dashboard clínica ${clinic_id} conectado`);
-    });
-
-    socket.on("disconnect", () => {
-        console.log("🔌 Cliente desconectado:", socket.id);
-    });
-
+  socket.on("disconnect", () => {
+    console.log("Cliente desconectado");
+  });
 });
 
 app.set("io", io);
 
-// ══════════════════════════════════════════════
-// EMAIL
-// ══════════════════════════════════════════════
+// ───── EMAIL ─────
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
 });
 
-function sendEmail(to, text, subject = "Nuevo lead en ReActiva") {
-
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return;
-
-    transporter.sendMail({
-        from: `"ReActiva Clínicas" <${process.env.EMAIL_USER}>`,
-        to,
-        subject,
-        text,
-        html: `
-        <div style="font-family:sans-serif;padding:20px;background:#f5f5f5">
-            <div style="background:white;border-radius:12px;padding:24px;max-width:480px;margin:0 auto">
-                <h2 style="color:#00b248;margin-bottom:16px">📩 ${subject}</h2>
-                <pre style="background:#f9f9f9;padding:16px;border-radius:8px;font-size:14px">${text}</pre>
-
-                <a href="${process.env.FRONTEND_URL || 'https://reactiva.app'}/dashboard.html"
-                style="display:inline-block;margin-top:20px;padding:12px 24px;background:#00e676;color:#07090d;border-radius:8px;font-weight:700;text-decoration:none">
-
-                Ver en dashboard →
-                </a>
-            </div>
-        </div>`
-    })
-    .catch(err => console.error("Email error:", err.message));
+function sendEmail(to, text, subject = "ReActiva") {
+  if (!process.env.EMAIL_USER) return;
+  transporter.sendMail({
+    from: `"ReActiva Clínicas" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html: `<div style="font-family:sans-serif;padding:30px">
+             <h2 style="color:#00e676">${subject}</h2>
+             <p>${text}</p>
+           </div>`
+  });
 }
 
 app.set("sendEmail", sendEmail);
 
-// ══════════════════════════════════════════════
-// ROUTES
-// ══════════════════════════════════════════════
-app.use("/api/auth", authRoutes);
+// ───── OTP LOGIN ─────
+const otpStore = {};
+const otpRequests = {};
+const otpLimiter = rateLimit({ windowMs: 60000, max: 5 });
+
+function generarOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+app.post("/api/request-otp", otpLimiter, (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email requerido" });
+
+  const now = Date.now();
+  if (otpRequests[email] && now - otpRequests[email] < 60000)
+    return res.status(429).json({ error: "Espera 1 minuto" });
+
+  const code = generarOTP();
+  otpStore[email] = { code, expires: now + 15 * 60_000 };
+  otpRequests[email] = now;
+
+  sendEmail(email, `Tu código de acceso es: <b>${code}</b><br>Válido 15 minutos`, "Tu código de acceso ReActiva");
+  res.json({ success: true });
+});
+
+app.post("/api/verify-otp", (req, res) => {
+  const { email, code } = req.body;
+  const record = otpStore[email];
+
+  if (!record) return res.status(400).json({ error: "OTP inválido" });
+  if (record.code !== code) return res.status(400).json({ error: "Código incorrecto" });
+  if (Date.now() > record.expires) return res.status(400).json({ error: "Código expirado" });
+
+  delete otpStore[email];
+
+  db.get(`SELECT * FROM users WHERE email=?`, [email], (err, user) => {
+    if (err) return res.status(500).json({ error: "DB error" });
+    if (!user) return res.status(404).json({ error: "Usuario no existe" });
+
+    const token = jwt.sign({ id: user.id, email: user.email, plan: user.plan }, JWT_SECRET, { expiresIn: "7d" });
+    res.json({ token });
+  });
+});
+
+// ───── RUTAS ─────
 app.use("/api/leads", leadsRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/webhook", webhookRoutes);
+// app.use("/api/pagos", pagosRouter); // activar si existe
 
-// ══════════════════════════════════════════════
-// MESSENGER WEBHOOK
-// ══════════════════════════════════════════════
-
-const VERIFY_TOKEN = process.env.MESSENGER_VERIFY_TOKEN || "reactiva_verify";
-
-// Verificación webhook
-app.get("/webhook", (req, res) => {
-
-    const mode = req.query["hub.mode"];
-    const token = req.query["hub.verify_token"];
-    const challenge = req.query["hub.challenge"];
-
-    if (mode === "subscribe" && token === VERIFY_TOKEN) {
-
-        console.log("✅ WEBHOOK VERIFICADO POR META");
-
-        return res.status(200).send(challenge);
-    }
-
-    res.sendStatus(403);
-});
-
-
-// Recibir mensajes Messenger
-app.post("/webhook", (req, res) => {
-
-    const body = req.body;
-
-    if (body.object === "page") {
-
-        body.entry.forEach(entry => {
-
-            const event = entry.messaging?.[0];
-
-            if (!event) return;
-
-            if (event.message) {
-
-                const sender = event.sender.id;
-                const text   = event.message.text;
-
-                console.log("💬 Mensaje recibido:", text);
-
-                // aquí podrías guardar lead si quieres
-            }
-
-        });
-
-        return res.status(200).send("EVENT_RECEIVED");
-    }
-
-    res.sendStatus(404);
-});
-
-// ══════════════════════════════════════════════
-// HEALTHCHECK
-// ══════════════════════════════════════════════
-app.get("/", (req, res) => res.json({
-    status: "ok",
-    service: "ReActiva API",
-    version: "1.0.0"
-}));
-
+// ───── HEALTHCHECK ─────
+app.get("/", (req, res) => res.json({ status: "ok", service: "ReActiva API" }));
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
-// ══════════════════════════════════════════════
-// DASHBOARD
-// ══════════════════════════════════════════════
-app.get('/api/dashboard', authMiddleware, (req, res) => {
+// ───── REMINDERS ─────
+reminders.init(app);
 
-    const clinicId = req.user.id;
-
-    db.all(`SELECT * FROM leads WHERE clinic_id=?`, [clinicId], (err, leads) => {
-
-        if (err) return res.status(500).json({ error: "Error cargando leads" });
-
-        db.all(`SELECT * FROM pagos WHERE clinic_id=?`, [clinicId], (err, pagos) => {
-
-            if (err) return res.status(500).json({ error: "Error cargando pagos" });
-
-            const totalLeads = leads.length;
-            const converted  = leads.filter(l => l.status === "closed").length;
-
-            const conversionRate =
-                totalLeads > 0
-                    ? parseFloat((converted / totalLeads * 100).toFixed(1))
-                    : 0;
-
-            const totalRevenue =
-                pagos.reduce((acc, p) => acc + (p.amount || 0), 0);
-
-            const hoy = new Date();
-            const byDay = Array(7).fill(0);
-
-            leads.forEach(l => {
-
-                const d = new Date(l.timestamp);
-                const diff = Math.floor((hoy - d) / 86400000);
-
-                if (diff >= 0 && diff < 7) byDay[6 - diff]++;
-            });
-
-            res.json({
-                totalLeads,
-                converted,
-                conversionRate,
-                totalRevenue,
-                byDay,
-                newLeads: leads.filter(l => l.status === "new").length
-            });
-
-        });
-    });
-});
-
-// ══════════════════════════════════════════════
-// PAYMENT
-// ══════════════════════════════════════════════
-app.post('/api/payment', authMiddleware, (req, res) => {
-
-    const clinicId = req.user.id;
-    const { paypal_order_id, plan, amount } = req.body;
-
-    if (!paypal_order_id)
-        return res.status(400).json({ error: "paypal_order_id requerido" });
-
-    const planName   = plan   || "premium";
-    const planAmount = amount || 500;
-
-    db.run(
-        `INSERT INTO pagos (clinic_id,email,amount,plan,paypal_order_id,created_at)
-         VALUES (?,?,?,?,?,?)`,
-        [
-            clinicId,
-            req.user.email || "",
-            planAmount,
-            planName,
-            paypal_order_id,
-            new Date().toISOString()
-        ],
-
-        function(err) {
-
-            if (err)
-                return res.status(500).json({ error: "Error guardando pago" });
-
-            db.run(
-                `UPDATE users SET plan=?, paypal_order_id=? WHERE id=?`,
-                [planName, paypal_order_id, clinicId],
-
-                function(err2) {
-
-                    if (err2)
-                        return res.status(500).json({ error: "Error actualizando plan" });
-
-                    db.get(
-                        `SELECT email, clinic_name FROM users WHERE id=?`,
-                        [clinicId],
-
-                        (e, user) => {
-
-                            if (user) {
-
-                                sendEmail(
-                                    user.email,
-                                    `¡Gracias ${user.clinic_name}! Tu plan ${planName} está activo.\n\nImporte: ${planAmount}€\nID transacción: ${paypal_order_id}`,
-                                    "✅ Plan activado en ReActiva"
-                                );
-
-                            }
-
-                        }
-                    );
-
-                    res.json({ success: true, plan: planName });
-
-                }
-            );
-        }
-    );
-});
-
-// ══════════════════════════════════════════════
-// ERROR HANDLER
-// ══════════════════════════════════════════════
-app.use((err, req, res, next) => {
-
-    console.error("Error:", err.message);
-
-    res.status(500).json({
-        error: "Error interno del servidor"
-    });
-
-});
-
-// ══════════════════════════════════════════════
-// START SERVER
-// ══════════════════════════════════════════════
+// ───── START ─────
 const PORT = process.env.PORT || 5000;
-
-server.listen(PORT, () => {
-
-    console.log(`🚀 ReActiva API corriendo en puerto ${PORT}`);
-    console.log(`Frontend URL: ${process.env.FRONTEND_URL || "*"}`);
-    console.log(`Email: ${process.env.EMAIL_USER || "no configurado"}`);
-
-});
+server.listen(PORT, () => console.log("API corriendo puerto", PORT));

@@ -6,7 +6,7 @@ function extraerTelefono(text){
 }
 
 function extraerNombre(text){
-    const regex = /soy\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ]+)/i;
+    const regex = /soy\s+([a-zA-ZáéíóúÁÉÍÓÚñÑ]+(?:\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)?)/i;
     const match = text.match(regex);
     return match ? match[1] : null;
 }
