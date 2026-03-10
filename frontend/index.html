@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReActiva Clínicas — Automatiza y convierte</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --negro: #07090d;
+    --blanco: #f0ede8;
+    --verde: #00e676;
+    --verde-dim: rgba(0,230,118,0.1);
+    --verde-borde: rgba(0,230,118,0.28);
+    --gris: #111418;
+    --gris2: #181d24;
+    --gris-texto: #6e7a8a;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+
+  body {
+    font-family:'Syne', sans-serif;
+    background:var(--negro);
+    color:var(--blanco);
+    overflow-x:hidden;
+  }
+
+  /* Grain */
+  body::after {
+    content:''; position:fixed; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events:none; z-index:999; opacity:.35;
+  }
+
+  /* Orbs */
+  .orb { position:fixed; border-radius:50%; pointer-events:none; z-index:0; filter:blur(90px); }
+  .orb-1 { width:600px; height:600px; background:rgba(0,230,118,0.05); top:-150px; left:-150px; }
+  .orb-2 { width:400px; height:400px; background:rgba(212,168,67,0.04); bottom:-100px; right:-100px; }
+
+  /* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 20px 56px;
+
+  background: rgba(7,9,13,0.88);
+
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+  .logo-wrap { display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .logo-text {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.45rem; font-weight:700; color:var(--blanco);
+  }
+  .logo-text span { color:var(--verde); }
+
+  .nav-right { display:flex; align-items:center; gap:20px; }
+  .nav-link { color:var(--gris-texto); text-decoration:none; font-size:0.82rem; font-weight:500; transition:color 0.2s; }
+  .nav-link:hover { color:var(--blanco); }
+  .nav-cta {
+    padding:9px 20px; background:var(--verde); color:var(--negro);
+    border-radius:9px; font-size:0.82rem; font-weight:700;
+    text-decoration:none; transition:all 0.2s;
+  }
+  .nav-cta:hover { background:#1fffa0; box-shadow:0 4px 16px rgba(0,230,118,0.35); }
+
+  /* ── HERO ── */
+  .hero {
+    position:relative; z-index:1;
+    display:grid; grid-template-columns:1fr 420px;
+    gap:60px; align-items:center;
+    max-width:1100px; margin:0 auto;
+    padding:100px 56px 80px;
+  }
+
+  @media(max-width:900px) {
+    .hero { grid-template-columns:1fr; padding:60px 24px; }
+    nav   { padding:18px 24px; }
+    .chat-widget { max-width:100%; }
+  }
+
+  .hero-pill {
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--verde-dim); border:1px solid var(--verde-borde);
+    color:var(--verde); font-size:0.72rem; font-weight:600;
+    letter-spacing:0.14em; text-transform:uppercase;
+    padding:7px 16px; border-radius:100px; margin-bottom:28px;
+  }
+  .hero-pill-dot {
+    width:6px; height:6px; border-radius:50%; background:var(--verde);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.4; transform:scale(0.7); }
+  }
+
+  h1 {
+    font-family:'Cormorant Garamond', serif;
+    font-size:clamp(2.4rem, 4.5vw, 3.8rem);
+    font-weight:700; line-height:1.08;
+    margin-bottom:22px;
+  }
+  h1 em { font-style:italic; color:var(--verde); }
+
+  .hero-desc {
+    color:var(--gris-texto); font-size:1rem; line-height:1.75;
+    max-width:480px; margin-bottom:36px;
+  }
+
+  .hero-btns { display:flex; gap:14px; flex-wrap:wrap; }
+
+  .btn-hero {
+    padding:14px 28px; border-radius:12px;
+    font-family:'Syne', sans-serif; font-size:0.88rem; font-weight:700;
+    text-decoration:none; cursor:pointer; border:none;
+    transition:all 0.25s;
+  }
+  .btn-hero.primary { background:var(--verde); color:var(--negro); }
+  .btn-hero.primary:hover { background:#1fffa0; box-shadow:0 8px 30px rgba(0,230,118,0.35); transform:translateY(-2px); }
+  .btn-hero.ghost {
+    background:transparent; color:var(--blanco);
+    border:1px solid rgba(255,255,255,0.12);
+  }
+  .btn-hero.ghost:hover { border-color:rgba(255,255,255,0.28); background:rgba(255,255,255,0.04); }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display:flex; gap:32px; flex-wrap:wrap;
+    margin-top:44px; padding-top:36px;
+    border-top:1px solid rgba(255,255,255,0.06);
+  }
+  .stat-item {}
+  .stat-num {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.8rem; font-weight:700; color:var(--verde);
+    line-height:1;
+  }
+  .stat-label { font-size:0.73rem; color:var(--gris-texto); margin-top:3px; }
+
+  /* ── CHAT WIDGET ── */
+  .chat-widget {
+    background:var(--gris2);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:20px; overflow:hidden;
+    box-shadow:0 24px 80px rgba(0,0,0,0.45);
+    position:relative; z-index:1;
+  }
+
+  .chat-topbar {
+    background:var(--gris);
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    padding:14px 18px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .chat-avatar {
+    width:34px; height:34px; border-radius:50%;
+    background:var(--verde-dim); border:1px solid var(--verde-borde);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1rem; flex-shrink:0;
+  }
+  .chat-name { font-size:0.85rem; font-weight:700; }
+  .chat-online {
+    display:flex; align-items:center; gap:5px;
+    font-size:0.7rem; color:var(--verde);
+  }
+  .chat-online::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--verde); }
+  .win-dots { margin-left:auto; display:flex; gap:5px; }
+  .win-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.12); }
+
+  .chat-area {
+    height:280px; overflow-y:auto; padding:16px;
+    display:flex; flex-direction:column; gap:10px;
+    scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.08) transparent;
+  }
+
+  .chat-msg {
+    max-width:80%; padding:10px 14px;
+    border-radius:14px; font-size:0.84rem; line-height:1.55;
+    animation:msgIn 0.25s ease;
+  }
+  @keyframes msgIn {
+    from { opacity:0; transform:translateY(6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .chat-msg.bot {
+    background:rgba(255,255,255,0.07); color:var(--blanco);
+    border-radius:4px 14px 14px 14px; align-self:flex-start;
+  }
+  .chat-msg.user {
+    background:var(--verde); color:var(--negro);
+    border-radius:14px 4px 14px 14px;
+    align-self:flex-end; font-weight:500;
+  }
+
+  .typing-indicator {
+    display:flex; gap:4px; align-items:center;
+    padding:10px 14px; background:rgba(255,255,255,0.07);
+    border-radius:4px 14px 14px 14px; align-self:flex-start;
+    width:52px;
+  }
+  .typing-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:var(--gris-texto);
+    animation:typingBounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay:0.2s; }
+  .typing-dot:nth-child(3) { animation-delay:0.4s; }
+  @keyframes typingBounce {
+    0%,60%,100% { transform:translateY(0); opacity:0.4; }
+    30% { transform:translateY(-6px); opacity:1; }
+  }
+
+  .chat-input-row {
+    display:flex; align-items:center; gap:8px;
+    padding:12px 14px;
+    border-top:1px solid rgba(255,255,255,0.05);
+    background:var(--gris);
+  }
+  .chat-input {
+    flex:1; background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px; padding:10px 14px;
+    color:var(--blanco); font-family:'Syne', sans-serif; font-size:0.84rem;
+    outline:none; transition:border-color 0.2s;
+  }
+  .chat-input:focus { border-color:var(--verde-borde); }
+  .chat-input::placeholder { color:var(--gris-texto); }
+  .chat-send {
+    width:36px; height:36px; border-radius:10px;
+    background:var(--verde); color:var(--negro);
+    border:none; cursor:pointer; font-size:0.9rem;
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s; flex-shrink:0;
+  }
+  .chat-send:hover { background:#1fffa0; transform:scale(1.08); }
+
+  /* ── FEATURES ── */
+  .features-section {
+    position:relative; z-index:1;
+    max-width:1100px; margin:0 auto;
+    padding:80px 56px;
+  }
+
+  .section-label {
+    font-size:0.7rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--verde); margin-bottom:16px;
+  }
+  .section-title {
+    font-family:'Cormorant Garamond', serif;
+    font-size:clamp(1.8rem, 3vw, 2.8rem); font-weight:700;
+    margin-bottom:56px; max-width:560px;
+  }
+
+  .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media(max-width:720px) { .features-grid { grid-template-columns:1fr; } .features-section { padding:60px 24px; } }
+
+  .feature-card {
+    background:var(--gris2); border:1px solid rgba(255,255,255,0.055);
+    border-radius:16px; padding:28px 24px;
+    transition:transform 0.3s, border-color 0.3s;
+  }
+  .feature-card:hover { transform:translateY(-4px); border-color:rgba(255,255,255,0.1); }
+  .feature-icon {
+    width:44px; height:44px; border-radius:12px;
+    background:var(--verde-dim); border:1px solid var(--verde-borde);
+    color:var(--verde); font-size:1.2rem;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:18px;
+  }
+  .feature-title { font-size:0.92rem; font-weight:700; margin-bottom:8px; }
+  .feature-desc { font-size:0.82rem; color:var(--gris-texto); line-height:1.65; }
+
+  /* ── FOOTER ── */
+  footer {
+    position:relative; z-index:1;
+    border-top:1px solid rgba(255,255,255,0.05);
+    padding:32px 56px;
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:16px;
+  }
+  .footer-copy { font-size:0.78rem; color:var(--gris-texto); }
+  .footer-links { display:flex; gap:20px; }
+  .footer-link { font-size:0.78rem; color:var(--gris-texto); text-decoration:none; transition:color 0.2s; }
+  .footer-link:hover { color:var(--blanco); }
+  @media(max-width:600px) { footer { padding:28px 24px; } }
+
+  /* ── DEMO SECTION ── */
+  .demo-section {
+    position:relative; z-index:1;
+    padding:100px 56px;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,230,118,0.025) 40%, transparent 100%);
+    border-top:1px solid rgba(255,255,255,0.04);
+    border-bottom:1px solid rgba(255,255,255,0.04);
+  }
+  @media(max-width:800px){ .demo-section { padding:60px 20px; } }
+
+  .demo-inner { max-width:1060px; margin:0 auto; }
+
+  .demo-label {
+    font-size:0.7rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--verde); margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .demo-label::before {
+    content:''; width:24px; height:1px; background:var(--verde); opacity:0.5;
+  }
+
+  .demo-title {
+    font-family:'Cormorant Garamond', serif;
+    font-size:clamp(2rem,4vw,3.2rem); font-weight:700;
+    line-height:1.1; margin-bottom:14px;
+  }
+  .demo-title em { font-style:italic; color:var(--verde); }
+
+  .demo-sub {
+    color:var(--gris-texto); font-size:0.92rem; line-height:1.7;
+    max-width:520px; margin-bottom:52px;
+  }
+
+  /* Browser frame */
+  .demo-frame {
+    position:relative;
+    background:var(--gris2);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px; overflow:hidden;
+    box-shadow:0 32px 100px rgba(0,0,0,0.6),
+               0 0 0 1px rgba(255,255,255,0.03);
+    margin-bottom:40px;
+  }
+
+  .browser-bar {
+    background:#0c1016;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    padding:10px 16px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .browser-dots { display:flex; gap:6px; }
+  .bdot { width:10px; height:10px; border-radius:50%; }
+  .bdot.red    { background:#ff5f57; }
+  .bdot.yellow { background:#febc2e; }
+  .bdot.green  { background:#28c840; }
+  .browser-url {
+    flex:1; background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:6px; padding:4px 12px;
+    font-size:0.72rem; color:var(--gris-texto);
+    max-width:260px;
+  }
+
+  /* Mock dashboard */
+  .mock-dash {
+    display:flex; min-height:360px;
+  }
+
+  .mock-sidebar {
+    width:160px; background:var(--gris); flex-shrink:0;
+    padding:20px 14px;
+    border-right:1px solid rgba(255,255,255,0.04);
+    display:flex; flex-direction:column; gap:4px;
+  }
+  @media(max-width:700px){ .mock-sidebar { display:none; } }
+
+  .mock-logo {
+    display:flex; align-items:center; gap:7px;
+    margin-bottom:20px; padding:0 4px;
+  }
+  .mock-logo-text {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1rem; font-weight:700; color:var(--blanco);
+  }
+  .mock-logo-text span { color:var(--verde); }
+
+  .mock-nav {
+    font-size:0.72rem; font-weight:500; color:var(--gris-texto);
+    padding:8px 10px; border-radius:8px;
+    transition:all 0.15s;
+  }
+  .mock-nav.active-nav {
+    background:var(--verde-dim); color:var(--verde);
+    border:1px solid var(--verde-borde);
+  }
+
+  .mock-content {
+    flex:1; padding:20px; overflow:hidden;
+    display:flex; flex-direction:column; gap:14px;
+  }
+
+  /* KPI row */
+  .mock-kpi-row {
+    display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+  }
+  @media(max-width:700px){ .mock-kpi-row { grid-template-columns:repeat(2,1fr); } }
+
+  .mock-kpi {
+    background:var(--gris3,#1d242e);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:10px; padding:12px 14px;
+    position:relative; overflow:hidden;
+  }
+  .mock-kpi::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  }
+  .mock-kpi.verde::before { background:var(--verde); }
+  .mock-kpi.azul::before  { background:#4ea8f0; }
+  .mock-kpi.oro::before   { background:#d4a843; }
+  .mock-kpi.rojo::before  { background:#ff5c5c; }
+
+  .mk-label { font-size:0.62rem; color:var(--gris-texto); font-weight:600; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:5px; }
+  .mk-value {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.5rem; font-weight:700; line-height:1; margin-bottom:4px;
+  }
+  .mk-delta { font-size:0.62rem; color:var(--gris-texto); }
+  .mk-delta.up { color:var(--verde); }
+
+  /* Mini chart */
+  .mock-chart-row {
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; flex:1;
+  }
+  @media(max-width:600px){ .mock-chart-row { grid-template-columns:1fr; } }
+
+  .mock-chart-panel {
+    background:rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.04);
+    border-radius:10px; padding:12px 14px;
+    overflow:hidden;
+  }
+  .mc-title { font-size:0.68rem; font-weight:700; color:var(--gris-texto); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.06em; }
+
+  .mock-bars {
+    display:flex; align-items:flex-end; gap:5px; height:70px; margin-bottom:6px;
+  }
+  .mock-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; }
+  .mock-bar-inner {
+    width:100%; border-radius:4px 4px 0 0;
+    background:linear-gradient(180deg, var(--verde) 0%, rgba(0,230,118,0.35) 100%);
+    transition:height 1.2s cubic-bezier(.2,.8,.3,1);
+  }
+  .mock-bar-labels {
+    display:flex; gap:5px;
+  }
+  .mock-bar-labels span { flex:1; text-align:center; font-size:0.58rem; color:var(--gris-texto); }
+
+  /* Lead list */
+  .mock-lead-list { display:flex; flex-direction:column; gap:7px; }
+  .mock-lead-row {
+    display:flex; align-items:center; gap:8px;
+    padding:7px 8px; border-radius:8px;
+    background:rgba(255,255,255,0.025);
+    animation:leadSlideIn 0.4s ease both;
+  }
+  @keyframes leadSlideIn {
+    from { opacity:0; transform:translateX(10px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+  .ml-dot {
+    width:7px; height:7px; border-radius:50%; flex-shrink:0;
+  }
+  .ml-name { font-size:0.72rem; font-weight:600; flex:1; color:var(--blanco); }
+  .ml-service { font-size:0.62rem; color:var(--gris-texto); }
+  .ml-badge {
+    font-size:0.58rem; padding:2px 7px; border-radius:100px;
+    background:var(--verde-dim); color:var(--verde);
+    border:1px solid var(--verde-borde); font-weight:700;
+  }
+
+  /* Notification */
+  .mock-notif {
+    position:absolute; bottom:16px; right:16px;
+    background:var(--gris);
+    border:1px solid rgba(0,230,118,0.3);
+    border-radius:12px; padding:12px 16px;
+    display:flex; align-items:center; gap:12px;
+    box-shadow:0 8px 32px rgba(0,0,0,0.5);
+    max-width:340px;
+    animation:notifIn 0.4s cubic-bezier(.2,.8,.3,1);
+    z-index:10;
+  }
+  @keyframes notifIn {
+    from { opacity:0; transform:translateY(16px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .notif-icon { font-size:1.1rem; }
+  .notif-text { flex:1; }
+  .notif-text strong { display:block; font-size:0.78rem; color:var(--verde); margin-bottom:2px; }
+  .notif-text span   { font-size:0.7rem; color:var(--gris-texto); }
+  .notif-time { font-size:0.65rem; color:var(--gris-texto); white-space:nowrap; }
+
+  /* Floating chat */
+  .demo-chat-float {
+    position:absolute; right:20px; top:52px;
+    width:220px;
+    background:var(--gris);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px; overflow:hidden;
+    box-shadow:0 16px 48px rgba(0,0,0,0.5);
+    z-index:5;
+  }
+  @media(max-width:900px){ .demo-chat-float { display:none; } }
+
+  .dcf-header {
+    background:#0c1016; padding:10px 12px;
+    display:flex; align-items:center; gap:8px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+  }
+  .dcf-avatar {
+    width:26px; height:26px; border-radius:50%;
+    background:var(--verde-dim); border:1px solid var(--verde-borde);
+    display:flex; align-items:center; justify-content:center; font-size:0.75rem;
+  }
+  .dcf-name  { font-size:0.72rem; font-weight:700; }
+  .dcf-status{ font-size:0.6rem; color:var(--verde); }
+
+  .dcf-body {
+    padding:10px 10px 10px;
+    display:flex; flex-direction:column; gap:7px;
+    min-height:110px;
+  }
+  .dcf-msg {
+    max-width:90%; font-size:0.7rem; padding:7px 10px;
+    border-radius:10px; line-height:1.5;
+    animation:msgIn 0.3s ease;
+  }
+  .dcf-msg.bot {
+    background:rgba(255,255,255,0.07); color:var(--blanco);
+    align-self:flex-start; border-radius:3px 10px 10px 10px;
+  }
+  .dcf-msg.user {
+    background:var(--verde); color:var(--negro);
+    align-self:flex-end; border-radius:10px 3px 10px 10px; font-weight:600;
+  }
+
+  /* CTA below demo */
+  .demo-cta-row {
+    display:flex; align-items:center; gap:24px; flex-wrap:wrap;
+  }
+  .demo-cta-note { font-size:0.8rem; color:var(--gris-texto); }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo-wrap">
+    <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
+        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
+        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
+        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
+        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
+        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
+        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    <span class="logo-text"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
+  </a>
+  <div class="nav-right">
+    <a href="#features" class="nav-link">Funciones</a>
+    <a href="precios.html" class="nav-link">Precios</a>
+    <a href="dashboard.html" class="nav-link">Panel</a>
+    <a href="precios.html" class="nav-cta">Empezar →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-pill"><div class="hero-pill-dot"></div> Bot activo 24/7</div>
+    <h1>Automatiza mensajes<br>y convierte consultas<br>en <em>pacientes reales</em></h1>
+    <p class="hero-desc">
+      Capturamos datos de cada visitante automáticamente y avisamos a tu clínica al instante. Sin que se escape ni un solo cliente.
+    </p>
+    <div class="hero-btns">
+      <a href="precios.html" class="btn-hero primary">Ver planes →</a>
+      <a href="#demo" class="btn-hero ghost">Ver demo</a>
+    </div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">+94%</div><div class="stat-label">Leads capturados</div></div>
+      <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label">Bot activo</div></div>
+      <div class="stat-item"><div class="stat-num">&lt;10s</div><div class="stat-label">Aviso a la clínica</div></div>
+    </div>
+  </div>
+
+  <!-- CHAT WIDGET DEMO -->
+  <div class="chat-widget" id="demo">
+    <div class="chat-topbar">
+      <div class="chat-avatar">🦷</div>
+      <div>
+        <div class="chat-name">Asistente ReActiva</div>
+        <div class="chat-online">En línea</div>
+      </div>
+      <div class="win-dots">
+        <div class="win-dot"></div>
+        <div class="win-dot"></div>
+        <div class="win-dot" style="background:rgba(0,230,118,0.5)"></div>
+      </div>
+    </div>
+    <div class="chat-area" id="chatArea"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Escribe tu consulta...">
+      <button class="chat-send" id="sendBtn">➤</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── DEMO SECTION ── -->
+<section class="demo-section" id="demo-section">
+  <div class="demo-inner">
+    <div class="demo-label">Demo en vivo</div>
+    <h2 class="demo-title">Mira cómo funciona<br><em>en tiempo real</em></h2>
+    <p class="demo-sub">Así ve el equipo de la clínica cada conversación capturada. El bot trabaja, tú recibes los datos.</p>
+
+    <!-- MOCK DASHBOARD SCREENSHOT -->
+    <div class="demo-frame">
+      <!-- Barra de navegador falsa -->
+      <div class="browser-bar">
+        <div class="browser-dots">
+          <span class="bdot red"></span>
+          <span class="bdot yellow"></span>
+          <span class="bdot green"></span>
+        </div>
+        <div class="browser-url">reactiva.app/dashboard</div>
+      </div>
+
+      <!-- Dashboard mock -->
+      <div class="mock-dash">
+
+        <!-- Sidebar mock -->
+        <div class="mock-sidebar">
+          <div class="mock-logo">
+            <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
+        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
+        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
+        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
+        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
+        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
+        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+            <span class="mock-logo-text">ReActiva<span>.</span></span>
+          </div>
+          <div class="mock-nav active-nav">▦ Dashboard</div>
+          <div class="mock-nav">◎ Leads</div>
+          <div class="mock-nav">◷ Citas</div>
+          <div class="mock-nav">€ Facturación</div>
+        </div>
+
+        <!-- Content mock -->
+        <div class="mock-content">
+
+          <!-- KPIs -->
+          <div class="mock-kpi-row">
+            <div class="mock-kpi verde">
+              <div class="mk-label">Leads totales</div>
+              <div class="mk-value" id="demoLeads">0</div>
+              <div class="mk-delta up">▲ 3 nuevos hoy</div>
+            </div>
+            <div class="mock-kpi azul">
+              <div class="mk-label">Convertidos</div>
+              <div class="mk-value" id="demoConv">0</div>
+              <div class="mk-delta">esta semana</div>
+            </div>
+            <div class="mock-kpi oro">
+              <div class="mk-label">Conversión</div>
+              <div class="mk-value" id="demoTasa">0%</div>
+              <div class="mk-delta">del total</div>
+            </div>
+            <div class="mock-kpi rojo">
+              <div class="mk-label">Ingresos est.</div>
+              <div class="mk-value" id="demoRev">0€</div>
+              <div class="mk-delta up">▲ este mes</div>
+            </div>
+          </div>
+
+          <!-- Mini bar chart -->
+          <div class="mock-chart-row">
+            <div class="mock-chart-panel">
+              <div class="mc-title">Leads esta semana</div>
+              <div class="mock-bars" id="demoBars"></div>
+              <div class="mock-bar-labels">
+                <span>Lun</span><span>Mar</span><span>Mié</span>
+                <span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+              </div>
+            </div>
+            <div class="mock-chart-panel">
+              <div class="mc-title">Últimos leads</div>
+              <div class="mock-lead-list" id="demoLeadList"></div>
+            </div>
+          </div>
+
+          <!-- Notification badge animada -->
+          <div class="mock-notif" id="demoNotif" style="display:none">
+            <div class="notif-icon">🔔</div>
+            <div class="notif-text">
+              <strong>Nuevo lead capturado</strong>
+              <span id="notifName">Ana García · 612 345 678 · Blanqueamiento</span>
+            </div>
+            <div class="notif-time">ahora</div>
+          </div>
+
+        </div><!-- /mock-content -->
+      </div><!-- /mock-dash -->
+
+      <!-- Chat flotante encima -->
+      <div class="demo-chat-float">
+        <div class="dcf-header">
+          <div class="dcf-avatar">🦷</div>
+          <div>
+            <div class="dcf-name">Asistente</div>
+            <div class="dcf-status">● En línea</div>
+          </div>
+        </div>
+        <div class="dcf-body" id="dcfBody"></div>
+      </div>
+    </div><!-- /demo-frame -->
+
+    <!-- CTA bajo demo -->
+    <div class="demo-cta-row">
+      <a href="precios.html" class="btn-hero primary">Quiero esto para mi clínica →</a>
+      <span class="demo-cta-note">Instalación en menos de 24h · Sin conocimientos técnicos</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="section-label">Por qué ReActiva</div>
+  <h2 class="section-title">Todo lo que necesita tu clínica para no perder ni un cliente</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">◎</div>
+      <div class="feature-title">Captación Inteligente</div>
+      <div class="feature-desc">Convertimos cada conversación en un teléfono real. El bot recoge nombre, teléfono y servicio de interés automáticamente.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Aviso Instantáneo</div>
+      <div class="feature-desc">En cuanto entra un lead, tu equipo recibe una notificación por email. Cero retrasos, máxima conversión.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">▦</div>
+      <div class="feature-title">Panel de Métricas</div>
+      <div class="feature-desc">Visualiza en tiempo real cuántos leads entran, cuántos se convierten y cuántos ingresos genera el bot.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo-wrap" style="text-decoration:none">
+    <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
+        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
+        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
+        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
+        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
+        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
+        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    <span class="footer-copy" style="font-weight:700;color:var(--blanco);"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
+  </div>
+  <span class="footer-copy">© 2025 ReActiva Clínicas · Automatización Premium</span>
+  <div class="footer-links">
+    <a href="precios.html" class="footer-link">Precios</a>
+    <a href="dashboard.html" class="footer-link">Panel</a>
+  </div>
+</footer>
+
+<script>
+const BACKEND_URL = "https://reactiva-backend.up.railway.app";
+
+// ── DEMO ANIMATION ──
+const demoLeads = [
+  { name:"Ana García",    service:"Blanqueamiento", color:"#00e676" },
+  { name:"Carlos Ruiz",   service:"Ortodoncia",     color:"#4ea8f0" },
+  { name:"María López",   service:"Implantes",      color:"#d4a843" },
+  { name:"Pedro Sanz",    service:"Revisión",       color:"#00e676" },
+  { name:"Laura Díaz",    service:"Urgencia",       color:"#ff5c5c" },
+];
+
+const demoChatScript = [
+  { role:"bot",  text:"¡Hola! 👋 Soy el asistente. ¿En qué puedo ayudarte?" },
+  { role:"user", text:"Hola, me interesa el blanqueamiento" },
+  { role:"bot",  text:"¡Genial! Realizamos blanqueamiento profesional ✨ ¿Cómo te llamas?" },
+  { role:"user", text:"Soy Ana" },
+  { role:"bot",  text:"Encantados, Ana 😊 ¿Nos dejas tu teléfono?" },
+  { role:"user", text:"612 345 678" },
+  { role:"bot",  text:"Perfecto 🙌 Te llamamos hoy mismo. ¡Hasta pronto!" },
+];
+
+const barData = [2, 5, 3, 8, 6, 4, 7];
+
+let demoLeadCount = 0, demoConvCount = 0;
+
+function initDemoBars() {
+  const container = document.getElementById("demoBars");
+  if (!container) return;
+  container.innerHTML = "";
+  const max = Math.max(...barData);
+  barData.forEach(v => {
+    const wrap = document.createElement("div");
+    wrap.className = "mock-bar-wrap";
+    const bar = document.createElement("div");
+    bar.className = "mock-bar-inner";
+    bar.style.height = "4px";
+    wrap.appendChild(bar);
+    container.appendChild(wrap);
+    setTimeout(() => { bar.style.height = Math.round((v/max)*68) + "px"; }, 400);
+  });
+}
+
+function addDemoLead(lead) {
+  const list = document.getElementById("demoLeadList");
+  if (!list) return;
+  const row = document.createElement("div");
+  row.className = "mock-lead-row";
+  row.style.animationDelay = "0s";
+  row.innerHTML = `
+    <div class="ml-dot" style="background:${lead.color}"></div>
+    <div class="ml-name">${lead.name}</div>
+    <div class="ml-service">${lead.service}</div>
+    <div class="ml-badge">Nuevo</div>
+  `;
+  list.prepend(row);
+  if (list.children.length > 3) list.removeChild(list.lastChild);
+
+  demoLeadCount++;
+  demoConvCount = Math.round(demoLeadCount * 0.62);
+  animNum("demoLeads", demoLeadCount);
+  animNum("demoConv",  demoConvCount);
+  document.getElementById("demoTasa").textContent = Math.round(demoConvCount/demoLeadCount*100) + "%";
+  document.getElementById("demoRev").textContent  = (demoConvCount * 180) + "€";
+}
+
+function showNotif(lead) {
+  const n = document.getElementById("demoNotif");
+  if (!n) return;
+  document.getElementById("notifName").textContent = `${lead.name} · ${lead.service}`;
+  n.style.display = "flex";
+  setTimeout(() => { n.style.display = "none"; }, 3500);
+}
+
+function animNum(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  let cur = parseInt(el.textContent) || 0;
+  const step = () => {
+    if (cur < val) { cur++; el.textContent = cur; requestAnimationFrame(step); }
+  };
+  requestAnimationFrame(step);
+}
+
+function runChatDemo() {
+  const body = document.getElementById("dcfBody");
+  if (!body) return;
+  body.innerHTML = "";
+  let i = 0;
+  const next = () => {
+    if (i >= demoChatScript.length) {
+      setTimeout(() => { runChatDemo(); }, 4000);
+      return;
+    }
+    const m = demoChatScript[i];
+    const div = document.createElement("div");
+    div.className = `dcf-msg ${m.role}`;
+    div.textContent = m.text;
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    i++;
+    setTimeout(next, m.role === "bot" ? 1800 : 1200);
+  };
+  setTimeout(next, 800);
+}
+
+function runLeadDemo() {
+  let idx = 0;
+  const cycle = () => {
+    addDemoLead(demoLeads[idx % demoLeads.length]);
+    showNotif(demoLeads[idx % demoLeads.length]);
+    idx++;
+    setTimeout(cycle, 3800);
+  };
+  setTimeout(cycle, 2200);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initDemoBars();
+  runChatDemo();
+  runLeadDemo();
+  // seed initial values
+  document.getElementById("demoLeads").textContent = "0";
+  document.getElementById("demoConv").textContent  = "0";
+  document.getElementById("demoTasa").textContent  = "0%";
+  document.getElementById("demoRev").textContent   = "0€";
+});
+</script>
+<script src="script.js"></script>
+</body>
+</html>

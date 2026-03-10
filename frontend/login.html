@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceder | ReActiva Clínicas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --negro:      #07090d;
+  --blanco:     #f0ede8;
+  --verde:      #00e676;
+  --verde-dim:  rgba(0,230,118,0.1);
+  --verde-borde:rgba(0,230,118,0.28);
+  --gris:       #0f1318;
+  --gris2:      #161b22;
+  --gris3:      #1d242e;
+  --gris-texto: #6e7a8a;
+  --oro:        #d4a843;
+}
+
+/* ── Reset y body ── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);min-height:100vh;display:flex;overflow:hidden}
+
+/* ── LEFT PANEL ── */
+.left-panel{width:52%;position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:48px 56px;background:linear-gradient(135deg,#0a0f14 0%,#071209 100%);overflow:hidden}
+.left-panel::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,230,118,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.04) 1px,transparent 1px);background-size:60px 60px;animation:gridSlide 20s linear infinite}
+@keyframes gridSlide{from{transform:translate(0,0)}to{transform:translate(60px,60px)}}
+.left-panel::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle, rgba(0,230,118,0.12) 0%, transparent 70%);top:-100px;left:-100px;animation:orbPulse 6s ease-in-out infinite}
+@keyframes orbPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:0.7}}
+.left-content{position:relative;z-index:2}
+.left-logo{display:flex;align-items:center;gap:10px;margin-bottom:60px;text-decoration:none}
+.logo-text-login{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--blanco)}
+.logo-text-login span{color:var(--verde)}
+.left-headline{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,3.5vw,3.2rem);font-weight:700;line-height:1.1;margin-bottom:20px}
+.left-headline em{font-style:italic;color:var(--verde)}
+.left-desc{color:var(--gris-texto);font-size:0.9rem;line-height:1.75;max-width:380px;margin-bottom:48px}
+.testimonial{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px 28px;max-width:400px;position:relative}
+.testimonial::before{content:'"';position:absolute;top:-18px;left:20px;font-family:'Cormorant Garamond',serif;font-size:5rem;color:var(--verde);line-height:1;opacity:0.6}
+.test-text{font-size:0.88rem;color:#c5cdd8;line-height:1.7;margin-bottom:16px;margin-top:8px}
+.test-author{display:flex;align-items:center;gap:10px}
+.test-avatar{width:34px;height:34px;border-radius:50%;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.test-name{font-size:0.82rem;font-weight:700}
+.test-clinic{font-size:0.72rem;color:var(--gris-texto)}
+.left-stats{display:flex;gap:32px;margin-top:auto;padding-top:32px;border-top:1px solid rgba(255,255,255,0.06);position:relative;z-index:2}
+.lstat-num{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--verde);line-height:1}
+.lstat-label{font-size:0.7rem;color:var(--gris-texto);margin-top:3px}
+
+/* ── RIGHT PANEL ── */
+.right-panel{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 56px;background:var(--negro);position:relative}
+.form-card{width:100%;max-width:400px;animation:formReveal 0.7s cubic-bezier(.2,.8,.3,1) both}
+@keyframes formReveal{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.form-eyebrow{font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--verde);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.form-eyebrow::before{content:'';width:20px;height:1px;background:var(--verde);opacity:0.5}
+.form-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;line-height:1.1;margin-bottom:8px}
+.form-sub{color:var(--gris-texto);font-size:0.85rem;margin-bottom:36px;line-height:1.6}
+.field-group{margin-bottom:16px}
+.field-label{display:block;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:8px}
+.field-wrap{position:relative}
+.field-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--gris-texto);pointer-events:none}
+.field-input{width:100%;padding:13px 14px 13px 40px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:0.9rem;outline:none;transition:all 0.25s}
+.field-input:focus{border-color:var(--verde);background:rgba(0,230,118,0.04);box-shadow:0 0 0 3px rgba(0,230,118,0.08)}
+.field-input::placeholder{color:rgba(110,122,138,0.7)}
+.pass-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gris-texto);cursor:pointer;font-size:0.85rem;transition:color 0.2s;padding:0}
+.pass-toggle:hover{color:var(--blanco)}
+.btn-login{width:100%;padding:15px;background:var(--verde);color:var(--negro);border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;letter-spacing:0.03em;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden}
+.btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.15) 50%,transparent 100%);transform:translateX(-100%);transition:transform 0.5s}
+.btn-login:hover::before{transform:translateX(100%)}
+.btn-login:hover{background:#1fffa0;box-shadow:0 8px 32px rgba(0,230,118,0.4);transform:translateY(-2px)}
+.btn-login:active{transform:translateY(0)}
+.btn-spinner{display:none;width:18px;height:18px;border:2px solid rgba(0,0,0,0.2);border-top-color:var(--negro);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--gris-texto);font-size:0.75rem}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
+.signup-link{text-align:center;font-size:0.82rem;color:var(--gris-texto);margin-top:20px}
+.signup-link a{color:var(--verde);text-decoration:none;font-weight:600}
+.signup-link a:hover{text-decoration:underline}
+#otpBox{display:none}
+
+/* Mobile */
+@media(max-width:800px){.left-panel{display:none}.right-panel{padding:40px 24px}}
+</style>
+</head>
+<body>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="left-content">
+    <a href="index.html" class="left-logo">
+      <svg width="34" height="34" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
+        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
+        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
+        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
+        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
+        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
+        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="logo-text-login"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
+    </a>
+    <h2 class="left-headline">Tu clínica nunca<br>pierde un cliente<br><em>mientras duermes</em></h2>
+    <p class="left-desc">El bot trabaja 24/7 capturando leads, recogiendo datos y notificando a tu equipo al instante.</p>
+
+    <div class="testimonial">
+      <p class="test-text">Desde que instalamos ReActiva captamos un 40% más de consultas. El bot responde mientras el equipo está ocupado y nunca pierde un contacto.</p>
+      <div class="test-author">
+        <div class="test-avatar">MC</div>
+        <div>
+          <div class="test-name">María Castillo</div>
+          <div class="test-clinic">Clínica Dental Castillo · Madrid</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="left-stats">
+    <div><div class="lstat-num">+94%</div><div class="lstat-label">Leads capturados</div></div>
+    <div><div class="lstat-num">24/7</div><div class="lstat-label">Bot activo</div></div>
+    <div><div class="lstat-num">&lt;10s</div><div class="lstat-label">Aviso al equipo</div></div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="form-card">
+
+    <!-- LOGO en el formulario -->
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:28px;">
+      <svg width="34" height="34" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
+        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
+        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
+        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
+        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
+        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
+        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
+        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span style="font-weight:700;color:#fff;font-size:1.2rem">ReActiva</span>
+    </a>
+
+    <span class="form-eyebrow">Accede a tu panel</span>
+    <h2 class="form-title">Bienvenido</h2>
+    <p class="form-sub">Introduce tu correo y recibe un código para acceder.</p>
+
+    <!-- FORMULARIO OTP -->
+    <div class="field-group">
+      <label class="field-label">Correo electrónico</label>
+      <div class="field-wrap">
+        <input type="email" id="email" class="field-input" placeholder="tucorreo@dominio.com" required>
+      </div>
+    </div>
+
+    <div class="field-group" id="otpBox">
+      <label class="field-label">Código OTP</label>
+      <div class="field-wrap">
+        <input type="text" id="otp" class="field-input" placeholder="123456">
+      </div>
+    </div>
+
+    <button class="btn-login" id="btnSend">Enviar código</button>
+
+  </div>
+</div>
+
+<!-- WIDGET -->
+<div id="reactiva-widget" data-clinic-id="1" data-color="#00e676" data-nombre="Asistente"></div>
+
+<script>
+const API = "https://reactiva-backend.up.railway.app";
+
+const emailInput = document.getElementById("email");
+const otpBox = document.getElementById("otpBox");
+const otpInput = document.getElementById("otp");
+const btnSend = document.getElementById("btnSend");
+
+btnSend.addEventListener("click", async () => {
+  if (otpBox.style.display === "none") {
+    // Enviar OTP
+    if (!emailInput.value) return alert("Ingresa tu correo");
+    await fetch(API + "/api/request-otp", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email: emailInput.value})
+    });
+    alert("Código enviado");
+    otpBox.style.display = "block";
+    btnSend.textContent = "Verificar código";
+  } else {
+    // Verificar OTP
+    if (!otpInput.value) return alert("Ingresa el código OTP");
+    const res = await fetch(API + "/api/verify-otp", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email: emailInput.value, code: otpInput.value})
+    });
+    const data = await res.json();
+    if (data.token) {
+      localStorage.setItem("reactiva_token", data.token);
+      window.location.href = "dashboard.html";
+    } else {
+      alert("Código incorrecto");
+    }
+  }
+});
+</script>
+</body>
+</html>
