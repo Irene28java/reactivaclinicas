@@ -9,6 +9,7 @@ const db         = require('./database');
 const authRoutes    = require('./routes/auth');
 const leadsRoutes   = require('./routes/leads');
 const authMiddleware = require('./middleware/auth');
+const webhookRoutes  = require('./routes/webhook');   // ← NUEVO
 
 const app    = express();
 const server = http.createServer(app);
@@ -16,7 +17,21 @@ const server = http.createServer(app);
 // ══════════════════════════════════════════════
 // MIDDLEWARE
 // ══════════════════════════════════════════════
-app.use(express.json());
+
+// ─── CAMBIO: el webhook de Meta necesita body sin parsear ───
+app.use((req, res, next) => {
+    if (req.path === '/webhook') {
+        express.raw({ type: '*/*' })(req, res, () => {
+            if (Buffer.isBuffer(req.body)) {
+                try { req.body = JSON.parse(req.body.toString()); }
+                catch(e) { req.body = {}; }
+            }
+            next();
+        });
+    } else {
+        express.json()(req, res, next);
+    }
+});
 app.use(express.urlencoded({ extended: true }));
 
 const allowedOrigins = (process.env.FRONTEND_URL || "*").split(",").map(o => o.trim());
@@ -44,7 +59,6 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
     console.log("🔌 Cliente conectado:", socket.id);
 
-    // El dashboard se une a la sala de su clínica al conectar
     socket.on("join_clinic", (clinic_id) => {
         socket.join(`clinic_${clinic_id}`);
         console.log(`Dashboard clínica ${clinic_id} conectado`);
@@ -53,7 +67,6 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => console.log("🔌 Cliente desconectado:", socket.id));
 });
 
-// Hacer io accesible desde las rutas
 app.set("io", io);
 
 // ══════════════════════════════════════════════
@@ -63,7 +76,7 @@ const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS   // App Password de Gmail
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -87,7 +100,6 @@ function sendEmail(to, text, subject = "Nuevo lead en ReActiva") {
     }).catch(err => console.error("Email error:", err.message));
 }
 
-// Hacer sendEmail accesible desde las rutas
 app.set("sendEmail", sendEmail);
 
 // ══════════════════════════════════════════════
@@ -95,8 +107,8 @@ app.set("sendEmail", sendEmail);
 // ══════════════════════════════════════════════
 app.use("/api/auth",  authRoutes);
 app.use("/api/leads", leadsRoutes);
+app.use("/webhook",   webhookRoutes);   // ← NUEVO
 
-// ── Healthcheck (Railway lo usa para saber si el servicio está vivo)
 app.get("/", (req, res) => res.json({ status: "ok", service: "ReActiva API", version: "1.0.0" }));
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 
@@ -119,13 +131,19 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
                 : 0;
             const totalRevenue   = pagos.reduce((acc, p) => acc + (p.amount || 0), 0);
 
-            // Leads por día (últimos 7 días)
-            const hoy     = new Date();
-            const byDay   = Array(7).fill(0);
+            const hoy   = new Date();
+            const byDay = Array(7).fill(0);
             leads.forEach(l => {
                 const d    = new Date(l.timestamp);
                 const diff = Math.floor((hoy - d) / 86400000);
                 if (diff >= 0 && diff < 7) byDay[6 - diff]++;
+            });
+
+            // ─── Desglose por canal ───────────────
+            const porCanal = { web: 0, facebook: 0, instagram: 0 };
+            leads.forEach(l => {
+                const c = l.canal || "web";
+                porCanal[c] = (porCanal[c] || 0) + 1;
             });
 
             res.json({
@@ -134,6 +152,7 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
                 conversionRate,
                 totalRevenue,
                 byDay,
+                porCanal,                                    // ← NUEVO
                 newLeads: leads.filter(l => l.status === "new").length
             });
         });
@@ -141,7 +160,7 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
 });
 
 // ══════════════════════════════════════════════
-// PAGO / PLAN  — recibe datos de PayPal desde el frontend
+// PAGO / PLAN
 // ══════════════════════════════════════════════
 app.post('/api/payment', authMiddleware, (req, res) => {
     const clinicId = req.user.id;
@@ -152,21 +171,18 @@ app.post('/api/payment', authMiddleware, (req, res) => {
     const planName   = plan   || "premium";
     const planAmount = amount || 500;
 
-    // Guardar pago
     db.run(
         `INSERT INTO pagos (clinic_id,email,amount,plan,paypal_order_id,created_at) VALUES (?,?,?,?,?,?)`,
         [clinicId, req.user.email || "", planAmount, planName, paypal_order_id, new Date().toISOString()],
         function(err) {
             if (err) return res.status(500).json({ error: "Error guardando pago" });
 
-            // Actualizar plan del usuario
             db.run(
                 `UPDATE users SET plan=?, paypal_order_id=? WHERE id=?`,
                 [planName, paypal_order_id, clinicId],
                 function(err2) {
                     if (err2) return res.status(500).json({ error: "Error actualizando plan" });
 
-                    // Email de confirmación
                     db.get(`SELECT email, clinic_name FROM users WHERE id=?`, [clinicId], (e, user) => {
                         if (user) {
                             sendEmail(
@@ -200,4 +216,5 @@ server.listen(PORT, () => {
     console.log(`🚀 ReActiva API corriendo en puerto ${PORT}`);
     console.log(`   Frontend URL: ${process.env.FRONTEND_URL || "*"}`);
     console.log(`   Email: ${process.env.EMAIL_USER || "no configurado"}`);
+    console.log(`   Webhook: /webhook activo`);
 });
