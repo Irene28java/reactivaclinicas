@@ -17,52 +17,76 @@ const dashboardRoutes = require("./routes/dashboard");
 const webhookRoutes  = require("./routes/webhook");
 const pagosRouter = require("./routes/pagos");
 
-const authMiddleware = require("./middleware/auth");
 const reminders = require("./reminders");
 
 const app = express();
 const server = http.createServer(app);
+
 const JWT_SECRET = process.env.JWT_SECRET || "reactiva_secret";
 
-// ───── MIDDLEWARE ─────
-// ───── MIDDLEWARE ─────
+
+// ─────────────────────────────
+// BODY PARSER (IMPORTANTE WEBHOOK)
+// ─────────────────────────────
 app.use((req, res, next) => {
-  if (req.path === '/webhook') {
-    express.raw({ type: '*/*' })(req, res, () => {
+
+  if (req.path === "/webhook") {
+
+    express.raw({ type: "*/*" })(req, res, () => {
+
       if (Buffer.isBuffer(req.body)) {
-        try { req.body = JSON.parse(req.body.toString()); }
-        catch(e) { req.body = {}; }
+        try {
+          req.body = JSON.parse(req.body.toString());
+        } catch {
+          req.body = {};
+        }
       }
+
       next();
+
     });
+
   } else {
+
     express.json()(req, res, next);
+
   }
+
 });
+
 app.use(express.urlencoded({ extended: true }));
 
+
+// ─────────────────────────────
 // CORS
+// ─────────────────────────────
 const allowedOrigins = (process.env.FRONTEND_URL || "*")
   .split(",")
   .map(o => o.trim());
 
 app.use(cors({
   origin: (origin, callback) => {
+
     if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("CORS bloqueado " + origin));
+      callback(new Error("CORS bloqueado: " + origin));
     }
+
   },
   credentials: true
 }));
 
-// ───── SOCKET.IO ─────
+
+// ─────────────────────────────
+// SOCKET.IO
+// ─────────────────────────────
 const io = new Server(server, {
   cors: { origin: allowedOrigins.includes("*") ? "*" : allowedOrigins }
 });
 
 io.on("connection", (socket) => {
+
   console.log("Cliente conectado", socket.id);
 
   socket.on("join_clinic", (clinicId) => {
@@ -72,11 +96,15 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Cliente desconectado");
   });
+
 });
 
 app.set("io", io);
 
-// ───── EMAIL ─────
+
+// ─────────────────────────────
+// EMAIL
+// ─────────────────────────────
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -86,47 +114,80 @@ const transporter = nodemailer.createTransport({
 });
 
 function sendEmail(to, text, subject = "ReActiva") {
+
   if (!process.env.EMAIL_USER) return;
+
   transporter.sendMail({
     from: `"ReActiva Clínicas" <${process.env.EMAIL_USER}>`,
     to,
     subject,
-    html: `<div style="font-family:sans-serif;padding:30px">
-             <h2 style="color:#00e676">${subject}</h2>
-             <p>${text}</p>
-           </div>`
+    html: `
+      <div style="font-family:sans-serif;padding:30px">
+        <h2 style="color:#00e676">${subject}</h2>
+        <p>${text}</p>
+      </div>
+    `
   });
+
 }
 
 app.set("sendEmail", sendEmail);
 
-// ───── OTP LOGIN ─────
+
+// ─────────────────────────────
+// OTP LOGIN
+// ─────────────────────────────
 const otpStore = {};
 const otpRequests = {};
-const otpLimiter = rateLimit({ windowMs: 60000, max: 5 });
+
+const otpLimiter = rateLimit({
+  windowMs: 60000,
+  max: 5
+});
 
 function generarOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+
 app.post("/api/request-otp", otpLimiter, (req, res) => {
+
   const { email } = req.body;
-  if (!email) return res.status(400).json({ error: "Email requerido" });
+
+  if (!email) {
+    return res.status(400).json({ error: "Email requerido" });
+  }
 
   const now = Date.now();
-  if (otpRequests[email] && now - otpRequests[email] < 60000)
+
+  if (otpRequests[email] && now - otpRequests[email] < 60000) {
     return res.status(429).json({ error: "Espera 1 minuto" });
+  }
 
   const code = generarOTP();
-  otpStore[email] = { code, expires: now + 15 * 60_000 };
+
+  otpStore[email] = {
+    code,
+    expires: now + 15 * 60_000
+  };
+
   otpRequests[email] = now;
 
-  sendEmail(email, `Tu código de acceso es: <b>${code}</b><br>Válido 15 minutos`, "Tu código de acceso ReActiva");
+  sendEmail(
+    email,
+    `Tu código de acceso es: <b>${code}</b><br>Válido 15 minutos`,
+    "Tu código de acceso ReActiva"
+  );
+
   res.json({ success: true });
+
 });
 
+
 app.post("/api/verify-otp", (req, res) => {
+
   const { email, code } = req.body;
+
   const record = otpStore[email];
 
   if (!record) return res.status(400).json({ error: "OTP inválido" });
@@ -136,69 +197,96 @@ app.post("/api/verify-otp", (req, res) => {
   delete otpStore[email];
 
   db.get(`SELECT * FROM users WHERE email=?`, [email], (err, user) => {
+
     if (err) return res.status(500).json({ error: "DB error" });
     if (!user) return res.status(404).json({ error: "Usuario no existe" });
 
-    const token = jwt.sign({ id: user.id, email: user.email, plan: user.plan }, JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign(
+      { id: user.id, email: user.email, plan: user.plan },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     res.json({ token });
+
   });
+
 });
 
-// ───── RUTAS ─────
+
+// ─────────────────────────────
+// RUTAS API
+// ─────────────────────────────
 app.use("/api/leads", leadsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/webhook", webhookRoutes);
 app.use("/api/pagos", pagosRouter);
-// ───── CHAT WEB ─────
-const sesionesWeb = {};
+app.use("/webhook", webhookRoutes);
 
+
+// ─────────────────────────────
+// CHAT WEB (SIMULADOR BOT)
+// ─────────────────────────────
 app.post("/api/chat", (req, res) => {
-    const { message, sessionId } = req.body;
-    if (!message || !sessionId) return res.status(400).json({ error: "Faltan datos" });
 
-    const webhookRouter = require("./routes/webhook");
+  const { message, sessionId } = req.body;
 
-    // Reutilizamos la lógica del bot creando un objeto req/res simulado
-    const fakeReq = {
-        body: {
-            object: "page",
-            entry: [{
-                id: "web",
-                messaging: [{
-                    sender: { id: sessionId },
-                    message: { text: message }
-                }]
-            }]
-        },
-        app: req.app
-    };
+  if (!message || !sessionId) {
+    return res.status(400).json({ error: "Faltan datos" });
+  }
 
-    // Capturamos la respuesta del bot
-    let reply = "Gracias por tu mensaje 🙌";
+  const webhookRouter = require("./routes/webhook");
 
-    const originalEnviar = global._enviarMensajeCapture;
-    global._enviarMensajeCapture = (recipientId, texto) => {
-        if (recipientId === sessionId) reply = texto;
-    };
+  let reply = "Gracias por tu mensaje 🙌";
 
-    // Procesamos el mensaje y devolvemos la respuesta
-    setTimeout(() => {
-        global._enviarMensajeCapture = originalEnviar;
-        res.json({ reply });
-    }, 300);
+  if (webhookRouter.handleWebMessage) {
 
-    webhookRouter.handleWebMessage && webhookRouter.handleWebMessage(sessionId, message, req, (respuesta) => {
+    webhookRouter.handleWebMessage(
+      sessionId,
+      message,
+      req,
+      (respuesta) => {
         reply = respuesta;
-    });
-});
-// ───── HEALTHCHECK ─────
-app.get("/", (req, res) => res.json({ status: "ok", service: "ReActiva API" }));
-app.get("/health", (req, res) => res.json({ status: "ok" }));
+      }
+    );
 
-// ───── REMINDERS ─────
+  }
+
+  setTimeout(() => {
+
+    res.json({ reply });
+
+  }, 200);
+
+});
+
+
+// ─────────────────────────────
+// HEALTHCHECK
+// ─────────────────────────────
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    service: "ReActiva API"
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+
+// ─────────────────────────────
+// RECORDATORIOS
+// ─────────────────────────────
 reminders.init(app);
 
-// ───── START ─────
+
+// ─────────────────────────────
+// START SERVER
+// ─────────────────────────────
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log("API corriendo puerto", PORT));
+
+server.listen(PORT, () => {
+  console.log("API corriendo en puerto", PORT);
+});
