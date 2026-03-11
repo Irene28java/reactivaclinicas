@@ -15,7 +15,7 @@ const leadsRoutes = require("./routes/leads");
 const authRoutes  = require("./routes/auth");
 const dashboardRoutes = require("./routes/dashboard");
 const webhookRoutes  = require("./routes/webhook");
-// const pagosRouter = require("./routes/pagos"); // si lo vas a usar
+const pagosRouter = require("./routes/pagos");
 
 const authMiddleware = require("./middleware/auth");
 const reminders = require("./reminders");
@@ -25,7 +25,20 @@ const server = http.createServer(app);
 const JWT_SECRET = process.env.JWT_SECRET || "reactiva_secret";
 
 // ───── MIDDLEWARE ─────
-app.use(express.json());
+// ───── MIDDLEWARE ─────
+app.use((req, res, next) => {
+  if (req.path === '/webhook') {
+    express.raw({ type: '*/*' })(req, res, () => {
+      if (Buffer.isBuffer(req.body)) {
+        try { req.body = JSON.parse(req.body.toString()); }
+        catch(e) { req.body = {}; }
+      }
+      next();
+    });
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: true }));
 
 // CORS
@@ -136,8 +149,49 @@ app.use("/api/leads", leadsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/webhook", webhookRoutes);
-// app.use("/api/pagos", pagosRouter); // activar si existe
+app.use("/api/pagos", pagosRouter);
+// ───── CHAT WEB ─────
+const sesionesWeb = {};
 
+app.post("/api/chat", (req, res) => {
+    const { message, sessionId } = req.body;
+    if (!message || !sessionId) return res.status(400).json({ error: "Faltan datos" });
+
+    const webhookRouter = require("./routes/webhook");
+
+    // Reutilizamos la lógica del bot creando un objeto req/res simulado
+    const fakeReq = {
+        body: {
+            object: "page",
+            entry: [{
+                id: "web",
+                messaging: [{
+                    sender: { id: sessionId },
+                    message: { text: message }
+                }]
+            }]
+        },
+        app: req.app
+    };
+
+    // Capturamos la respuesta del bot
+    let reply = "Gracias por tu mensaje 🙌";
+
+    const originalEnviar = global._enviarMensajeCapture;
+    global._enviarMensajeCapture = (recipientId, texto) => {
+        if (recipientId === sessionId) reply = texto;
+    };
+
+    // Procesamos el mensaje y devolvemos la respuesta
+    setTimeout(() => {
+        global._enviarMensajeCapture = originalEnviar;
+        res.json({ reply });
+    }, 300);
+
+    webhookRouter.handleWebMessage && webhookRouter.handleWebMessage(sessionId, message, req, (respuesta) => {
+        reply = respuesta;
+    });
+});
 // ───── HEALTHCHECK ─────
 app.get("/", (req, res) => res.json({ status: "ok", service: "ReActiva API" }));
 app.get("/health", (req, res) => res.json({ status: "ok" }));

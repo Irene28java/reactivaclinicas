@@ -5,7 +5,7 @@
 
 [build]
   # El directorio donde están tus archivos HTML/JS/CSS
-  publish = "frontend"
+  publish = "reactivaclinicas"
 
 # Redirige llamadas a tu backend en Railway
 [[redirects]]

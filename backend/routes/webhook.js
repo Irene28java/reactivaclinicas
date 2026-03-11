@@ -3,14 +3,6 @@
 //  Bot multi-clínica / multi-especialidad
 //  Sin LLM — respuestas naturales por especialidad
 //
-//  Mejoras v2:
-//  - Textos cálidos y específicos por tipo de clínica
-//  - Urgencia → salta al teléfono directo
-//  - Precio / presupuesto → respuesta específica
-//  - Despedidas, agradecimientos
-//  - Variaciones de respuesta (no suena robótico)
-//  - Reintento amable si no entiende (max 2 veces)
-//
 //  FLUJO:
 //  inicio → servicio → nombre → telefono → horario → confirmacion → confirmado
 // ══════════════════════════════════════════════
@@ -82,14 +74,14 @@ const ESPECIALIDADES = {
         respPrecio : "Los precios dependen de la zona y el número de sesiones. Te hacemos una valoración gratuita y te preparamos un presupuesto personalizado sin compromiso 😊\n\n¿Te apunto para la valoración?",
         respUrgencia: "Cuéntame qué ocurre y te ayudo lo antes posible 😊 ¿Cuál es tu teléfono?",
         respServicio: {
-            "Bótox / Rellenos"        : "El bótox y los rellenos con ácido hialurónico son rápidos, sin cirugía y con resultados naturales 💉 La sesión dura unos 30 minutos.",
-            "Tratamiento facial"      : "Nuestros tratamientos faciales están personalizados según tu tipo de piel ✨ Incluyen diagnóstico previo gratuito.",
-            "Mesoterapia"             : "La mesoterapia aporta vitaminas y activos directamente a la piel, con resultados visibles desde la primera sesión 🌊",
-            "Reducción corporal"      : "Combinamos cavitación y radiofrecuencia para eliminar grasa localizada y reafirmar la piel 🔥 Resultados visibles desde la 3ª sesión.",
-            "Depilación láser"        : "Con láser diodo eliminamos el vello de forma definitiva en todas las zonas del cuerpo 🌟 La sesión es prácticamente indolora.",
+            "Bótox / Rellenos"          : "El bótox y los rellenos con ácido hialurónico son rápidos, sin cirugía y con resultados naturales 💉 La sesión dura unos 30 minutos.",
+            "Tratamiento facial"        : "Nuestros tratamientos faciales están personalizados según tu tipo de piel ✨ Incluyen diagnóstico previo gratuito.",
+            "Mesoterapia"               : "La mesoterapia aporta vitaminas y activos directamente a la piel, con resultados visibles desde la primera sesión 🌊",
+            "Reducción corporal"        : "Combinamos cavitación y radiofrecuencia para eliminar grasa localizada y reafirmar la piel 🔥 Resultados visibles desde la 3ª sesión.",
+            "Depilación láser"          : "Con láser diodo eliminamos el vello de forma definitiva en todas las zonas del cuerpo 🌟 La sesión es prácticamente indolora.",
             "Uñas / Manicura / Pedicura": "Trabajamos con las mejores marcas y técnicas para que tus manos y pies luzcan perfectos 💅",
-            "Microblading / Pestañas" : "El microblading da volumen y forma natural a tus cejas durante 1-2 años 👁 Hacemos un diseño personalizado previo.",
-            "Masaje / Relajación"     : "Nuestros masajes terapéuticos y relajantes son perfectos para desconectar y cuidar tu cuerpo 💆",
+            "Microblading / Pestañas"   : "El microblading da volumen y forma natural a tus cejas durante 1-2 años 👁 Hacemos un diseño personalizado previo.",
+            "Masaje / Relajación"       : "Nuestros masajes terapéuticos y relajantes son perfectos para desconectar y cuidar tu cuerpo 💆",
         }
     },
 
@@ -166,14 +158,14 @@ const ESPECIALIDADES = {
             "¡Hola! 😊 Estoy aquí para ayudarte. ¿Qué problema quieres tratar con fisioterapia?"
         ],
         servicios: [
-            { emoji:"🦴", label:"Dolor de espalda / columna",     keys:["espalda","lumbar","cervical","columna","hernia","ciática","lumbago","dolor espalda","contractura espalda"] },
-            { emoji:"🦵", label:"Rodilla / cadera / pierna",      keys:["rodilla","cadera","pierna","menisco","ligamento","femur","tibia","tobillo","pie"] },
-            { emoji:"💪", label:"Hombro / cuello / brazo",        keys:["hombro","cuello","brazo","manguito","tendinitis","codo","muñeca","túnel carpiano"] },
-            { emoji:"⚡", label:"Lesión deportiva",               keys:["deportiva","esguince","rotura","fibra","contractura","distensión","desgarro","corredor","atleta"] },
-            { emoji:"🤰", label:"Suelo pélvico",                  keys:["pélvico","pelvico","suelo pélvico","postparto","incontinencia","embarazo","diastasis","vulvodinia"] },
-            { emoji:"🧘", label:"Osteopatía",                     keys:["osteopatía","osteopatia","osteopata","visceral","craneal","sacro","fascia"] },
-            { emoji:"💆", label:"Masaje terapéutico",             keys:["masaje terapéutico","miofascial","trigger","puntos gatillo","tejido blando","myofascial"] },
-            { emoji:"🏃", label:"Rehabilitación postoperatoria",  keys:["rehabilitación","rehabilitacion","postoperatorio","operación","cirugía","prótesis","recuperación"] },
+            { emoji:"🦴", label:"Dolor de espalda / columna",    keys:["espalda","lumbar","cervical","columna","hernia","ciática","lumbago","dolor espalda","contractura espalda"] },
+            { emoji:"🦵", label:"Rodilla / cadera / pierna",     keys:["rodilla","cadera","pierna","menisco","ligamento","femur","tibia","tobillo","pie"] },
+            { emoji:"💪", label:"Hombro / cuello / brazo",       keys:["hombro","cuello","brazo","manguito","tendinitis","codo","muñeca","túnel carpiano"] },
+            { emoji:"⚡", label:"Lesión deportiva",              keys:["deportiva","esguince","rotura","fibra","contractura","distensión","desgarro","corredor","atleta"] },
+            { emoji:"🤰", label:"Suelo pélvico",                 keys:["pélvico","pelvico","suelo pélvico","postparto","incontinencia","embarazo","diastasis","vulvodinia"] },
+            { emoji:"🧘", label:"Osteopatía",                    keys:["osteopatía","osteopatia","osteopata","visceral","craneal","sacro","fascia"] },
+            { emoji:"💆", label:"Masaje terapéutico",            keys:["masaje terapéutico","miofascial","trigger","puntos gatillo","tejido blando","myofascial"] },
+            { emoji:"🏃", label:"Rehabilitación postoperatoria", keys:["rehabilitación","rehabilitacion","postoperatorio","operación","cirugía","prótesis","recuperación"] },
         ],
         respPrecio : "El precio por sesión depende del tratamiento. Te lo confirmo cuando me cuentes qué dolencia tienes 😊\n\n¿Te gestiono la primera cita?",
         respUrgencia: "Entiendo que tienes dolor 😔 Danos tu teléfono y te llamamos hoy mismo para darte cita urgente.",
@@ -236,7 +228,7 @@ router.get("/", (req, res) => {
 });
 
 // ═════════════════════════════════════════════
-// MENSAJES ENTRANTES
+// MENSAJES ENTRANTES META (FB/IG)
 // ═════════════════════════════════════════════
 router.post("/", (req, res) => {
     res.sendStatus(200);
@@ -261,7 +253,7 @@ router.post("/", (req, res) => {
             console.log(`📨 [${canal}][page:${pageId}] ${senderId}: "${texto}"`);
 
             getClinicaPorPageId(pageId, (err, clinica) => {
-                procesarMensaje(req, senderId, texto.trim(), canal, clinica);
+                procesarMensaje(req, senderId, texto.trim(), canal, clinica, null);
             });
         });
     });
@@ -284,7 +276,7 @@ function getSesion(id, tipo) {
             horarios    : [],
             horaElegida : null,
             fechaElegida: null,
-            reintentos  : 0,   // cuenta intentos fallidos en un paso
+            reintentos  : 0,
         };
     }
     return sesiones[id];
@@ -294,42 +286,46 @@ function resetSesion(id) { delete sesiones[id]; }
 
 // ═════════════════════════════════════════════
 // MOTOR DEL FLUJO
+// callback(respuesta) → solo se usa desde el chat web
+// cuando es FB/IG, callback es null y se usa enviarMensaje()
 // ═════════════════════════════════════════════
-function procesarMensaje(req, senderId, texto, canal, clinica) {
+function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
     const tipo   = clinica.tipo || ESPECIALIDAD_DEFAULT;
     const esp    = ESPECIALIDADES[tipo] || ESPECIALIDADES[ESPECIALIDAD_DEFAULT];
     const sesion = getSesion(senderId, tipo);
     const t      = texto.toLowerCase().trim();
 
-    // ── Detectores globales (funcionan en cualquier paso) ──
+    // Función helper: responde por callback (web) o por Meta API (FB/IG)
+    function responder(msg) {
+        if (callback) return callback(msg);
+        enviarMensaje(senderId, msg);
+    }
 
-    // Despedida
+    // ── Detectores globales ──
+
     if (/^(adiós|adios|hasta luego|bye|chao|ciao|gracias y adiós|hasta pronto|nos vemos)$/.test(t)) {
-        return enviarMensaje(senderId, pick([
+        return responder(pick([
             "¡Hasta pronto! 😊 Ha sido un placer atenderte. Que tengas un buen día.",
             "¡Hasta luego! 👋 Cuando quieras puedes escribirnos. ¡Cuídate!",
             "¡Adiós! 😊 Si necesitas algo más no dudes en escribirnos."
         ]));
     }
 
-    // Solo gracias
     if (/^(gracias+|muchas gracias|thank you|genial gracias|ok gracias|perfecto gracias)$/.test(t)) {
         if (sesion.paso === "confirmado") {
-            return enviarMensaje(senderId, `¡A ti! 😊 Te esperamos el ${sesion.fechaElegida} a las ${sesion.horaElegida}. Hasta pronto 👋`);
+            return responder(`¡A ti! 😊 Te esperamos el ${sesion.fechaElegida} a las ${sesion.horaElegida}. Hasta pronto 👋`);
         }
-        return enviarMensaje(senderId, pick([
+        return responder(pick([
             "¡De nada! 😊 ¿Hay algo más en lo que pueda ayudarte?",
             "¡Con mucho gusto! 😊 ¿Necesitas algo más?",
         ]));
     }
 
-    // Precio / presupuesto (solo si no está ya en el flujo avanzado)
     if (["precio","precios","cuánto","cuanto","cuánto cuesta","coste","presupuesto","tarifas","tarifa"].some(p => t.includes(p))
         && !["horario","confirmacion","confirmado"].includes(sesion.paso)) {
-        return enviarMensaje(senderId, esp.respPrecio);
+        return responder(esp.respPrecio);
     }
 
-    // Urgencia (salta al teléfono directo)
     if (esp.servicios.find(s => s.label.toLowerCase().includes("urgencia"))
         && ["urgencia","urgente","dolor","duele","mucho dolor","dolor fuerte","ayuda"].some(p => t.includes(p))
         && !["horario","confirmacion","confirmado"].includes(sesion.paso)) {
@@ -338,17 +334,16 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
                           || esp.servicios[0].label;
         sesion.paso     = "telefono";
         guardarLead(req, senderId, canal, clinica, sesion, texto);
-        return enviarMensaje(senderId, esp.respUrgencia);
+        return responder(esp.respUrgencia);
     }
 
-    // Reinicio por saludo
     const saludos = ["hola","buenas","buenos días","buenos","hey","hi","buenas tardes","buenas noches","inicio","start","menú","menu","empezar","reiniciar"];
     if (saludos.some(p => t === p || t.startsWith(p + " ")) && !["horario","confirmacion"].includes(sesion.paso)) {
         resetSesion(senderId);
         const s = getSesion(senderId, tipo);
         s.paso  = "servicio";
         guardarLead(req, senderId, canal, clinica, s, texto);
-        return enviarMensaje(senderId, buildMenuServicios(esp));
+        return responder(buildMenuServicios(esp));
     }
 
     // ── FLUJO por pasos ──
@@ -360,13 +355,11 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
                 sesion.servicio = srv;
                 sesion.paso     = "nombre";
                 guardarLead(req, senderId, canal, clinica, sesion, texto);
-                return enviarMensaje(senderId,
-                    `${esp.respServicio[srv] || ""}\n\n¿Cómo te llamas para gestionar tu cita? 😊`.trim()
-                );
+                return responder(`${esp.respServicio[srv] || ""}\n\n¿Cómo te llamas para gestionar tu cita? 😊`.trim());
             }
             sesion.paso = "servicio";
             guardarLead(req, senderId, canal, clinica, sesion, texto);
-            return enviarMensaje(senderId, buildMenuServicios(esp));
+            return responder(buildMenuServicios(esp));
         }
 
         case "servicio": {
@@ -374,14 +367,11 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
             if (!srv) {
                 sesion.reintentos = (sesion.reintentos || 0) + 1;
                 if (sesion.reintentos >= 2) {
-                    // Después de 2 intentos fallidos, ofrecemos llamada directa
-                    sesion.paso = "telefono";
+                    sesion.paso     = "telefono";
                     sesion.servicio = "Consulta general";
-                    return enviarMensaje(senderId,
-                        `No te preocupes 😊 Es más fácil que te llame uno de nuestros especialistas y te explica todo en un momento.\n\n¿Cuál es tu número de teléfono?`
-                    );
+                    return responder(`No te preocupes 😊 Es más fácil que te llame uno de nuestros especialistas y te explica todo en un momento.\n\n¿Cuál es tu número de teléfono?`);
                 }
-                return enviarMensaje(senderId,
+                return responder(
                     `No he entendido bien 😊 Puedes escribir el nombre del tratamiento o el número:\n\n` +
                     esp.servicios.map((s,i) => `${i+1}. ${s.emoji} ${s.label}`).join("\n")
                 );
@@ -390,9 +380,7 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
             sesion.paso       = "nombre";
             sesion.reintentos = 0;
             guardarLead(req, senderId, canal, clinica, sesion, texto);
-            return enviarMensaje(senderId,
-                `${esp.respServicio[srv] ? esp.respServicio[srv] + "\n\n" : ""}¿Cómo te llamas para gestionar tu cita? 😊`
-            );
+            return responder(`${esp.respServicio[srv] ? esp.respServicio[srv] + "\n\n" : ""}¿Cómo te llamas para gestionar tu cita? 😊`);
         }
 
         case "nombre": {
@@ -403,9 +391,9 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
                     sesion.nombre     = "Paciente";
                     sesion.paso       = "telefono";
                     sesion.reintentos = 0;
-                    return enviarMensaje(senderId, `No hay problema 😊 ¿Cuál es tu número de teléfono para contactarte?`);
+                    return responder(`No hay problema 😊 ¿Cuál es tu número de teléfono para contactarte?`);
                 }
-                return enviarMensaje(senderId, pick([
+                return responder(pick([
                     "¿Cómo te llamas? Solo necesito tu nombre 😊",
                     "Perdona, no te he entendido. ¿Me dices tu nombre? 😊",
                 ]));
@@ -414,7 +402,7 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
             sesion.paso       = "telefono";
             sesion.reintentos = 0;
             guardarLead(req, senderId, canal, clinica, sesion, texto);
-            return enviarMensaje(senderId, pick([
+            return responder(pick([
                 `¡Encantados, ${nombre}! 👋 ¿Cuál es tu número de teléfono para confirmarte la cita?`,
                 `¡Hola, ${nombre}! 😊 ¿Me dejas tu teléfono para gestionar la cita?`,
                 `Perfecto, ${nombre} 😊 ¿Y tu teléfono de contacto?`,
@@ -426,11 +414,9 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
             if (!tel) {
                 sesion.reintentos = (sesion.reintentos || 0) + 1;
                 if (sesion.reintentos >= 2) {
-                    return enviarMensaje(senderId,
-                        `Si prefieres, puedes llamarnos directamente y te atendemos al momento 📞\n\nO escribe tu número así: 612 345 678`
-                    );
+                    return responder(`Si prefieres, puedes llamarnos directamente y te atendemos al momento 📞\n\nO escribe tu número así: 612 345 678`);
                 }
-                return enviarMensaje(senderId, pick([
+                return responder(pick([
                     "No he reconocido ese número 🤔 Escríbelo así:\n📱 612 345 678",
                     "Mmm, no me llega bien el número 😅 ¿Puedes escribirlo de nuevo? Por ejemplo: 612 345 678",
                 ]));
@@ -442,15 +428,13 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
             guardarLead(req, senderId, canal, clinica, sesion, texto, true);
 
             const opcs = sesion.horarios.map(h => `${h.num}️⃣  ${h.label}`).join("\n");
-            return enviarMensaje(senderId,
-                `Perfecto ${sesion.nombre || ""} 🙌\n\nEstos son nuestros próximos horarios disponibles:\n\n${opcs}\n\n¿Cuál te viene mejor? Responde 1, 2 o 3`.trim()
-            );
+            return responder(`Perfecto ${sesion.nombre || ""} 🙌\n\nEstos son nuestros próximos horarios disponibles:\n\n${opcs}\n\n¿Cuál te viene mejor? Responde 1, 2 o 3`.trim());
         }
 
         case "horario": {
             const opcion = parseInt(t.replace(/[^1-3]/g, "")) || 0;
             if (opcion < 1 || opcion > 3 || !sesion.horarios[opcion-1]) {
-                return enviarMensaje(senderId, pick([
+                return responder(pick([
                     "Por favor responde con 1️⃣, 2️⃣ o 3️⃣ 😊",
                     "Escribe solo el número: 1, 2 o 3 👆",
                 ]));
@@ -459,7 +443,7 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
             sesion.horaElegida  = elegido.hora;
             sesion.fechaElegida = elegido.fecha;
             sesion.paso         = "confirmacion";
-            return enviarMensaje(senderId,
+            return responder(
                 `Perfecto, has elegido:\n\n` +
                 `📅 ${elegido.label}\n` +
                 `👤 ${sesion.nombre || "—"}\n` +
@@ -476,15 +460,15 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
             if (cancela) {
                 sesion.paso = "horario";
                 const opcs  = sesion.horarios.map(h => `${h.num}️⃣  ${h.label}`).join("\n");
-                return enviarMensaje(senderId, `Sin problema 😊 Elige otro horario:\n\n${opcs}\n\nResponde 1, 2 o 3`);
+                return responder(`Sin problema 😊 Elige otro horario:\n\n${opcs}\n\nResponde 1, 2 o 3`);
             }
             if (!confirma) {
-                return enviarMensaje(senderId, "Responde SÍ para confirmar la cita o NO para cambiar el horario 😊");
+                return responder("Responde SÍ para confirmar la cita o NO para cambiar el horario 😊");
             }
 
             guardarCita(req, senderId, canal, clinica, sesion);
             sesion.paso = "confirmado";
-            return enviarMensaje(senderId,
+            return responder(
                 `✅ ¡Cita confirmada, ${sesion.nombre || ""}!\n\n` +
                 `📅 ${sesion.fechaElegida} a las ${sesion.horaElegida}\n` +
                 `${esp.emoji} ${sesion.servicio}\n` +
@@ -494,21 +478,18 @@ function procesarMensaje(req, senderId, texto, canal, clinica) {
         }
 
         case "confirmado": {
-            // Si vuelven a escribir después de confirmar
             if (t.includes("cancelar") || t.includes("anular") || t.includes("cancel")) {
-                return enviarMensaje(senderId,
-                    `Para cancelar o modificar tu cita llámanos directamente 📞 Estaremos encantados de ayudarte.`
-                );
+                return responder(`Para cancelar o modificar tu cita llámanos directamente 📞 Estaremos encantados de ayudarte.`);
             }
             resetSesion(senderId);
             const s = getSesion(senderId, tipo);
             s.paso  = "servicio";
-            return enviarMensaje(senderId, buildMenuServicios(esp));
+            return responder(buildMenuServicios(esp));
         }
 
         default: {
             sesion.paso = "servicio";
-            return enviarMensaje(senderId, buildMenuServicios(esp));
+            return responder(buildMenuServicios(esp));
         }
     }
 }
@@ -527,24 +508,19 @@ function buildMenuServicios(esp) {
 // ═════════════════════════════════════════════
 function detectarServicio(texto, esp) {
     const t = texto.toLowerCase().trim();
-
-    // Por número
     const num = parseInt(t);
     if (!isNaN(num) && num >= 1 && num <= esp.servicios.length) {
         return esp.servicios[num-1].label;
     }
-
-    // Por palabras clave (orden: más específico primero)
     const sorted = [...esp.servicios].sort((a,b) => b.keys.length - a.keys.length);
     for (const srv of sorted) {
         if (srv.keys.some(k => t.includes(k))) return srv.label;
     }
-
     return null;
 }
 
 // ═════════════════════════════════════════════
-// GUARDAR LEAD (callback-style)
+// GUARDAR LEAD
 // ═════════════════════════════════════════════
 function guardarLead(req, senderId, canal, clinica, sesion, mensaje, notificar = false) {
     const clinicId = clinica.clinicId;
@@ -564,8 +540,7 @@ function guardarLead(req, senderId, canal, clinica, sesion, mensaje, notificar =
                         servicio = COALESCE(?,servicio),
                         message  = ?
                      WHERE id=?`,
-                    [sesion.nombre||null, sesion.telefono||null,
-                     sesion.servicio||null, mensaje, existing.id],
+                    [sesion.nombre||null, sesion.telefono||null, sesion.servicio||null, mensaje, existing.id],
                     err2 => { if (err2) console.error("Error actualizando lead:", err2); }
                 );
                 sesion.leadId = existing.id;
@@ -582,9 +557,7 @@ function guardarLead(req, senderId, canal, clinica, sesion, mensaje, notificar =
                      sesion.servicio||null, mensaje, ts],
                     function(err2) {
                         if (err2) return console.error("Error insertando lead:", err2);
-
                         sesion.leadId = this.lastID;
-
                         const io = req.app.get("io");
                         if (io) {
                             io.to(`clinic_${clinicId}`).emit("new_lead", {
@@ -620,9 +593,7 @@ function guardarCita(req, senderId, canal, clinica, sesion) {
          sesion.fechaElegida, sesion.horaElegida, ts],
         function(err) {
             if (err) return console.error("Error guardando cita:", err);
-
             console.log(`📅 Cita #${this.lastID} — ${sesion.nombre} ${sesion.fechaElegida} ${sesion.horaElegida}`);
-
             const io = req.app.get("io");
             if (io) {
                 io.to(`clinic_${clinicId}`).emit("new_cita", {
@@ -632,9 +603,7 @@ function guardarCita(req, senderId, canal, clinica, sesion) {
                     canal, status: "pendiente"
                 });
             }
-
             notificarEmailCita(req, sesion, canal, clinica);
-
             if (sesion.leadId) {
                 db.run(`UPDATE leads SET status='pending' WHERE id=?`, [sesion.leadId]);
             }
@@ -648,7 +617,7 @@ function guardarCita(req, senderId, canal, clinica, sesion) {
 function notificarEmailLead(req, sesion, canal, clinica) {
     const sendEmail = req.app.get("sendEmail");
     if (!sendEmail) return;
-    const c      = canal === "instagram" ? "📸 Instagram" : "📘 Facebook";
+    const c       = canal === "instagram" ? "📸 Instagram" : canal === "web" ? "🌐 Web" : "📘 Facebook";
     const toEmail = process.env.CLINIC_EMAIL || process.env.EMAIL_USER;
     sendEmail(
         toEmail,
@@ -660,7 +629,7 @@ function notificarEmailLead(req, sesion, canal, clinica) {
 function notificarEmailCita(req, sesion, canal, clinica) {
     const sendEmail = req.app.get("sendEmail");
     if (!sendEmail) return;
-    const c       = canal === "instagram" ? "📸 Instagram" : "📘 Facebook";
+    const c       = canal === "instagram" ? "📸 Instagram" : canal === "web" ? "🌐 Web" : "📘 Facebook";
     const toEmail = process.env.CLINIC_EMAIL || process.env.EMAIL_USER;
     sendEmail(
         toEmail,
@@ -670,7 +639,7 @@ function notificarEmailCita(req, sesion, canal, clinica) {
 }
 
 // ═════════════════════════════════════════════
-// ENVIAR MENSAJE — Graph API Meta
+// ENVIAR MENSAJE — Graph API Meta (solo FB/IG)
 // ═════════════════════════════════════════════
 function enviarMensaje(recipientId, texto) {
     if (!PAGE_TOKEN) { console.warn("⚠️  PAGE_ACCESS_TOKEN no configurado"); return; }
@@ -734,4 +703,8 @@ function capitalizarPrimera(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
 }
 
+// ═════════════════════════════════════════════
+// EXPORTAR procesarMensaje para uso desde server.js
+// ═════════════════════════════════════════════
 module.exports = router;
+module.exports.procesarMensaje = procesarMensaje;

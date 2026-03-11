@@ -4,454 +4,177 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReActiva Clínicas — Planes</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --negro: #07090d;
-    --blanco: #f0ede8;
-    --verde: #00e676;
-    --verde-dim: rgba(0,230,118,0.12);
-    --verde-borde: rgba(0,230,118,0.3);
-    --gris: #111418;
-    --gris2: #181d24;
-    --gris-texto: #7a8494;
-    --oro: #d4a843;
-    --oro-dim: rgba(212,168,67,0.1);
-  }
-
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Syne', sans-serif;
-    background: var(--negro);
-    color: var(--blanco);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── GRAIN OVERLAY ── */
-  body::after {
-    content:'';
-    position:fixed; inset:0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
-    pointer-events:none; z-index:999; opacity:.4;
-  }
-
-  /* ── GLOW ORBS ── */
-  .orb {
-    position:fixed; border-radius:50%; pointer-events:none; z-index:0;
-    filter: blur(80px);
-  }
-  .orb-1 { width:500px; height:500px; background:rgba(0,230,118,0.055); top:-100px; left:-100px; }
-  .orb-2 { width:400px; height:400px; background:rgba(212,168,67,0.045); bottom:-80px; right:-80px; }
-
- /* ── NAV ── */
-nav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 20px 56px;
-
-  background: rgba(7,9,13,0.85);
-
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+:root {
+  --negro:       #07090d;
+  --blanco:      #f0ede8;
+  --verde:       #00e676;
+  --verde-dim:   rgba(0,230,118,0.1);
+  --verde-borde: rgba(0,230,118,0.28);
+  --gris:        #111418;
+  --gris2:       #141921;
+  --gris3:       #1a2028;
+  --gris-texto:  #7a8494;
+  --oro:         #d4a843;
+  --oro-dim:     rgba(212,168,67,0.1);
+  --error:       #ff4d6a;
 }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);min-height:100vh;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.4}
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px)}
+.orb-1{width:500px;height:500px;background:rgba(0,230,118,0.055);top:-100px;left:-100px}
+.orb-2{width:400px;height:400px;background:rgba(212,168,67,0.04);bottom:-80px;right:-80px}
 
-  /* ── LOGO SVG ── */
-  .logo-wrap {
-    display:flex; align-items:center; gap:10px;
-    text-decoration:none;
-  }
-  .logo-icon {
-    width:36px; height:36px; flex-shrink:0;
-  }
-  .logo-text {
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.45rem; font-weight:700;
-    color:var(--blanco); letter-spacing:0.01em;
-    line-height:1;
-  }
-  .logo-text span { color:var(--verde); }
+/* NAV */
+nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:20px 56px;background:rgba(7,9,13,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04)}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:var(--blanco);letter-spacing:0.01em;line-height:1}
+.nav-link{color:var(--gris-texto);text-decoration:none;font-size:0.82rem;font-weight:500;letter-spacing:0.05em;transition:color 0.2s}
+.nav-link:hover{color:var(--blanco)}
 
-  .nav-link {
-    color:var(--gris-texto); text-decoration:none;
-    font-size:0.82rem; font-weight:500;
-    letter-spacing:0.05em;
-    transition:color 0.2s;
-  }
-  .nav-link:hover { color:var(--blanco); }
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:100px 24px 64px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.73rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;padding:7px 18px;border-radius:100px;margin-bottom:32px;animation:fadeDown 0.6s ease both}
+.pill::before{content:'';width:6px;height:6px;background:var(--verde);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,6vw,5rem);font-weight:700;line-height:1.05;margin-bottom:22px;max-width:760px;margin-left:auto;margin-right:auto;animation:fadeDown 0.7s 0.1s ease both}
+h1 em{font-style:italic;color:var(--verde)}
+.hero-sub{color:var(--gris-texto);font-size:1rem;max-width:480px;margin:0 auto;line-height:1.75;animation:fadeDown 0.7s 0.2s ease both}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ── HERO ── */
-  .hero {
-    position:relative; z-index:1;
-    text-align:center;
-    padding:100px 24px 64px;
-  }
+/* TRUST STRIP */
+.trust-strip{position:relative;z-index:1;display:flex;justify-content:center;flex-wrap:wrap;gap:28px;padding:40px 24px 72px;animation:fadeDown 0.7s 0.3s ease both}
+.trust-item{display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--gris-texto);font-weight:500}
+.trust-dot{width:16px;height:16px;border-radius:50%;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--verde)}
 
-  .pill {
-    display:inline-flex; align-items:center; gap:8px;
-    background:var(--verde-dim);
-    border:1px solid var(--verde-borde);
-    color:var(--verde);
-    font-size:0.73rem; font-weight:600;
-    letter-spacing:0.14em; text-transform:uppercase;
-    padding:7px 18px; border-radius:100px;
-    margin-bottom:32px;
-    animation: fadeDown 0.6s ease both;
-  }
-  .pill::before {
-    content:''; width:6px; height:6px;
-    background:var(--verde); border-radius:50%;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%,100% { opacity:1; transform:scale(1); }
-    50% { opacity:0.4; transform:scale(0.7); }
-  }
+/* CARDS */
+.pricing-grid{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 24px 100px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.price-card{background:var(--gris2);border:1px solid rgba(255,255,255,0.055);border-radius:24px;padding:40px 36px;position:relative;overflow:hidden;transition:transform 0.35s cubic-bezier(.2,.8,.3,1),border-color 0.3s,box-shadow 0.35s;animation:fadeUp 0.7s 0.4s ease both}
+.price-card:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,0.4)}
+.price-card::before{content:'';position:absolute;inset:0;border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,0.025) 0%,transparent 60%);pointer-events:none}
+.price-card.featured{border-color:var(--verde);background:linear-gradient(160deg,#0d1f14 0%,var(--gris2) 55%);animation-delay:0.5s}
+.price-card.featured:hover{box-shadow:0 24px 60px rgba(0,230,118,0.15)}
+.price-card.featured::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--verde),transparent)}
+.top-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--verde);color:var(--negro);font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 20px;border-radius:0 0 12px 12px;white-space:nowrap}
+.plan-label{font-size:0.72rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.price-card.featured .plan-label{color:var(--verde)}
+.plan-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
+.price-number{display:flex;align-items:baseline;gap:4px;margin-bottom:6px}
+.price-currency{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--gris-texto);margin-bottom:8px}
+.price-amount{font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:700;line-height:1}
+.price-period{font-size:0.85rem;color:var(--gris-texto);margin-bottom:4px}
+.price-note{font-size:0.78rem;color:var(--gris-texto);line-height:1.6;margin-bottom:28px;padding:12px 14px;background:rgba(255,255,255,0.03);border-radius:10px;border-left:2px solid var(--verde-borde)}
+.price-note strong{color:var(--verde)}
+.sep{height:1px;background:rgba(255,255,255,0.06);margin-bottom:28px}
+.feature-list{list-style:none;margin-bottom:36px}
+.feature-list li{display:flex;align-items:flex-start;gap:12px;font-size:0.87rem;color:#bcc3cc;margin-bottom:13px;line-height:1.5}
+.fi{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;margin-top:1px}
+.fi.yes{background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde)}
+.fi.no{background:rgba(255,255,255,0.04);color:#3a404a;border:1px solid rgba(255,255,255,0.06)}
+.feature-list li.dim{color:var(--gris-texto)}
+.btn-card{display:block;width:100%;padding:16px 20px;border-radius:14px;font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:600;letter-spacing:0.04em;cursor:pointer;border:none;text-align:center;text-decoration:none;transition:all 0.25s cubic-bezier(.2,.8,.3,1)}
+.btn-card.primary{background:var(--verde);color:var(--negro)}
+.btn-card.primary:hover{background:#1fffa0;box-shadow:0 10px 40px rgba(0,230,118,0.4);transform:translateY(-2px)}
+.btn-card.ghost{background:transparent;color:var(--blanco);border:1px solid rgba(255,255,255,0.12)}
+.btn-card.ghost:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.04)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
-  h1 {
-    font-family:'Cormorant Garamond', serif;
-    font-size: clamp(2.6rem, 6vw, 5rem);
-    font-weight:700; line-height:1.05;
-    margin-bottom:22px;
-    max-width:760px; margin-left:auto; margin-right:auto;
-    animation: fadeDown 0.7s 0.1s ease both;
-  }
-  h1 em { font-style:italic; color:var(--verde); }
+/* SOCIAL PROOF */
+.social-bar{position:relative;z-index:1;max-width:780px;margin:0 auto 80px;padding:0 24px}
+.social-inner{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:28px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.social-stat{text-align:center}
+.social-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--verde);line-height:1}
+.social-label{font-size:0.72rem;color:var(--gris-texto);margin-top:4px;letter-spacing:0.06em}
+.social-divider{width:1px;height:40px;background:rgba(255,255,255,0.06);flex-shrink:0}
+.social-quote{font-size:0.85rem;color:#bcc3cc;line-height:1.65;max-width:340px;font-style:italic}
+.social-quote strong{color:var(--blanco);font-style:normal}
 
-  .hero-sub {
-    color:var(--gris-texto); font-size:1rem;
-    max-width:460px; margin:0 auto 0;
-    line-height:1.75;
-    animation: fadeDown 0.7s 0.2s ease both;
-  }
+/* FAQ */
+.faq{position:relative;z-index:1;max-width:640px;margin:0 auto 100px;padding:0 24px}
+.faq-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;text-align:center;margin-bottom:48px}
+.faq-item{border-bottom:1px solid rgba(255,255,255,0.06);padding:20px 0;cursor:pointer}
+.faq-q{display:flex;justify-content:space-between;align-items:center;font-size:0.9rem;font-weight:600;color:var(--blanco);gap:16px}
+.faq-arrow{width:24px;height:24px;border-radius:50%;flex-shrink:0;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.7rem;display:flex;align-items:center;justify-content:center;transition:transform 0.3s}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-a{display:none;color:var(--gris-texto);font-size:0.85rem;line-height:1.75;padding-top:14px}
+.faq-item.open .faq-a{display:block}
 
-  @keyframes fadeDown {
-    from { opacity:0; transform:translateY(-14px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
+/* TOAST */
+.toast{position:fixed;top:24px;right:24px;z-index:9999;display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:12px;font-size:0.85rem;font-weight:600;max-width:320px;pointer-events:none;transform:translateY(-12px) translateX(20px);opacity:0;transition:all 0.35s cubic-bezier(.2,.8,.3,1)}
+.toast.show{transform:translateY(0) translateX(0);opacity:1}
+.toast.success{background:#0d2218;border:1px solid var(--verde-borde);color:var(--verde)}
+.toast.error{background:#200d12;border:1px solid rgba(255,77,106,0.3);color:var(--error)}
 
-  /* ── TRUST STRIP ── */
-  .trust-strip {
-    position:relative; z-index:1;
-    display:flex; justify-content:center;
-    flex-wrap:wrap; gap:28px;
-    padding:40px 24px 72px;
-    animation: fadeDown 0.7s 0.3s ease both;
-  }
-  .trust-item {
-    display:flex; align-items:center; gap:8px;
-    font-size:0.8rem; color:var(--gris-texto); font-weight:500;
-  }
-  .trust-dot {
-    width:16px; height:16px; border-radius:50%;
-    background:var(--verde-dim); border:1px solid var(--verde-borde);
-    display:flex; align-items:center; justify-content:center;
-    font-size:0.6rem; color:var(--verde);
-  }
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(14px);z-index:200;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal{background:#0e1318;border:1px solid rgba(255,255,255,0.09);border-radius:24px;padding:44px;max-width:440px;width:100%;position:relative;animation:slideUp 0.3s cubic-bezier(.2,.8,.3,1);max-height:90vh;overflow-y:auto}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.modal-close{position:absolute;top:18px;right:20px;background:rgba(255,255,255,0.06);border:none;color:var(--gris-texto);width:30px;height:30px;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.modal-close:hover{background:rgba(255,255,255,0.1);color:var(--blanco)}
+.modal-plan-badge{display:inline-flex;align-items:center;gap:6px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:8px;margin-bottom:18px}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;margin-bottom:8px;line-height:1.1}
+.modal-sub{color:var(--gris-texto);font-size:0.85rem;margin-bottom:28px;line-height:1.65}
+.modal-price-recap{display:flex;align-items:center;justify-content:space-between;background:rgba(0,230,118,0.05);border:1px solid var(--verde-borde);border-radius:12px;padding:14px 18px;margin-bottom:24px}
+.modal-price-recap-label{font-size:0.82rem;color:var(--gris-texto)}
+.modal-price-recap-amount{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--verde)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:7px}
+.field input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s,background 0.2s}
+.field input:focus{border-color:var(--verde);background:rgba(0,230,118,0.04)}
+.field input.error-state{border-color:var(--error);background:rgba(255,77,106,0.05)}
+.err{color:var(--error);font-size:0.8rem;margin-bottom:12px;display:none;padding:10px 14px;background:rgba(255,77,106,0.08);border:1px solid rgba(255,77,106,0.2);border-radius:8px}
+.btn-submit{width:100%;padding:15px;margin-top:8px;background:var(--verde);color:var(--negro);border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+.btn-submit:hover:not(:disabled){background:#1fffa0;box-shadow:0 8px 28px rgba(0,230,118,0.35)}
+.btn-submit:disabled{opacity:0.6;cursor:not-allowed}
+.btn-spinner{display:none;width:18px;height:18px;border:2.5px solid rgba(0,0,0,0.2);border-top-color:var(--negro);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-submit.loading .btn-spinner{display:block}
+.btn-submit.loading .btn-label{opacity:0.7}
+.secure-note{display:flex;align-items:center;justify-content:center;gap:6px;font-size:0.73rem;color:var(--gris-texto);margin-top:12px}
 
-  /* ── CARDS ── */
-  .pricing-grid {
-    position:relative; z-index:1;
-    max-width:920px; margin:0 auto;
-    padding:0 24px 100px;
-    display:grid; grid-template-columns:1fr 1fr; gap:20px;
-  }
-  @media(max-width:680px){
-    .pricing-grid { grid-template-columns:1fr; }
-    nav { padding:18px 20px; }
-    h1 { font-size:2.4rem; }
-  }
+/* PAYPAL WRAPPER — oculta el fondo amarillo, integra con nuestro diseño */
+.paypal-wrapper{margin-top:20px;padding:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px}
+.paypal-wrapper-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.paypal-wrapper-label::before{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
+.paypal-wrapper-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
+#paypalContainer{min-height:45px}
 
-  .price-card {
-    background:var(--gris2);
-    border:1px solid rgba(255,255,255,0.055);
-    border-radius:24px; padding:40px 36px;
-    position:relative; overflow:hidden;
-    transition:transform 0.35s cubic-bezier(.2,.8,.3,1), border-color 0.3s;
-    animation: fadeUp 0.7s 0.4s ease both;
-  }
-  .price-card:hover { transform:translateY(-6px); }
+/* DIVIDER */
+.o-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--gris-texto);font-size:0.75rem}
+.o-divider::before,.o-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
 
-  .price-card::before {
-    content:''; position:absolute;
-    inset:0; border-radius:24px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.025) 0%, transparent 60%);
-    pointer-events:none;
-  }
+/* SUCCESS */
+.success-screen{display:none;text-align:center;padding:16px 0}
+.success-icon{width:72px;height:72px;border-radius:50%;background:var(--verde-dim);border:2px solid var(--verde-borde);color:var(--verde);font-size:2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;animation:successPop 0.4s cubic-bezier(.2,.8,.3,1)}
+@keyframes successPop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+.success-screen h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;margin-bottom:12px}
+.success-screen p{color:var(--gris-texto);font-size:0.87rem;line-height:1.8}
+.success-screen strong{color:var(--verde)}
+.success-btn{display:inline-block;margin-top:24px;padding:13px 28px;background:var(--verde);color:var(--negro);border-radius:10px;font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700;text-decoration:none;transition:all 0.25s;cursor:pointer;border:none}
+.success-btn:hover{background:#1fffa0;transform:translateY(-2px)}
 
-  .price-card.featured {
-    border-color:var(--verde);
-    background: linear-gradient(160deg, #0d1f14 0%, var(--gris2) 55%);
-    animation-delay: 0.5s;
-  }
+/* STEP INDICATOR */
+.step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:24px}
+.step{display:flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:600;color:var(--gris-texto)}
+.step.active{color:var(--verde)}
+.step.done{color:var(--gris-texto)}
+.step-num{width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:0.65rem;flex-shrink:0}
+.step.active .step-num{background:var(--verde-dim);border-color:var(--verde)}
+.step.done .step-num{background:rgba(255,255,255,0.04)}
+.step-line{flex:1;height:1px;background:rgba(255,255,255,0.06)}
 
-  .price-card.featured::after {
-    content:'';
-    position:absolute; top:0; left:0; right:0;
-    height:2px;
-    background: linear-gradient(90deg, transparent, var(--verde), transparent);
-  }
-
-  .top-badge {
-    position:absolute; top:-1px; left:50%; transform:translateX(-50%);
-    background:var(--verde); color:var(--negro);
-    font-size:0.68rem; font-weight:700;
-    letter-spacing:0.1em; text-transform:uppercase;
-    padding:5px 20px; border-radius:0 0 12px 12px;
-    white-space:nowrap;
-  }
-
-  .plan-label {
-    font-size:0.72rem; font-weight:700;
-    letter-spacing:0.15em; text-transform:uppercase;
-    color:var(--gris-texto); margin-bottom:20px;
-    display:flex; align-items:center; gap:8px;
-  }
-  .price-card.featured .plan-label { color:var(--verde); }
-  .plan-label::after {
-    content:''; flex:1; height:1px;
-    background:rgba(255,255,255,0.06);
-  }
-
-  .price-number {
-    display:flex; align-items:baseline; gap:4px;
-    margin-bottom:6px;
-  }
-  .price-currency {
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.6rem; font-weight:600;
-    color:var(--gris-texto); margin-bottom:8px;
-  }
-  .price-amount {
-    font-family:'Cormorant Garamond', serif;
-    font-size:4rem; font-weight:700; line-height:1;
-  }
-  .price-period {
-    font-size:0.85rem; color:var(--gris-texto); margin-bottom:4px;
-  }
-
-  .price-note {
-    font-size:0.78rem; color:var(--gris-texto);
-    line-height:1.6; margin-bottom:28px;
-    padding:12px 14px;
-    background:rgba(255,255,255,0.03);
-    border-radius:10px;
-    border-left:2px solid var(--verde-borde);
-  }
-  .price-note strong { color:var(--verde); }
-
-  .sep { height:1px; background:rgba(255,255,255,0.06); margin-bottom:28px; }
-
-  .feature-list { list-style:none; margin-bottom:36px; }
-  .feature-list li {
-    display:flex; align-items:flex-start; gap:12px;
-    font-size:0.87rem; color:#bcc3cc;
-    margin-bottom:13px; line-height:1.5;
-  }
-  .fi {
-    width:18px; height:18px; border-radius:50%; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center;
-    font-size:0.6rem; margin-top:1px;
-  }
-  .fi.yes { background:var(--verde-dim); color:var(--verde); border:1px solid var(--verde-borde); }
-  .fi.no  { background:rgba(255,255,255,0.04); color:#3a404a; border:1px solid rgba(255,255,255,0.06); }
-  .feature-list li.dim { color:var(--gris-texto); }
-
-  .btn-card {
-    display:block; width:100%;
-    padding:16px 20px; border-radius:14px;
-    font-family:'Syne', sans-serif;
-    font-size:0.88rem; font-weight:600;
-    letter-spacing:0.04em;
-    cursor:pointer; border:none;
-    text-align:center; text-decoration:none;
-    transition:all 0.25s cubic-bezier(.2,.8,.3,1);
-  }
-  .btn-card.primary {
-    background:var(--verde); color:var(--negro);
-  }
-  .btn-card.primary:hover {
-    background:#1fffa0;
-    box-shadow:0 10px 40px rgba(0,230,118,0.4);
-    transform:translateY(-2px);
-  }
-  .btn-card.ghost {
-    background:transparent; color:var(--blanco);
-    border:1px solid rgba(255,255,255,0.12);
-  }
-  .btn-card.ghost:hover {
-    border-color:rgba(255,255,255,0.3);
-    background:rgba(255,255,255,0.04);
-  }
-
-  @keyframes fadeUp {
-    from { opacity:0; transform:translateY(20px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-
-  /* ── FAQ ── */
-  .faq {
-    position:relative; z-index:1;
-    max-width:640px; margin:0 auto 100px; padding:0 24px;
-  }
-  .faq-title {
-    font-family:'Cormorant Garamond', serif;
-    font-size:2rem; font-weight:700;
-    text-align:center; margin-bottom:48px;
-  }
-  .faq-item {
-    border-bottom:1px solid rgba(255,255,255,0.06);
-    padding:20px 0; cursor:pointer;
-  }
-  .faq-q {
-    display:flex; justify-content:space-between; align-items:center;
-    font-size:0.9rem; font-weight:600; color:var(--blanco);
-    gap:16px;
-  }
-  .faq-arrow {
-    width:24px; height:24px; border-radius:50%; flex-shrink:0;
-    background:var(--verde-dim); border:1px solid var(--verde-borde);
-    color:var(--verde); font-size:0.7rem;
-    display:flex; align-items:center; justify-content:center;
-    transition:transform 0.3s;
-  }
-  .faq-item.open .faq-arrow { transform:rotate(180deg); }
-  .faq-a {
-    display:none; color:var(--gris-texto);
-    font-size:0.85rem; line-height:1.75;
-    padding-top:14px;
-  }
-  .faq-item.open .faq-a { display:block; }
-
-  /* ── MODAL ── */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-
-  background: rgba(0,0,0,0.8);
-
-  -webkit-backdrop-filter: blur(12px); /* Safari */
-  backdrop-filter: blur(12px);         /* Otros navegadores */
-
-  z-index: 200;
-
-  align-items: center;
-  justify-content: center;
+@media(max-width:680px){
+  .pricing-grid{grid-template-columns:1fr}
+  nav{padding:18px 20px}
+  h1{font-size:2.4rem}
+  .modal{padding:32px 24px}
+  .social-inner{flex-direction:column;text-align:center}
+  .social-divider{display:none}
 }
-
-.modal-overlay.active {
-  display: flex;
-}
-
-  .modal {
-    background:#0e1318;
-    border:1px solid rgba(255,255,255,0.09);
-    border-radius:24px; padding:44px;
-    max-width:420px; width:90%;
-    position:relative;
-    animation:slideUp 0.3s cubic-bezier(.2,.8,.3,1);
-  }
-  @keyframes slideUp {
-    from { opacity:0; transform:translateY(24px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-
-  .modal-close {
-    position:absolute; top:18px; right:22px;
-    background:rgba(255,255,255,0.06); border:none;
-    color:var(--gris-texto); width:30px; height:30px;
-    border-radius:50%; font-size:1rem; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    transition:all 0.2s;
-  }
-  .modal-close:hover { background:rgba(255,255,255,0.1); color:var(--blanco); }
-
-  .modal-logo {
-    display:flex; align-items:center; gap:8px;
-    margin-bottom:24px;
-  }
-
-  .modal h2 {
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.7rem; font-weight:700; margin-bottom:8px;
-  }
-  .modal-sub {
-    color:var(--gris-texto); font-size:0.85rem; margin-bottom:28px; line-height:1.6;
-  }
-
-  .field { margin-bottom:14px; }
-  .field label {
-    display:block; font-size:0.72rem; font-weight:700;
-    letter-spacing:0.1em; text-transform:uppercase;
-    color:var(--gris-texto); margin-bottom:7px;
-  }
-  .field input {
-    width:100%; padding:13px 16px;
-    background:rgba(255,255,255,0.05);
-    border:1px solid rgba(255,255,255,0.09);
-    border-radius:12px; color:var(--blanco);
-    font-family:'Syne', sans-serif; font-size:0.9rem;
-    outline:none; transition:border-color 0.2s;
-  }
-  .field input:focus { border-color:var(--verde); }
-
-  .err { color:#ff6b6b; font-size:0.82rem; margin-bottom:12px; display:none; }
-
-  .btn-submit {
-    width:100%; padding:15px; margin-top:6px;
-    background:var(--verde); color:var(--negro);
-    border:none; border-radius:12px;
-    font-family:'Syne', sans-serif;
-    font-size:0.9rem; font-weight:700;
-    cursor:pointer; transition:all 0.25s;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-  }
-  .btn-submit:hover {
-    background:#1fffa0;
-    box-shadow:0 8px 28px rgba(0,230,118,0.35);
-  }
-
-  .spinner {
-    display:none; width:18px; height:18px;
-    border:2px solid rgba(0,0,0,0.2);
-    border-top-color:var(--negro);
-    border-radius:50%;
-    animation:spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  #paypal-button-container { margin-top:14px; }
-
-  .success-screen {
-    display:none; text-align:center; padding:16px 0;
-  }
-  .success-icon {
-    width:64px; height:64px; border-radius:50%;
-    background:var(--verde-dim); border:2px solid var(--verde-borde);
-    color:var(--verde); font-size:1.8rem;
-    display:flex; align-items:center; justify-content:center;
-    margin:0 auto 20px;
-  }
-  .success-screen h2 {
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.8rem; margin-bottom:12px;
-  }
-  .success-screen p {
-    color:var(--gris-texto); font-size:0.87rem; line-height:1.75;
-  }
-  .success-screen p strong { color:var(--verde); }
 </style>
 </head>
 <body>
@@ -459,23 +182,12 @@ nav {
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
+
 <!-- NAV -->
 <nav>
   <a href="index.html" class="logo-wrap">
-    <!-- LOGO SVG -->
-    <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
-        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
-        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
-        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
-        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
-        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
-        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+    <svg width="36" height="36" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/><path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/><path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/><polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span class="logo-text"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
   </a>
   <a href="index.html" class="nav-link">← Volver al inicio</a>
@@ -485,90 +197,109 @@ nav {
 <section class="hero">
   <div class="pill">Sin permanencia · Precio único anual</div>
   <h1>El bot que convierte visitas<br>en <em>pacientes reales</em></h1>
-  <p class="hero-sub">Una sola inversión al año. Sin complicaciones. Sin letra pequeña.</p>
+  <p class="hero-sub">Una sola inversión al año. Sin complicaciones. Sin letra pequeña. El bot trabaja mientras tú atiendes.</p>
 </section>
 
-<!-- TRUST -->
+<!-- TRUST STRIP -->
 <div class="trust-strip">
-  <div class="trust-item"><div class="trust-dot">✓</div> 2 meses de soporte incluidos</div>
-  <div class="trust-item"><div class="trust-dot">✓</div> Instalación guiada</div>
+  <div class="trust-item"><div class="trust-dot">✓</div> Instalación en 24 horas</div>
+  <div class="trust-item"><div class="trust-dot">✓</div> Soporte técnico incluido</div>
   <div class="trust-item"><div class="trust-dot">✓</div> Sin permanencia</div>
   <div class="trust-item"><div class="trust-dot">✓</div> Pago seguro con PayPal</div>
 </div>
 
 <!-- PRICING -->
 <section class="pricing-grid">
-
-  <!-- Starter -->
   <div class="price-card">
     <div class="plan-label">Starter</div>
     <div class="price-number">
       <span class="price-currency">€</span>
-      <span class="price-amount">290</span>
+      <span class="price-amount">149</span>
     </div>
     <div class="price-period">/ año · pago único</div>
     <div class="price-note"><strong>1 mes de soporte</strong> técnico incluido</div>
     <div class="sep"></div>
     <ul class="feature-list">
-      <li><span class="fi yes">✓</span> Bot de captación en tu web</li>
-      <li><span class="fi yes">✓</span> Captura automática de leads</li>
-      <li><span class="fi yes">✓</span> Notificación por email al instante</li>
-      <li><span class="fi yes">✓</span> Panel básico de leads</li>
+      <li><span class="fi yes">✓</span> Bot de captación activo en tu web</li>
+      <li><span class="fi yes">✓</span> Captura automática de leads 24/7</li>
+      <li><span class="fi yes">✓</span> Notificación por email en tiempo real</li>
+      <li><span class="fi yes">✓</span> Panel de gestión de leads</li>
       <li class="dim"><span class="fi no">✕</span> Panel de métricas avanzado</li>
       <li class="dim"><span class="fi no">✕</span> Agendado automático de citas</li>
     </ul>
-    <button class="btn-card ghost" onclick="abrirModal('starter', 290)">Empezar con Starter</button>
+    <button class="btn-card ghost" onclick="abrirModal('Starter', 149)">Empezar con Starter — 149€</button>
   </div>
 
-  <!-- Premium -->
   <div class="price-card featured">
     <div class="top-badge">⭐ Más popular</div>
     <div class="plan-label">Premium</div>
     <div class="price-number">
       <span class="price-currency">€</span>
-      <span class="price-amount">500</span>
+      <span class="price-amount">299</span>
     </div>
     <div class="price-period">/ año · pago único</div>
-    <div class="price-note">
-      <strong>2 meses de soporte</strong> incluidos · Desde el 3er mes, soporte por <strong>49€/mes</strong>
-    </div>
+    <div class="price-note"><strong>2 meses de soporte</strong> incluidos · Desde el 3er mes, soporte por <strong>49€/mes</strong></div>
     <div class="sep"></div>
     <ul class="feature-list">
-      <li><span class="fi yes">✓</span> Bot de captación en tu web</li>
-      <li><span class="fi yes">✓</span> Captura automática de leads</li>
-      <li><span class="fi yes">✓</span> Notificación por email al instante</li>
+      <li><span class="fi yes">✓</span> Bot de captación activo en tu web</li>
+      <li><span class="fi yes">✓</span> Captura automática de leads 24/7</li>
+      <li><span class="fi yes">✓</span> Notificación por email en tiempo real</li>
       <li><span class="fi yes">✓</span> Panel de métricas avanzado</li>
       <li><span class="fi yes">✓</span> Agendado automático de citas</li>
       <li><span class="fi yes">✓</span> Prioridad en soporte técnico</li>
     </ul>
-    <button class="btn-card primary" onclick="abrirModal('premium', 500)">Activar Premium — 500€</button>
+    <button class="btn-card primary" onclick="abrirModal('Premium', 299)">Activar Premium — 299€</button>
   </div>
-
 </section>
+
+<!-- SOCIAL PROOF -->
+<div class="social-bar">
+  <div class="social-inner">
+    <div class="social-stat">
+      <div class="social-num">+94%</div>
+      <div class="social-label">Leads capturados</div>
+    </div>
+    <div class="social-divider"></div>
+    <div class="social-stat">
+      <div class="social-num">24/7</div>
+      <div class="social-label">Bot activo</div>
+    </div>
+    <div class="social-divider"></div>
+    <div class="social-stat">
+      <div class="social-num">&lt;10s</div>
+      <div class="social-label">Aviso al equipo</div>
+    </div>
+    <div class="social-divider"></div>
+    <p class="social-quote">"Desde que instalamos ReActiva captamos un 40% más de consultas. El bot responde mientras el equipo está ocupado y <strong>nunca pierde un contacto</strong>."<br><br>— María Castillo, Clínica Dental Castillo · Madrid</p>
+  </div>
+</div>
 
 <!-- FAQ -->
 <section class="faq">
   <h2 class="faq-title">Preguntas frecuentes</h2>
-
   <div class="faq-item" onclick="toggleFaq(this)">
     <div class="faq-q">¿Cuánto tarda en instalarse el bot? <span class="faq-arrow">▾</span></div>
     <div class="faq-a">En menos de 24 horas. Te acompañamos paso a paso para que el bot esté funcionando en tu web sin necesidad de conocimientos técnicos.</div>
   </div>
   <div class="faq-item" onclick="toggleFaq(this)">
     <div class="faq-q">¿Qué pasa al tercer mes con el soporte? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">Los 2 primeros meses el soporte técnico está incluido en el precio. A partir del tercer mes puedes contratar soporte por 49€/mes o gestionar el sistema de forma autónoma.</div>
+    <div class="faq-a">Los primeros meses el soporte técnico está incluido en el precio. A partir de entonces puedes contratar soporte mensual por 49€/mes o gestionar el sistema de forma autónoma.</div>
   </div>
   <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-q">¿Es seguro el pago con PayPal? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">Sí. El pago se procesa directamente a través de PayPal, que cifra y protege todos los datos. Nosotros nunca vemos ni almacenamos los datos de tu tarjeta.</div>
+    <div class="faq-q">¿Es seguro el pago? <span class="faq-arrow">▾</span></div>
+    <div class="faq-a">Sí. El pago se procesa a través de PayPal. Cifrado SSL, cumplimiento PCI DSS. Nunca vemos ni almacenamos los datos de tu tarjeta.</div>
   </div>
   <div class="faq-item" onclick="toggleFaq(this)">
     <div class="faq-q">¿Tiene permanencia? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">No. Es un pago anual único. Si no quieres renovar el año siguiente, simplemente no lo haces.</div>
+    <div class="faq-a">No. Es un pago anual único. Si no quieres renovar el año siguiente, simplemente no lo haces. Sin penalizaciones.</div>
   </div>
   <div class="faq-item" onclick="toggleFaq(this)">
     <div class="faq-q">¿Funciona con cualquier web de clínica? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">Sí. El bot es compatible con WordPress, Wix, Squarespace o cualquier web con HTML. Se instala copiando un pequeño fragmento de código.</div>
+    <div class="faq-a">Sí. Compatible con WordPress, Wix, Squarespace o cualquier web con HTML. Se instala copiando un pequeño fragmento de código, en menos de 5 minutos.</div>
+  </div>
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-q">¿Qué diferencia hay entre Starter y Premium? <span class="faq-arrow">▾</span></div>
+    <div class="faq-a">Starter incluye captación de leads y notificaciones. Premium añade agendado automático de citas y métricas avanzadas. La mayoría pasan a Premium al renovar.</div>
   </div>
 </section>
 
@@ -577,254 +308,319 @@ nav {
   <div class="modal">
     <button class="modal-close" onclick="cerrarModal()">✕</button>
 
+    <!-- FORM SCREEN -->
     <div id="formScreen">
-      <div class="modal-logo">
-        <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
-        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
-        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
-        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
-        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
-        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
-        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-        <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div class="step active" id="step1">
+          <div class="step-num">1</div>
+          <span>Tu cuenta</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step2">
+          <div class="step-num">2</div>
+          <span>Pago</span>
+        </div>
       </div>
 
-      <h2>Casi lo tienes 🎉</h2>
-      <p class="modal-sub">Crea tu cuenta para activar el bot y proceder al pago seguro con PayPal.</p>
+      <div class="modal-plan-badge" id="modalBadge">Plan Starter · 149€/año</div>
+      <h2 id="modalTitle">Activa tu clínica</h2>
+      <p class="modal-sub" id="modalSub">Crea tu cuenta en ReActiva. En menos de 24 horas el bot estará funcionando en tu web.</p>
 
-      <div class="field">
-        <label>Nombre de la clínica</label>
-        <input type="text" id="inputClinica" placeholder="Clínica Ejemplo">
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="inputEmail" placeholder="tu@clinica.com">
-      </div>
-      <div class="field">
-        <label>Contraseña</label>
-        <input type="password" id="inputPass" placeholder="Mínimo 8 caracteres">
+      <div class="modal-price-recap">
+        <span class="modal-price-recap-label">Total hoy · sin compromiso</span>
+        <span class="modal-price-recap-amount" id="modalPriceDisplay">149€</span>
       </div>
 
-      <p class="err" id="errorMsg"></p>
+      <!-- PASO 1: datos de cuenta -->
+      <div id="accountFields">
+        <div class="field">
+          <label>Nombre de la clínica</label>
+          <input type="text" id="inputClinica" placeholder="Clínica Ejemplo" autocomplete="organization">
+        </div>
+        <div class="field">
+          <label>Email de contacto</label>
+          <input type="email" id="inputEmail" placeholder="tu@clinica.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label>Contraseña</label>
+          <input type="password" id="inputPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+        </div>
 
-      <button class="btn-submit" onclick="registrarYPagar()">
-        <span id="btnTexto">Continuar al pago →</span>
-        <div class="spinner" id="spinner"></div>
-      </button>
+        <p class="err" id="errorMsg"></p>
 
-      <div id="paypal-button-container"></div>
+        <button class="btn-submit" id="btnSubmit" onclick="registrarYContinuar()">
+          <div class="btn-spinner" id="spinner"></div>
+          <span class="btn-label">Continuar al pago →</span>
+        </button>
+
+        <p class="secure-note">
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 1L1 3.5V7C1 10 3.5 12.5 6 13C8.5 12.5 11 10 11 7V3.5L6 1Z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+          Pago cifrado · Procesado por PayPal
+        </p>
+      </div>
+
+      <!-- PASO 2: botón PayPal integrado -->
+      <div id="paypalStep" style="display:none;">
+        <p class="err" id="errorMsg2"></p>
+        <div class="paypal-wrapper">
+          <div class="paypal-wrapper-label">Paga con PayPal o tarjeta</div>
+          <div id="paypalContainer"></div>
+        </div>
+        <p class="secure-note" style="margin-top:14px;">
+          <svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 1L1 3.5V7C1 10 3.5 12.5 6 13C8.5 12.5 11 10 11 7V3.5L6 1Z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+          Tu pago está protegido por PayPal · SSL 256-bit
+        </p>
+      </div>
     </div>
 
+    <!-- SUCCESS SCREEN -->
     <div class="success-screen" id="successScreen">
       <div class="success-icon">✓</div>
-      <h2>¡Bienvenido a ReActiva!</h2>
-      <p>Tu pago se ha procesado correctamente.<br>
-      En las próximas horas recibirás las instrucciones de instalación.<br><br>
-      <strong>Disfruta de tus 2 meses de soporte incluidos.</strong></p>
+      <h2>¡Todo listo!</h2>
+      <p>
+        Tu pago se ha completado y tu cuenta está activa.<br><br>
+        <strong>En menos de 24 horas</strong> el bot estará funcionando en tu web.<br>
+        Revisa tu email para los próximos pasos.
+      </p>
+      <button class="success-btn" onclick="window.location.href='dashboard.html'">Ir al panel →</button>
     </div>
   </div>
 </div>
 
-<!-- ⚠️ Reemplaza TU_CLIENT_ID_PAYPAL con tu Client ID real de PayPal -->
-<script src="https://www.paypal.com/sdk/js?client-id=Aft4TzRPGR5XowQhpdLGPy5GAJ-GHk9211eKnr_FTfS2CM7T01cwnTSWNyg5Dw-7B5ZfgSZAswhjA1N-&currency=EUR"></script>
+<!-- SDK de PayPal — reemplaza TU_CLIENT_ID con tu Client ID real -->
+<script src="https://www.paypal.com/sdk/js?client-id=Aft4TzRPGR5XowQhpdLGPy5GAJ-GHk9211eKnr_FTfS2CM7T01cwnTSWNyg5Dw-7B5ZfgSZAswhjA1N-&currency=EUR&intent=capture"></script>
 
 <script>
+const BACKEND_URL = "https://reactivaclinicas-production.up.railway.app";
 
-const BACKEND_URL = "https://reactiva-backend.up.railway.app";
+let planSeleccionado   = "Starter";
+let precioSeleccionado = 149;
+let tokenGlobal        = null;
+let paypalRendered     = false;
 
-let planSeleccionado = null;
-let precioSeleccionado = null;
-let paypalRendered = false;
+// ── Toast ──
+let toastTimer;
+function showToast(msg, type = "success") {
+  const toast = document.getElementById("toast");
+  document.getElementById("toastMsg").textContent = msg;
+  toast.className = `toast ${type}`;
+  clearTimeout(toastTimer);
+  requestAnimationFrame(() => {
+    toast.classList.add("show");
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 3800);
+  });
+}
 
-
-function abrirModal(plan, precio){
-
-  planSeleccionado = plan;
+// ── Abrir modal ──
+function abrirModal(plan, precio) {
+  planSeleccionado   = plan;
   precioSeleccionado = precio;
+  paypalRendered     = false;
+  tokenGlobal        = null;
+
+  // Reset UI
+  document.getElementById("modalBadge").textContent        = `Plan ${plan} · ${precio}€/año`;
+  document.getElementById("modalPriceDisplay").textContent  = `${precio}€`;
+  document.getElementById("formScreen").style.display      = "block";
+  document.getElementById("successScreen").style.display   = "none";
+  document.getElementById("accountFields").style.display   = "block";
+  document.getElementById("paypalStep").style.display      = "none";
+  document.getElementById("paypalContainer").innerHTML     = "";
+  document.getElementById("errorMsg").style.display        = "none";
+  document.getElementById("modalTitle").textContent        = "Activa tu clínica";
+  document.getElementById("modalSub").textContent          = "Crea tu cuenta en ReActiva. En menos de 24 horas el bot estará funcionando en tu web.";
+  document.getElementById("step1").className               = "step active";
+  document.getElementById("step2").className               = "step";
+  document.getElementById("btnSubmit").style.display       = "flex";
+  document.getElementById("btnSubmit").disabled            = false;
 
   document.getElementById("modalOverlay").classList.add("active");
   document.body.style.overflow = "hidden";
-
-  if(!paypalRendered && typeof paypal !== "undefined"){
-
-    paypalRendered = true;
-
-    paypal.Buttons({
-
-      style:{
-        layout:"horizontal",
-        color:"gold",
-        shape:"rect",
-        label:"pay",
-        height:44
-      },
-
-      createOrder: async (data, actions)=>{
-
-        const clinica = document.getElementById("inputClinica").value.trim();
-        const email = document.getElementById("inputEmail").value.trim();
-        const pass = document.getElementById("inputPass").value.trim();
-
-        if(!clinica || !email || !pass){
-          mostrarError("Rellena todos los campos antes de pagar.");
-          throw new Error("Campos incompletos");
-        }
-
-        if(pass.length < 8){
-          mostrarError("La contraseña debe tener mínimo 8 caracteres.");
-          throw new Error("Password inválido");
-        }
-
-        if(!email.includes("@")){
-          mostrarError("Email no válido.");
-          throw new Error("Email inválido");
-        }
-
-        try{
-
-          const res = await fetch(`${BACKEND_URL}/api/auth/register`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({
-              clinic_name:clinica,
-              email:email,
-              password:pass
-            })
-          });
-
-          const data = await res.json();
-
-          if(!res.ok && !data.error?.includes("registrado")){
-            throw new Error(data.error || "Error registrando usuario");
-          }
-
-        }catch(err){
-
-          mostrarError(err.message);
-          throw err;
-
-        }
-
-        return actions.order.create({
-          purchase_units:[{
-            amount:{
-              value:precioSeleccionado.toString(),
-              currency_code:"EUR"
-            },
-            description:`ReActiva — Plan ${planSeleccionado}`
-          }]
-        });
-
-      },
-
-      onApprove: async (data, actions)=>{
-
-        const order = await actions.order.capture();
-
-        await completarRegistro(order.id);
-
-      },
-
-      onError:(err)=>{
-
-        console.error(err);
-        mostrarError("Error en el pago. Inténtalo otra vez.");
-
-      }
-
-    }).render("#paypal-button-container");
-
-  }
-
+  setTimeout(() => document.getElementById("inputClinica").focus(), 100);
 }
 
-
-function cerrarModal(){
-
+function cerrarModal() {
   document.getElementById("modalOverlay").classList.remove("active");
-  document.body.style.overflow="";
-
+  document.body.style.overflow = "";
 }
 
+document.getElementById("modalOverlay").addEventListener("click", function(e) {
+  if (e.target === this) cerrarModal();
+});
 
-function mostrarError(msg){
+// ── PASO 1: Registro + Login ──
+async function registrarYContinuar() {
+  const clinica = document.getElementById("inputClinica").value.trim();
+  const email   = document.getElementById("inputEmail").value.trim();
+  const pass    = document.getElementById("inputPass").value.trim();
 
+  document.getElementById("errorMsg").style.display = "none";
+  ["inputClinica","inputEmail","inputPass"].forEach(id =>
+    document.getElementById(id).classList.remove("error-state")
+  );
+
+  if (!clinica) return mostrarError("El nombre de la clínica es obligatorio.", "inputClinica");
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    return mostrarError("Introduce un email válido.", "inputEmail");
+  if (!pass || pass.length < 8)
+    return mostrarError("La contraseña debe tener mínimo 8 caracteres.", "inputPass");
+
+  setLoading(true);
+
+  try {
+    // Registro
+    const regRes  = await fetch(`${BACKEND_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clinic_name: clinica, email, password: pass })
+    });
+    const regData = await regRes.json();
+    if (!regRes.ok && !regData.error?.toLowerCase().includes("registrado"))
+      throw new Error(regData.error || "Error al crear la cuenta.");
+
+    // Login
+    const loginRes  = await fetch(`${BACKEND_URL}/api/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const loginData = await loginRes.json();
+    if (!loginData.token) throw new Error("No se pudo iniciar sesión.");
+
+    tokenGlobal = loginData.token;
+    localStorage.setItem("reactiva_token", tokenGlobal);
+
+    // Ir al paso 2
+    irAlPasoPago();
+
+  } catch (err) {
+    mostrarError(err.message || "Ha ocurrido un error. Inténtalo de nuevo.");
+    showToast(err.message || "Error al registrar.", "error");
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ── Mostrar paso 2 (PayPal) ──
+function irAlPasoPago() {
+  document.getElementById("accountFields").style.display = "none";
+  document.getElementById("paypalStep").style.display    = "block";
+  document.getElementById("step1").className = "step done";
+  document.getElementById("step2").className = "step active";
+  document.getElementById("modalTitle").textContent = "Completa el pago";
+  document.getElementById("modalSub").textContent   = "Paga de forma segura con tu cuenta PayPal o con tarjeta de crédito/débito.";
+
+  if (!paypalRendered) renderPayPal();
+}
+
+// ── Renderizar botón PayPal ──
+function renderPayPal() {
+  paypalRendered = true;
+
+  paypal.Buttons({
+    style: {
+      layout : "vertical",
+      color  : "black",   // negro encaja con nuestro diseño oscuro
+      shape  : "rect",
+      label  : "pay",
+      height : 45
+    },
+
+    createOrder: async () => {
+      const res = await fetch(`${BACKEND_URL}/api/pagos/create-order`, {
+        method : "POST",
+        headers: {
+          "Content-Type" : "application/json",
+          "Authorization": `Bearer ${tokenGlobal}`
+        },
+        body: JSON.stringify({ plan: planSeleccionado, amount: precioSeleccionado })
+      });
+      const data = await res.json();
+      if (!data.id) throw new Error("No se pudo crear la orden de pago.");
+      return data.id;
+    },
+
+    onApprove: async (data) => {
+      setLoading2(true);
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/pagos/capture-order`, {
+          method : "POST",
+          headers: {
+            "Content-Type" : "application/json",
+            "Authorization": `Bearer ${tokenGlobal}`
+          },
+          body: JSON.stringify({
+            orderID: data.orderID,
+            plan   : planSeleccionado,
+            amount : precioSeleccionado
+          })
+        });
+        const result = await res.json();
+        if (!result.success) throw new Error(result.error || "Error al confirmar el pago.");
+
+        // Éxito
+        document.getElementById("formScreen").style.display   = "none";
+        document.getElementById("successScreen").style.display = "block";
+        showToast("¡Pago completado! Bienvenido a ReActiva ✓", "success");
+
+      } catch (err) {
+        mostrarError2(err.message);
+        showToast(err.message, "error");
+      } finally {
+        setLoading2(false);
+      }
+    },
+
+    onCancel: () => {
+      mostrarError2("Pago cancelado. Puedes intentarlo de nuevo cuando quieras.");
+    },
+
+    onError: (err) => {
+      console.error("PayPal error:", err);
+      mostrarError2("Error en el pago. Por favor inténtalo de nuevo.");
+      showToast("Error en el pago de PayPal.", "error");
+    }
+
+  }).render("#paypalContainer");
+}
+
+// ── Helpers ──
+function mostrarError(msg, inputId) {
   const el = document.getElementById("errorMsg");
   el.textContent = msg;
   el.style.display = "block";
-
-}
-
-
-async function completarRegistro(paypalOrderId){
-
-  const email = document.getElementById("inputEmail").value.trim();
-  const pass = document.getElementById("inputPass").value.trim();
-
-  try{
-
-    const loginRes = await fetch(`${BACKEND_URL}/api/auth/login`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        email:email,
-        password:pass
-      })
-    });
-
-    const loginData = await loginRes.json();
-
-    if(!loginData.token){
-      throw new Error("Error al iniciar sesión tras el pago.");
-    }
-
-    await fetch(`${BACKEND_URL}/api/payment`,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":`Bearer ${loginData.token}`
-      },
-      body:JSON.stringify({
-        plan:planSeleccionado,
-        paypal_order_id:paypalOrderId,
-        amount:precioSeleccionado
-      })
-    });
-
-    localStorage.setItem("reactiva_token",loginData.token);
-
-    document.getElementById("formScreen").style.display="none";
-    document.getElementById("successScreen").style.display="block";
-
-  }catch(err){
-
-    console.error(err);
-    mostrarError(err.message);
-
+  if (inputId) {
+    document.getElementById(inputId).classList.add("error-state");
+    document.getElementById(inputId).focus();
   }
-
 }
 
-
-function toggleFaq(el){
-
-  el.classList.toggle("open");
-
+function mostrarError2(msg) {
+  const el = document.getElementById("errorMsg2");
+  el.textContent = msg;
+  el.style.display = "block";
 }
 
+function setLoading(state) {
+  const btn = document.getElementById("btnSubmit");
+  btn.disabled = state;
+  btn.classList.toggle("loading", state);
+  document.getElementById("spinner").style.display = state ? "block" : "none";
+}
 
-document.getElementById("modalOverlay").addEventListener("click",function(e){
+function setLoading2(state) {
+  document.getElementById("paypalContainer").style.opacity = state ? "0.5" : "1";
+  document.getElementById("paypalContainer").style.pointerEvents = state ? "none" : "auto";
+}
 
-  if(e.target === this){
-    cerrarModal();
-  }
+function toggleFaq(el) { el.classList.toggle("open"); }
 
+["inputClinica","inputEmail","inputPass"].forEach(id => {
+  document.getElementById(id)?.addEventListener("keydown", e => {
+    if (e.key === "Enter") registrarYContinuar();
+  });
 });
-
 </script>
+</body>
+</html>
