@@ -30,6 +30,7 @@ const leadsRoutes     = require("./routes/leads");
 const authRoutes      = require("./routes/auth");
 const dashboardRoutes = require("./routes/dashboard");
 const pagosRouter     = require("./routes/payments");
+const { iniciarRecordatorios } = require("./services/recordatorios");
 
 // Webhook con bot multicanal + procesarRecordatorios exportado
 const webhookRoutes           = require("./routes/webhook");
@@ -44,7 +45,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "reactiva_secret";
 // Webhook de Meta necesita raw antes que json()
 // ─────────────────────────────────────────────
 app.use((req, res, next) => {
-    if (req.path.startsWith("/webhook")) {
+    if (req.path.startsWith("/webhook") && req.method === "POST") {
         express.raw({ type: "*/*" })(req, res, () => {
             try { req.body = JSON.parse(req.body.toString()); } catch { req.body = {}; }
             next();
@@ -53,6 +54,7 @@ app.use((req, res, next) => {
         express.json()(req, res, next);
     }
 });
+
 app.use(express.urlencoded({ extended: true }));
 
 // ─────────────────────────────────────────────

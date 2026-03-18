@@ -1,40 +1,49 @@
-const cron = require("node-cron")
-const db = require("../database")
+// services/recordatorios.js
+const db = require("../database");
 
-function iniciarRecordatorios(){
+function iniciarRecordatorios(app) {
+  const HORA_MS = 60 * 60 * 1000;
 
-cron.schedule("0 * * * *", ()=>{
+  async function enviarRecordatorios() {
+    const mañana = new Date();
+    mañana.setDate(mañana.getDate() + 1);
+    const fecha = mañana.toISOString().split("T")[0];
 
-const mañana = new Date()
-mañana.setDate(mañana.getDate()+1)
+    db.all(`
+      SELECT c.*, u.clinic_name, u.email AS clinic_email
+      FROM citas c
+      LEFT JOIN users u ON u.id = c.clinic_id
+      WHERE c.fecha=? AND c.status='confirmada'
+    `, [fecha], (err, citas) => {
+      if (err) return console.error("❌ Error al obtener citas:", err);
+      if (!citas || citas.length === 0) return;
 
-const fecha = mañana.toISOString().split("T")[0]
+      const sendEmail = app.get("sendEmail");
 
-db.all(`
-SELECT * FROM citas
-WHERE fecha=? AND status='confirmada'
-`,[fecha],(err,citas)=>{
+      citas.forEach(c => {
+        if (sendEmail && c.email) { // aquí usamos el email del paciente
+          const subject = `Recordatorio cita ${c.clinic_name}`;
+          const text = `
+Hola ${c.name},
 
-if(!citas) return
+Te recordamos tu cita programada para mañana:
 
-citas.forEach(c=>{
+📅 Fecha: ${c.fecha}
+⏰ Hora: ${c.hora}
+🏥 Clínica: ${c.clinic_name}
 
-console.log("🔔 Recordatorio cita:",c.telefono,c.fecha,c.hora)
+Si necesitas cancelar o reprogramar, por favor contáctanos.
+          `;
+          sendEmail(c.email, text, subject);
+          console.log(`🔔 Recordatorio enviado a ${c.name} | ${c.fecha} ${c.hora}`);
+        }
+      });
+    });
+  }
 
-/*
-aquí puedes enviar:
-
-WhatsApp
-email
-sms
-*/
-
-})
-
-})
-
-})
-
+  // Ejecutar cada hora
+  setInterval(enviarRecordatorios, HORA_MS);
+  setTimeout(enviarRecordatorios, 8_000); // primera vez 8s después de iniciar
 }
 
-module.exports = { iniciarRecordatorios }
+module.exports = { iniciarRecordatorios };

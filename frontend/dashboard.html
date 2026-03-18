@@ -64,13 +64,29 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 /* CONTENT */
 .content{padding:28px 36px;flex:1}
 
-/* WELCOME BANNER */
-.welcome-banner{background:linear-gradient(135deg,rgba(0,230,118,.08) 0%,rgba(0,230,118,.03) 60%,transparent 100%);border:1px solid var(--verde-borde);border-radius:16px;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;position:relative;overflow:hidden;animation:slideDown .5s ease both}
-.welcome-banner::after{content:'🦷';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:2.5rem;opacity:.15}
+/* WELCOME BANNER PREMIUM */
+.welcome-banner{background:linear-gradient(120deg,rgba(0,230,118,.07) 0%,rgba(0,230,118,.03) 50%,rgba(78,168,240,.04) 100%);border:1px solid var(--verde-borde);border-radius:20px;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px;position:relative;overflow:hidden;animation:slideDown .5s ease both}
+/* orbe animado de fondo */
+.welcome-banner::before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,.07) 0%,transparent 70%);right:-80px;top:-100px;pointer-events:none;animation:orbFloat 6s ease-in-out infinite}
+@keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(12px) scale(1.04)}}
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.wb-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--verde);margin-bottom:3px}
-.wb-sub{font-size:.8rem;color:var(--gris-texto)}
-.wb-close{background:none;border:none;color:var(--gris-texto);cursor:pointer;font-size:1rem;padding:4px;transition:color .2s}
+
+/* iniciales */
+.wb-initials{flex-shrink:0;width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,rgba(0,230,118,.15),rgba(0,230,118,.05));border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--verde);letter-spacing:-.02em;animation:initIn .6s cubic-bezier(.2,.8,.3,1) both;position:relative;z-index:1}
+@keyframes initIn{from{opacity:0;transform:scale(.7) rotate(-8deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+
+/* texto */
+.wb-body{flex:1;position:relative;z-index:1}
+.wb-greeting{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--verde);opacity:.75;margin-bottom:4px}
+.wb-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--blanco);line-height:1.2;margin-bottom:8px}
+.wb-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.wb-bot-status{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;color:var(--verde)}
+.wb-bot-dot{width:6px;height:6px;border-radius:50%;background:var(--verde);animation:livePulse 1.5s ease-in-out infinite;flex-shrink:0}
+.wb-phrase{font-size:.72rem;color:var(--gris-texto);font-style:italic;animation:fadePhrase .6s ease both}
+@keyframes fadePhrase{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:translateX(0)}}
+
+/* cierre */
+.wb-close{background:none;border:none;color:var(--gris-texto);cursor:pointer;font-size:1rem;padding:6px;transition:color .2s;flex-shrink:0;position:relative;z-index:1;align-self:flex-start}
 .wb-close:hover{color:var(--blanco)}
 
 /* KPIs */
@@ -186,7 +202,7 @@ tbody tr:last-child td{border-bottom:none}
 .slot-card.libre .slot-status{color:var(--verde)}
 .slot-card.ocupado .slot-status{color:var(--rojo)}
 .slot-patient{font-size:.68rem;color:var(--gris-texto);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.slot-del{position:absolute;top:6px;right:6px;background:none;border:none;color:rgba(255,92,92,.5);cursor:pointer;font-size:.75rem;padding:2px 4px;border-radius:4px;transition:all .15s;opacity:0}
+.slot-del{position:absolute;top:6px;right:6px;background:none;border:none;color:rgba(255,92,92,.5);cursor:pointer;font-size:.75rem;padding:2px 4px;border-radius:4px;transition:all .15px;opacity:0}
 .slot-card:hover .slot-del{opacity:1}
 .slot-del:hover{background:rgba(255,92,92,.15);color:var(--rojo)}
 
@@ -299,9 +315,14 @@ tbody tr:last-child td{border-bottom:none}
 
     <!-- WELCOME -->
     <div class="welcome-banner" id="welcomeBanner">
-      <div>
-        <div class="wb-title" id="wbTitle">¡Bienvenido de vuelta! 👋</div>
-        <div class="wb-sub">Tu bot está activo y capturando leads ahora mismo.</div>
+      <div class="wb-initials" id="wbInitials">?</div>
+      <div class="wb-body">
+        <div class="wb-greeting" id="wbGreeting">Buenos días</div>
+        <div class="wb-title" id="wbTitle">Bienvenido de vuelta</div>
+        <div class="wb-meta">
+          <span class="wb-bot-status"><span class="wb-bot-dot"></span> Bot activo · capturando leads</span>
+          <span class="wb-phrase" id="wbPhrase"></span>
+        </div>
       </div>
       <button class="wb-close" onclick="document.getElementById('welcomeBanner').style.display='none'">✕</button>
     </div>
@@ -506,6 +527,45 @@ tbody tr:last-child td{border-bottom:none}
   <div class="toast-bar" id="toastBar"></div>
 </div>
 
+<!-- ── SCRIPT 1: Demo de citas (se ejecuta antes que cualquier uso de citas) ── -->
+<script>
+function initDemoCitas() {
+  if (!localStorage.getItem("reactiva_citas_v2")) {
+    const demo = [
+      {
+        id: "1",
+        fecha: "2026-03-20",
+        hora: "10:00",
+        paciente: "María López",
+        servicio: "Blanqueamiento",
+        telefono: "600123456"
+      },
+      {
+        id: "2",
+        fecha: "2026-03-20",
+        hora: "11:30",
+        paciente: "Juan García",
+        servicio: "Implantes",
+        telefono: "611987654"
+      }
+    ];
+    localStorage.setItem("reactiva_citas_v2", JSON.stringify(demo));
+  }
+}
+initDemoCitas();
+</script>
+
+<!-- ── SCRIPT 2: Helpers loadCitas / saveCitas ── -->
+<script>
+function loadCitas() {
+  return JSON.parse(localStorage.getItem("reactiva_citas_v2")) || [];
+}
+function saveCitas(citas) {
+  localStorage.setItem("reactiva_citas_v2", JSON.stringify(citas));
+}
+</script>
+
+<!-- ── SCRIPT 3: Lógica principal ── -->
 <script>
 const BACKEND_URL = "https://reactiva-backend.up.railway.app";
 const TOKEN = localStorage.getItem("reactiva_token") || localStorage.getItem("token");
@@ -514,8 +574,6 @@ let toastTimer;
 
 // ── CITAS: almacenadas en localStorage ──
 const CITAS_KEY = "reactiva_citas_v2";
-function loadCitas(){ try{ return JSON.parse(localStorage.getItem(CITAS_KEY)||"[]"); }catch{ return []; } }
-function saveCitas(arr){ localStorage.setItem(CITAS_KEY, JSON.stringify(arr)); }
 let citas = loadCitas();
 
 // Slots del día
@@ -537,10 +595,33 @@ document.addEventListener("DOMContentLoaded", ()=>{
     const n = p.clinic_name || "Clínica";
     document.getElementById("userName").textContent = n;
     document.getElementById("userAvatar").textContent = n[0].toUpperCase();
-    document.getElementById("wbTitle").textContent = `¡Bienvenido, ${n}! 👋`;
     const chip = document.getElementById("planChip");
     chip.textContent = p.plan || "basic";
     if((p.plan||"")==="premium") chip.classList.add("premium");
+
+    // ── Banner premium ──
+    // Iniciales (hasta 2 caracteres)
+    const initials = n.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    document.getElementById("wbInitials").textContent = initials;
+    document.getElementById("wbTitle").textContent = n;
+
+    // Saludo por hora del día
+    const h = new Date().getHours();
+    const greet = h < 13 ? "Buenos días ☀️" : h < 20 ? "Buenas tardes 🌤" : "Buenas noches 🌙";
+    document.getElementById("wbGreeting").textContent = greet;
+
+    // Frase motivadora rotativa
+    const frases = [
+      "Cada lead es una oportunidad. ¡A por ellos!",
+      "Tu bot nunca duerme. Tú puedes descansar.",
+      "Hoy es un buen día para convertir leads.",
+      "La constancia construye clínicas de éxito.",
+      "Los mejores resultados empiezan con un buen sistema.",
+      "Datos claros, decisiones inteligentes.",
+      "Tu próximo cliente ya te está buscando.",
+    ];
+    const frase = frases[Math.floor(Math.random() * frases.length)];
+    document.getElementById("wbPhrase").textContent = "✦ " + frase;
   }
   updateCitasBadge();
   loadDashboard();

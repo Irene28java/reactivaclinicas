@@ -3,574 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ReActiva Clínicas</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>ReActiva · Automatización para Clínicas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --negro: #07090d;
-    --blanco: #f0ede8;
-    --verde: #00e676;
-    --verde-dim: rgba(0,230,118,0.1);
-    --verde-borde: rgba(0,230,118,0.28);
-    --gris: #111418;
-    --gris2: #181d24;
-    --gris-texto: #6e7a8a;
-  }
+:root {
+  --negro:       #07090d;
+  --blanco:      #f0ede8;
+  --verde:       #00e676;
+  --verde-dim:   rgba(0,230,118,0.1);
+  --verde-borde: rgba(0,230,118,0.25);
+  --gris:        #0f1318;
+  --gris2:       #141920;
+  --gris3:       #1a2028;
+  --gris-texto:  #6e7a8a;
+  --azul:        #4ea8f0;
+  --oro:         #d4a843;
+  --rojo:        #ff5c5c;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);overflow-x:hidden}
 
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
+/* Grain overlay */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.35}
 
-  body {
-    font-family:'Syne', sans-serif;
-    background:var(--negro);
-    color:var(--blanco);
-    overflow-x:hidden;
-  }
+/* Background orbs */
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(100px)}
+.orb-1{width:700px;height:700px;background:rgba(0,230,118,.04);top:-200px;left:-200px;animation:orbDrift 12s ease-in-out infinite alternate}
+.orb-2{width:500px;height:500px;background:rgba(78,168,240,.03);bottom:-150px;right:-150px;animation:orbDrift 15s ease-in-out infinite alternate-reverse}
+.orb-3{width:300px;height:300px;background:rgba(212,168,67,.025);top:40%;left:50%;animation:orbDrift 10s ease-in-out infinite alternate}
+@keyframes orbDrift{from{transform:translate(0,0)}to{transform:translate(30px,20px)}}
 
-  /* Grain */
-  body::after {
-    content:''; position:fixed; inset:0;
-    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
-    pointer-events:none; z-index:999; opacity:.35;
-  }
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 56px;background:rgba(7,9,13,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.04)}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:var(--blanco)}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-link{color:var(--gris-texto);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .2s}
+.nav-link:hover{color:var(--blanco)}
+.nav-cta{padding:9px 22px;background:var(--verde);color:var(--negro);border-radius:9px;font-size:.83rem;font-weight:700;text-decoration:none;transition:all .2s}
+.nav-cta:hover{background:#1fffa0;box-shadow:0 4px 20px rgba(0,230,118,.35)}
 
-  /* Orbs */
-  .orb { position:fixed; border-radius:50%; pointer-events:none; z-index:0; filter:blur(90px); }
-  .orb-1 { width:600px; height:600px; background:rgba(0,230,118,0.05); top:-150px; left:-150px; }
-  .orb-2 { width:400px; height:400px; background:rgba(212,168,67,0.04); bottom:-100px; right:-100px; }
+/* ── HERO + DEMO FUSED ── */
+.hero-wrap{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:90px 56px 0;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
 
-  /* ── NAV ── */
-nav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
+/* Left col */
+.hero-left{padding-top:12px}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:7px 16px;border-radius:100px;margin-bottom:28px}
+.pill-dot{width:6px;height:6px;border-radius:50%;background:var(--verde);animation:pillPulse 2s ease-in-out infinite}
+@keyframes pillPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,4vw,4rem);font-weight:700;line-height:1.06;letter-spacing:-.01em;margin-bottom:22px}
+h1 em{font-style:italic;color:var(--verde)}
 
-  padding: 20px 56px;
+.hero-desc{color:var(--gris-texto);font-size:.97rem;line-height:1.78;max-width:460px;margin-bottom:36px}
 
-  background: rgba(7,9,13,0.88);
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px}
+.btn{padding:14px 28px;border-radius:12px;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
+.btn.primary{background:var(--verde);color:var(--negro)}
+.btn.primary:hover{background:#1fffa0;box-shadow:0 8px 32px rgba(0,230,118,.35);transform:translateY(-2px)}
+.btn.ghost{background:transparent;color:var(--blanco);border:1px solid rgba(255,255,255,.12)}
+.btn.ghost:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.04)}
 
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+/* Proof bar */
+.proof-bar{display:flex;gap:0;border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.02)}
+.proof-item{flex:1;padding:16px 20px;text-align:center;border-right:1px solid rgba(255,255,255,.06)}
+.proof-item:last-child{border-right:none}
+.proof-num{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--verde);line-height:1;margin-bottom:4px}
+.proof-label{font-size:.68rem;color:var(--gris-texto);font-weight:500}
 
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+/* Right col — live dashboard preview */
+.hero-right{position:relative}
+.dashboard-frame{background:var(--gris2);border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);position:relative}
+
+/* Fake browser bar */
+.frame-bar{background:#0b0e14;border-bottom:1px solid rgba(255,255,255,.05);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.frame-dots{display:flex;gap:5px}
+.fdot{width:9px;height:9px;border-radius:50%}
+.fdot.r{background:#ff5f57}.fdot.y{background:#febc2e}.fdot.g{background:#28c840}
+.frame-url{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:5px;padding:3px 11px;font-size:.68rem;color:var(--gris-texto);max-width:220px}
+.frame-live{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:.65rem;color:var(--verde);font-weight:600}
+.frame-live-dot{width:5px;height:5px;border-radius:50%;background:var(--verde);animation:pillPulse 1.4s ease-in-out infinite}
+
+/* Mock dash content */
+.mock-content{padding:16px}
+.mock-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.mock-kpi{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;position:relative;overflow:hidden}
+.mock-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px}
+.mk-v::before{background:var(--verde)}.mk-a::before{background:var(--azul)}.mk-o::before{background:var(--oro)}.mk-r::before{background:var(--rojo)}
+.mk-label{font-size:.58rem;color:var(--gris-texto);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.mk-value{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;line-height:1;margin-bottom:3px}
+.mk-delta{font-size:.58rem;color:var(--verde)}
+.mk-delta.neu{color:var(--gris-texto)}
+
+.mock-mid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mock-panel{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:12px}
+.mp-title{font-size:.6rem;font-weight:700;color:var(--gris-texto);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+
+/* Bars */
+.mock-bars{display:flex;align-items:flex-end;gap:4px;height:60px;margin-bottom:5px}
+.mock-bar{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--verde),rgba(0,230,118,.3));transition:height 1s cubic-bezier(.2,.8,.3,1)}
+.mock-bar-days{display:flex;gap:4px}
+.mock-bar-days span{flex:1;text-align:center;font-size:.52rem;color:var(--gris-texto)}
+
+/* Lead rows */
+.mock-lead{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.mock-lead:last-child{border-bottom:none}
+.ml-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ml-name{font-size:.65rem;font-weight:600;flex:1}
+.ml-svc{font-size:.58rem;color:var(--gris-texto)}
+.ml-badge-mini{font-size:.54rem;padding:2px 6px;border-radius:100px;background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde);font-weight:700;white-space:nowrap}
+
+/* Notification toast inside frame */
+.mock-toast{position:absolute;bottom:12px;right:12px;background:var(--gris);border:1px solid rgba(0,230,118,.3);border-radius:11px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 28px rgba(0,0,0,.5);max-width:300px;animation:toastUp .4s cubic-bezier(.2,.8,.3,1) both;z-index:10}
+@keyframes toastUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.mt-icon{font-size:1rem}
+.mt-body strong{display:block;font-size:.72rem;color:var(--verde);margin-bottom:1px}
+.mt-body span{font-size:.65rem;color:var(--gris-texto)}
+.mt-time{font-size:.6rem;color:var(--gris-texto);white-space:nowrap;margin-left:auto}
+
+/* Floating chat preview */
+.chat-float{position:absolute;top:-24px;right:-28px;width:210px;background:var(--gris);border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.55);z-index:5;animation:floatIn .6s .3s cubic-bezier(.2,.8,.3,1) both}
+@keyframes floatIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.cf-header{background:#0b0e14;padding:9px 12px;display:flex;align-items:center;gap:7px;border-bottom:1px solid rgba(255,255,255,.05)}
+.cf-avatar{width:24px;height:24px;border-radius:50%;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--verde);font-weight:700}
+.cf-name{font-size:.68rem;font-weight:700}
+.cf-status{font-size:.57rem;color:var(--verde)}
+.cf-body{padding:9px 10px;display:flex;flex-direction:column;gap:6px;min-height:100px}
+.cf-msg{max-width:92%;font-size:.66rem;padding:6px 9px;border-radius:9px;line-height:1.5}
+.cf-msg.bot{background:rgba(255,255,255,.07);color:var(--blanco);align-self:flex-start;border-radius:2px 9px 9px 9px}
+.cf-msg.user{background:var(--verde);color:var(--negro);align-self:flex-end;border-radius:9px 2px 9px 9px;font-weight:600}
+
+/* Below hero */
+.hero-bottom{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:40px 56px 80px}
+
+/* Social proof strip */
+.proof-strip{display:flex;align-items:center;gap:10px;margin-bottom:60px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.06)}
+.proof-avatars{display:flex}
+.proof-av{width:32px;height:32px;border-radius:50%;border:2px solid var(--negro);background:var(--gris2);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;margin-left:-8px;color:var(--verde)}
+.proof-av:first-child{margin-left:0}
+.proof-strip-text{font-size:.8rem;color:var(--gris-texto)}
+.proof-strip-text strong{color:var(--blanco)}
+.proof-stars{color:var(--oro);font-size:.8rem;margin-left:auto}
+
+/* ── FEATURES ── */
+.features-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:80px}
+.feat{background:var(--gris2);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:28px 24px;transition:all .3s;position:relative;overflow:hidden}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,230,118,.3),transparent);opacity:0;transition:opacity .3s}
+.feat:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.1)}
+.feat:hover::before{opacity:1}
+.feat-icon{width:46px;height:46px;border-radius:13px;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin-bottom:18px}
+.feat-title{font-size:.95rem;font-weight:700;margin-bottom:8px}
+.feat-desc{font-size:.82rem;color:var(--gris-texto);line-height:1.68}
+.feat-tag{display:inline-flex;align-items:center;gap:5px;margin-top:14px;font-size:.68rem;font-weight:700;color:var(--verde);letter-spacing:.06em;text-transform:uppercase}
+
+/* ── HOW IT WORKS ── */
+.how-wrap{margin-bottom:80px}
+.section-label{font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--verde);margin-bottom:14px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.7rem);font-weight:700;margin-bottom:40px;max-width:520px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+.steps::before{content:'';position:absolute;top:22px;left:calc(16.66% + 12px);right:calc(16.66% + 12px);height:1px;background:linear-gradient(90deg,var(--verde-borde),rgba(0,230,118,.08));z-index:0}
+.step{padding:0 20px;position:relative;z-index:1}
+.step-num{width:44px;height:44px;border-radius:50%;background:var(--gris2);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--verde);margin-bottom:16px}
+.step-title{font-size:.9rem;font-weight:700;margin-bottom:8px}
+.step-desc{font-size:.8rem;color:var(--gris-texto);line-height:1.65}
+
+
+/* ── CHANNELS SECTION ── */
+.channels-section{margin-bottom:80px;position:relative}
+.channels-headline{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:36px;flex-wrap:wrap}
+.channels-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,2.8vw,2.4rem);font-weight:700;line-height:1.15;max-width:440px}
+.channels-title em{font-style:italic;color:var(--verde)}
+.channels-sub{font-size:.83rem;color:var(--gris-texto);line-height:1.7;max-width:300px;flex-shrink:0}
+
+/* Main channel grid */
+.channels-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* Big channel card */
+.ch-card{border-radius:18px;padding:28px 26px;border:1px solid rgba(255,255,255,.07);position:relative;overflow:hidden;transition:transform .3s,border-color .3s;cursor:default}
+.ch-card:hover{transform:translateY(-4px)}
+.ch-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;border-radius:18px}
+.ch-card:hover::before{opacity:1}
+
+/* Instagram */
+.ch-ig{background:linear-gradient(135deg,rgba(131,58,180,.08),rgba(253,29,29,.06),rgba(252,176,69,.05))}
+.ch-ig{border-color:rgba(131,58,180,.2)}
+.ch-ig:hover{border-color:rgba(131,58,180,.4)}
+.ch-ig .ch-icon-wrap{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);box-shadow:0 8px 24px rgba(131,58,180,.3)}
+
+/* Facebook Messenger */
+.ch-fb{background:linear-gradient(135deg,rgba(0,120,255,.07),rgba(0,120,255,.03))}
+.ch-fb{border-color:rgba(0,120,255,.2)}
+.ch-fb:hover{border-color:rgba(0,120,255,.4)}
+.ch-fb .ch-icon-wrap{background:linear-gradient(135deg,#0078ff,#00c6ff);box-shadow:0 8px 24px rgba(0,120,255,.3)}
+
+/* Email */
+.ch-email{background:linear-gradient(135deg,rgba(0,230,118,.07),rgba(0,230,118,.03))}
+.ch-email{border-color:var(--verde-borde)}
+.ch-email:hover{border-color:rgba(0,230,118,.5)}
+.ch-email .ch-icon-wrap{background:linear-gradient(135deg,#00e676,#00b248);box-shadow:0 8px 24px rgba(0,230,118,.3)}
+
+.ch-icon-wrap{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;flex-shrink:0}
+.ch-icon-wrap svg{width:24px;height:24px}
+
+.ch-name{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;opacity:.6}
+.ch-title{font-size:1rem;font-weight:700;margin-bottom:10px;line-height:1.3}
+.ch-desc{font-size:.8rem;color:var(--gris-texto);line-height:1.65}
+
+/* Live badge on each card */
+.ch-live{position:absolute;top:16px;right:16px;display:flex;align-items:center;gap:5px;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--verde);background:var(--verde-dim);border:1px solid var(--verde-borde);padding:3px 9px;border-radius:100px}
+.ch-live-dot{width:5px;height:5px;border-radius:50%;background:var(--verde);animation:pillPulse 1.6s ease-in-out infinite}
+
+/* Bottom strip: all channels connected */
+.channels-strip{margin-top:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cs-left{display:flex;align-items:center;gap:12px}
+.cs-icons{display:flex;gap:8px}
+.cs-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.cs-icon.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
+.cs-icon.fb{background:linear-gradient(135deg,#0078ff,#00c6ff)}
+.cs-icon.em{background:linear-gradient(135deg,#00e676,#00b248)}
+.cs-icon svg{width:14px;height:14px}
+.cs-text{font-size:.82rem;font-weight:600}
+.cs-sub{font-size:.72rem;color:var(--gris-texto);margin-top:1px}
+.cs-badge{font-size:.72rem;font-weight:700;color:var(--verde);background:var(--verde-dim);border:1px solid var(--verde-borde);padding:5px 14px;border-radius:100px}
+
+@media(max-width:760px){
+  .channels-grid{grid-template-columns:1fr}
+  .channels-headline{flex-direction:column;align-items:flex-start}
 }
 
-  .logo-wrap { display:flex; align-items:center; gap:10px; text-decoration:none; }
-  .logo-text {
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.45rem; font-weight:700; color:var(--blanco);
-  }
-  .logo-text span { color:var(--verde); }
+/* ── CTA BANNER ── */
+.cta-banner{background:linear-gradient(120deg,rgba(0,230,118,.07) 0%,rgba(0,230,118,.03) 50%,rgba(78,168,240,.04) 100%);border:1px solid var(--verde-borde);border-radius:22px;padding:52px 56px;display:flex;align-items:center;justify-content:space-between;gap:40px;margin-bottom:80px;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,.06),transparent 70%);right:-120px;top:-120px;pointer-events:none}
+.cta-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,2.5vw,2.4rem);font-weight:700;line-height:1.15;margin-bottom:10px;max-width:460px}
+.cta-title em{font-style:italic;color:var(--verde)}
+.cta-sub{font-size:.85rem;color:var(--gris-texto);line-height:1.6}
+.cta-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0}
+.cta-note{font-size:.72rem;color:var(--gris-texto)}
 
-  .nav-right { display:flex; align-items:center; gap:20px; }
-  .nav-link { color:var(--gris-texto); text-decoration:none; font-size:0.82rem; font-weight:500; transition:color 0.2s; }
-  .nav-link:hover { color:var(--blanco); }
-  .nav-cta {
-    padding:9px 20px; background:var(--verde); color:var(--negro);
-    border-radius:9px; font-size:0.82rem; font-weight:700;
-    text-decoration:none; transition:all 0.2s;
-  }
-  .nav-cta:hover { background:#1fffa0; box-shadow:0 4px 16px rgba(0,230,118,0.35); }
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.05);padding:30px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-copy{font-size:.76rem;color:var(--gris-texto)}
+.footer-links{display:flex;gap:22px}
+.footer-link{font-size:.76rem;color:var(--gris-texto);text-decoration:none;transition:color .2s}
+.footer-link:hover{color:var(--blanco)}
 
-  /* ── HERO ── */
-  .hero {
-    position:relative; z-index:1;
-    display:grid; grid-template-columns:1fr 420px;
-    gap:60px; align-items:center;
-    max-width:1100px; margin:0 auto;
-    padding:100px 56px 80px;
-  }
-
-  @media(max-width:900px) {
-    .hero { grid-template-columns:1fr; padding:60px 24px; }
-    nav   { padding:18px 24px; }
-    .chat-widget { max-width:100%; }
-  }
-
-  .hero-pill {
-    display:inline-flex; align-items:center; gap:8px;
-    background:var(--verde-dim); border:1px solid var(--verde-borde);
-    color:var(--verde); font-size:0.72rem; font-weight:600;
-    letter-spacing:0.14em; text-transform:uppercase;
-    padding:7px 16px; border-radius:100px; margin-bottom:28px;
-  }
-  .hero-pill-dot {
-    width:6px; height:6px; border-radius:50%; background:var(--verde);
-    animation:pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%,100% { opacity:1; transform:scale(1); }
-    50% { opacity:0.4; transform:scale(0.7); }
-  }
-
-  h1 {
-    font-family:'Cormorant Garamond', serif;
-    font-size:clamp(2.4rem, 4.5vw, 3.8rem);
-    font-weight:700; line-height:1.08;
-    margin-bottom:22px;
-  }
-  h1 em { font-style:italic; color:var(--verde); }
-
-  .hero-desc {
-    color:var(--gris-texto); font-size:1rem; line-height:1.75;
-    max-width:480px; margin-bottom:36px;
-  }
-
-  .hero-btns { display:flex; gap:14px; flex-wrap:wrap; }
-
-  .btn-hero {
-    padding:14px 28px; border-radius:12px;
-    font-family:'Syne', sans-serif; font-size:0.88rem; font-weight:700;
-    text-decoration:none; cursor:pointer; border:none;
-    transition:all 0.25s;
-  }
-  .btn-hero.primary { background:var(--verde); color:var(--negro); }
-  .btn-hero.primary:hover { background:#1fffa0; box-shadow:0 8px 30px rgba(0,230,118,0.35); transform:translateY(-2px); }
-  .btn-hero.ghost {
-    background:transparent; color:var(--blanco);
-    border:1px solid rgba(255,255,255,0.12);
-  }
-  .btn-hero.ghost:hover { border-color:rgba(255,255,255,0.28); background:rgba(255,255,255,0.04); }
-
-  /* ── STATS ROW ── */
-  .stats-row {
-    display:flex; gap:32px; flex-wrap:wrap;
-    margin-top:44px; padding-top:36px;
-    border-top:1px solid rgba(255,255,255,0.06);
-  }
-  .stat-item {}
-  .stat-num {
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.8rem; font-weight:700; color:var(--verde);
-    line-height:1;
-  }
-  .stat-label { font-size:0.73rem; color:var(--gris-texto); margin-top:3px; }
-
-  /* ── CHAT WIDGET ── */
-  .chat-widget {
-    background:var(--gris2);
-    border:1px solid rgba(255,255,255,0.07);
-    border-radius:20px; overflow:hidden;
-    box-shadow:0 24px 80px rgba(0,0,0,0.45);
-    position:relative; z-index:1;
-  }
-
-  .chat-topbar {
-    background:var(--gris);
-    border-bottom:1px solid rgba(255,255,255,0.05);
-    padding:14px 18px;
-    display:flex; align-items:center; gap:12px;
-  }
-  .chat-avatar {
-    width:34px; height:34px; border-radius:50%;
-    background:var(--verde-dim); border:1px solid var(--verde-borde);
-    display:flex; align-items:center; justify-content:center;
-    font-size:1rem; flex-shrink:0;
-  }
-  .chat-name { font-size:0.85rem; font-weight:700; }
-  .chat-online {
-    display:flex; align-items:center; gap:5px;
-    font-size:0.7rem; color:var(--verde);
-  }
-  .chat-online::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--verde); }
-  .win-dots { margin-left:auto; display:flex; gap:5px; }
-  .win-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.12); }
-
-  .chat-area {
-    height:280px; overflow-y:auto; padding:16px;
-    display:flex; flex-direction:column; gap:10px;
-    scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.08) transparent;
-  }
-
-  .chat-msg {
-    max-width:80%; padding:10px 14px;
-    border-radius:14px; font-size:0.84rem; line-height:1.55;
-    animation:msgIn 0.25s ease;
-  }
-  @keyframes msgIn {
-    from { opacity:0; transform:translateY(6px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-  .chat-msg.bot {
-    background:rgba(255,255,255,0.07); color:var(--blanco);
-    border-radius:4px 14px 14px 14px; align-self:flex-start;
-  }
-  .chat-msg.user {
-    background:var(--verde); color:var(--negro);
-    border-radius:14px 4px 14px 14px;
-    align-self:flex-end; font-weight:500;
-  }
-
-  .typing-indicator {
-    display:flex; gap:4px; align-items:center;
-    padding:10px 14px; background:rgba(255,255,255,0.07);
-    border-radius:4px 14px 14px 14px; align-self:flex-start;
-    width:52px;
-  }
-  .typing-dot {
-    width:6px; height:6px; border-radius:50%;
-    background:var(--gris-texto);
-    animation:typingBounce 1.2s ease-in-out infinite;
-  }
-  .typing-dot:nth-child(2) { animation-delay:0.2s; }
-  .typing-dot:nth-child(3) { animation-delay:0.4s; }
-  @keyframes typingBounce {
-    0%,60%,100% { transform:translateY(0); opacity:0.4; }
-    30% { transform:translateY(-6px); opacity:1; }
-  }
-
-  .chat-input-row {
-    display:flex; align-items:center; gap:8px;
-    padding:12px 14px;
-    border-top:1px solid rgba(255,255,255,0.05);
-    background:var(--gris);
-  }
-  .chat-input {
-    flex:1; background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:10px; padding:10px 14px;
-    color:var(--blanco); font-family:'Syne', sans-serif; font-size:0.84rem;
-    outline:none; transition:border-color 0.2s;
-  }
-  .chat-input:focus { border-color:var(--verde-borde); }
-  .chat-input::placeholder { color:var(--gris-texto); }
-  .chat-send {
-    width:36px; height:36px; border-radius:10px;
-    background:var(--verde); color:var(--negro);
-    border:none; cursor:pointer; font-size:0.9rem;
-    display:flex; align-items:center; justify-content:center;
-    transition:all 0.2s; flex-shrink:0;
-  }
-  .chat-send:hover { background:#1fffa0; transform:scale(1.08); }
-
-  /* ── FEATURES ── */
-  .features-section {
-    position:relative; z-index:1;
-    max-width:1100px; margin:0 auto;
-    padding:80px 56px;
-  }
-
-  .section-label {
-    font-size:0.7rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
-    color:var(--verde); margin-bottom:16px;
-  }
-  .section-title {
-    font-family:'Cormorant Garamond', serif;
-    font-size:clamp(1.8rem, 3vw, 2.8rem); font-weight:700;
-    margin-bottom:56px; max-width:560px;
-  }
-
-  .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-  @media(max-width:720px) { .features-grid { grid-template-columns:1fr; } .features-section { padding:60px 24px; } }
-
-  .feature-card {
-    background:var(--gris2); border:1px solid rgba(255,255,255,0.055);
-    border-radius:16px; padding:28px 24px;
-    transition:transform 0.3s, border-color 0.3s;
-  }
-  .feature-card:hover { transform:translateY(-4px); border-color:rgba(255,255,255,0.1); }
-  .feature-icon {
-    width:44px; height:44px; border-radius:12px;
-    background:var(--verde-dim); border:1px solid var(--verde-borde);
-    color:var(--verde); font-size:1.2rem;
-    display:flex; align-items:center; justify-content:center;
-    margin-bottom:18px;
-  }
-  .feature-title { font-size:0.92rem; font-weight:700; margin-bottom:8px; }
-  .feature-desc { font-size:0.82rem; color:var(--gris-texto); line-height:1.65; }
-
-  /* ── FOOTER ── */
-  footer {
-    position:relative; z-index:1;
-    border-top:1px solid rgba(255,255,255,0.05);
-    padding:32px 56px;
-    display:flex; align-items:center; justify-content:space-between;
-    flex-wrap:wrap; gap:16px;
-  }
-  .footer-copy { font-size:0.78rem; color:var(--gris-texto); }
-  .footer-links { display:flex; gap:20px; }
-  .footer-link { font-size:0.78rem; color:var(--gris-texto); text-decoration:none; transition:color 0.2s; }
-  .footer-link:hover { color:var(--blanco); }
-  @media(max-width:600px) { footer { padding:28px 24px; } }
-
-  /* ── DEMO SECTION ── */
-  .demo-section {
-    position:relative; z-index:1;
-    padding:100px 56px;
-    background: linear-gradient(180deg, transparent 0%, rgba(0,230,118,0.025) 40%, transparent 100%);
-    border-top:1px solid rgba(255,255,255,0.04);
-    border-bottom:1px solid rgba(255,255,255,0.04);
-  }
-  @media(max-width:800px){ .demo-section { padding:60px 20px; } }
-
-  .demo-inner { max-width:1060px; margin:0 auto; }
-
-  .demo-label {
-    font-size:0.7rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase;
-    color:var(--verde); margin-bottom:14px;
-    display:flex; align-items:center; gap:8px;
-  }
-  .demo-label::before {
-    content:''; width:24px; height:1px; background:var(--verde); opacity:0.5;
-  }
-
-  .demo-title {
-    font-family:'Cormorant Garamond', serif;
-    font-size:clamp(2rem,4vw,3.2rem); font-weight:700;
-    line-height:1.1; margin-bottom:14px;
-  }
-  .demo-title em { font-style:italic; color:var(--verde); }
-
-  .demo-sub {
-    color:var(--gris-texto); font-size:0.92rem; line-height:1.7;
-    max-width:520px; margin-bottom:52px;
-  }
-
-  /* Browser frame */
-  .demo-frame {
-    position:relative;
-    background:var(--gris2);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:16px; overflow:hidden;
-    box-shadow:0 32px 100px rgba(0,0,0,0.6),
-               0 0 0 1px rgba(255,255,255,0.03);
-    margin-bottom:40px;
-  }
-
-  .browser-bar {
-    background:#0c1016;
-    border-bottom:1px solid rgba(255,255,255,0.05);
-    padding:10px 16px;
-    display:flex; align-items:center; gap:12px;
-  }
-  .browser-dots { display:flex; gap:6px; }
-  .bdot { width:10px; height:10px; border-radius:50%; }
-  .bdot.red    { background:#ff5f57; }
-  .bdot.yellow { background:#febc2e; }
-  .bdot.green  { background:#28c840; }
-  .browser-url {
-    flex:1; background:rgba(255,255,255,0.04);
-    border:1px solid rgba(255,255,255,0.07);
-    border-radius:6px; padding:4px 12px;
-    font-size:0.72rem; color:var(--gris-texto);
-    max-width:260px;
-  }
-
-  /* Mock dashboard */
-  .mock-dash {
-    display:flex; min-height:360px;
-  }
-
-  .mock-sidebar {
-    width:160px; background:var(--gris); flex-shrink:0;
-    padding:20px 14px;
-    border-right:1px solid rgba(255,255,255,0.04);
-    display:flex; flex-direction:column; gap:4px;
-  }
-  @media(max-width:700px){ .mock-sidebar { display:none; } }
-
-  .mock-logo {
-    display:flex; align-items:center; gap:7px;
-    margin-bottom:20px; padding:0 4px;
-  }
-  .mock-logo-text {
-    font-family:'Cormorant Garamond', serif;
-    font-size:1rem; font-weight:700; color:var(--blanco);
-  }
-  .mock-logo-text span { color:var(--verde); }
-
-  .mock-nav {
-    font-size:0.72rem; font-weight:500; color:var(--gris-texto);
-    padding:8px 10px; border-radius:8px;
-    transition:all 0.15s;
-  }
-  .mock-nav.active-nav {
-    background:var(--verde-dim); color:var(--verde);
-    border:1px solid var(--verde-borde);
-  }
-
-  .mock-content {
-    flex:1; padding:20px; overflow:hidden;
-    display:flex; flex-direction:column; gap:14px;
-  }
-
-  /* KPI row */
-  .mock-kpi-row {
-    display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
-  }
-  @media(max-width:700px){ .mock-kpi-row { grid-template-columns:repeat(2,1fr); } }
-
-  .mock-kpi {
-    background:var(--gris3,#1d242e);
-    border:1px solid rgba(255,255,255,0.05);
-    border-radius:10px; padding:12px 14px;
-    position:relative; overflow:hidden;
-  }
-  .mock-kpi::before {
-    content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  }
-  .mock-kpi.verde::before { background:var(--verde); }
-  .mock-kpi.azul::before  { background:#4ea8f0; }
-  .mock-kpi.oro::before   { background:#d4a843; }
-  .mock-kpi.rojo::before  { background:#ff5c5c; }
-
-  .mk-label { font-size:0.62rem; color:var(--gris-texto); font-weight:600; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:5px; }
-  .mk-value {
-    font-family:'Cormorant Garamond', serif;
-    font-size:1.5rem; font-weight:700; line-height:1; margin-bottom:4px;
-  }
-  .mk-delta { font-size:0.62rem; color:var(--gris-texto); }
-  .mk-delta.up { color:var(--verde); }
-
-  /* Mini chart */
-  .mock-chart-row {
-    display:grid; grid-template-columns:1fr 1fr; gap:10px; flex:1;
-  }
-  @media(max-width:600px){ .mock-chart-row { grid-template-columns:1fr; } }
-
-  .mock-chart-panel {
-    background:rgba(255,255,255,0.02);
-    border:1px solid rgba(255,255,255,0.04);
-    border-radius:10px; padding:12px 14px;
-    overflow:hidden;
-  }
-  .mc-title { font-size:0.68rem; font-weight:700; color:var(--gris-texto); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.06em; }
-
-  .mock-bars {
-    display:flex; align-items:flex-end; gap:5px; height:70px; margin-bottom:6px;
-  }
-  .mock-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; }
-  .mock-bar-inner {
-    width:100%; border-radius:4px 4px 0 0;
-    background:linear-gradient(180deg, var(--verde) 0%, rgba(0,230,118,0.35) 100%);
-    transition:height 1.2s cubic-bezier(.2,.8,.3,1);
-  }
-  .mock-bar-labels {
-    display:flex; gap:5px;
-  }
-  .mock-bar-labels span { flex:1; text-align:center; font-size:0.58rem; color:var(--gris-texto); }
-
-  /* Lead list */
-  .mock-lead-list { display:flex; flex-direction:column; gap:7px; }
-  .mock-lead-row {
-    display:flex; align-items:center; gap:8px;
-    padding:7px 8px; border-radius:8px;
-    background:rgba(255,255,255,0.025);
-    animation:leadSlideIn 0.4s ease both;
-  }
-  @keyframes leadSlideIn {
-    from { opacity:0; transform:translateX(10px); }
-    to   { opacity:1; transform:translateX(0); }
-  }
-  .ml-dot {
-    width:7px; height:7px; border-radius:50%; flex-shrink:0;
-  }
-  .ml-name { font-size:0.72rem; font-weight:600; flex:1; color:var(--blanco); }
-  .ml-service { font-size:0.62rem; color:var(--gris-texto); }
-  .ml-badge {
-    font-size:0.58rem; padding:2px 7px; border-radius:100px;
-    background:var(--verde-dim); color:var(--verde);
-    border:1px solid var(--verde-borde); font-weight:700;
-  }
-
-  /* Notification */
-  .mock-notif {
-    position:absolute; bottom:16px; right:16px;
-    background:var(--gris);
-    border:1px solid rgba(0,230,118,0.3);
-    border-radius:12px; padding:12px 16px;
-    display:flex; align-items:center; gap:12px;
-    box-shadow:0 8px 32px rgba(0,0,0,0.5);
-    max-width:340px;
-    animation:notifIn 0.4s cubic-bezier(.2,.8,.3,1);
-    z-index:10;
-  }
-  @keyframes notifIn {
-    from { opacity:0; transform:translateY(16px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-  .notif-icon { font-size:1.1rem; }
-  .notif-text { flex:1; }
-  .notif-text strong { display:block; font-size:0.78rem; color:var(--verde); margin-bottom:2px; }
-  .notif-text span   { font-size:0.7rem; color:var(--gris-texto); }
-  .notif-time { font-size:0.65rem; color:var(--gris-texto); white-space:nowrap; }
-
-  /* Floating chat */
-  .demo-chat-float {
-    position:absolute; right:20px; top:52px;
-    width:220px;
-    background:var(--gris);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:14px; overflow:hidden;
-    box-shadow:0 16px 48px rgba(0,0,0,0.5);
-    z-index:5;
-  }
-  @media(max-width:900px){ .demo-chat-float { display:none; } }
-
-  .dcf-header {
-    background:#0c1016; padding:10px 12px;
-    display:flex; align-items:center; gap:8px;
-    border-bottom:1px solid rgba(255,255,255,0.05);
-  }
-  .dcf-avatar {
-    width:26px; height:26px; border-radius:50%;
-    background:var(--verde-dim); border:1px solid var(--verde-borde);
-    display:flex; align-items:center; justify-content:center; font-size:0.75rem;
-  }
-  .dcf-name  { font-size:0.72rem; font-weight:700; }
-  .dcf-status{ font-size:0.6rem; color:var(--verde); }
-
-  .dcf-body {
-    padding:10px 10px 10px;
-    display:flex; flex-direction:column; gap:7px;
-    min-height:110px;
-  }
-  .dcf-msg {
-    max-width:90%; font-size:0.7rem; padding:7px 10px;
-    border-radius:10px; line-height:1.5;
-    animation:msgIn 0.3s ease;
-  }
-  .dcf-msg.bot {
-    background:rgba(255,255,255,0.07); color:var(--blanco);
-    align-self:flex-start; border-radius:3px 10px 10px 10px;
-  }
-  .dcf-msg.user {
-    background:var(--verde); color:var(--negro);
-    align-self:flex-end; border-radius:10px 3px 10px 10px; font-weight:600;
-  }
-
-  /* CTA below demo */
-  .demo-cta-row {
-    display:flex; align-items:center; gap:24px; flex-wrap:wrap;
-  }
-  .demo-cta-note { font-size:0.8rem; color:var(--gris-texto); }
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .hero-wrap{grid-template-columns:1fr;padding:60px 28px 0}
+  .hero-right{display:none}
+  nav{padding:18px 28px}
+  .features-wrap{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr}
+  .steps::before{display:none}
+  .step{padding:0;margin-bottom:28px}
+  .cta-banner{flex-direction:column;padding:36px 28px}
+  .cta-right{align-items:flex-start}
+  footer{padding:28px 28px}
+  .hero-bottom{padding:32px 28px 60px}
+  .proof-strip{display:none}
+}
+@media(max-width:620px){
+  .features-wrap{grid-template-columns:1fr}
+  .mock-kpi-row{grid-template-columns:repeat(2,1fr)}
+  .mock-mid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
 
 <!-- NAV -->
 <nav>
   <a href="#" class="logo-wrap">
-    <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
-        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
-        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
-        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
-        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
-        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
-        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+    <svg width="30" height="30" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/><path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/><polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span class="logo-text"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
   </a>
   <div class="nav-right">
@@ -581,346 +290,362 @@ nav {
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
+<!-- ── HERO + DEMO FUSED ── -->
+<div class="hero-wrap">
+
+  <!-- Left -->
   <div class="hero-left">
-    <div class="hero-pill"><div class="hero-pill-dot"></div> Bot activo 24/7</div>
-    <h1>Automatiza mensajes<br>y convierte consultas<br>en <em>pacientes reales</em></h1>
+    <div class="hero-pill"><div class="pill-dot"></div> Automatización clínica · Activo 24/7</div>
+    <h1>Tu clínica siempre<br>abierta.<br><em>Sin perder un solo</em><br><em>paciente.</em></h1>
     <p class="hero-desc">
-      Capturamos datos de cada visitante automáticamente y avisamos a tu clínica al instante. Sin que se escape ni un solo cliente.
+      ReActiva captura automáticamente cada consulta que llega — sea la hora que sea — y la convierte en un lead real con nombre, teléfono y servicio de interés. Tú solo tienes que llamar.
     </p>
     <div class="hero-btns">
-      <a href="precios.html" class="btn-hero primary">Ver planes →</a>
-      <a href="#demo" class="btn-hero ghost">Ver demo</a>
+      <a href="precios.html" class="btn primary">Quiero esto para mi clínica →</a>
+      <a href="dashboard.html" class="btn ghost">Ver el panel</a>
     </div>
-    <div class="stats-row">
-      <div class="stat-item"><div class="stat-num">+94%</div><div class="stat-label">Leads capturados</div></div>
-      <div class="stat-item"><div class="stat-num">24/7</div><div class="stat-label">Bot activo</div></div>
-      <div class="stat-item"><div class="stat-num">&lt;10s</div><div class="stat-label">Aviso a la clínica</div></div>
+    <div class="proof-bar">
+      <div class="proof-item"><div class="proof-num">+94%</div><div class="proof-label">Leads capturados</div></div>
+      <div class="proof-item"><div class="proof-num">24/7</div><div class="proof-label">Bot activo</div></div>
+      <div class="proof-item"><div class="proof-num">&lt;10s</div><div class="proof-label">Aviso al equipo</div></div>
+      <div class="proof-item"><div class="proof-num">×3</div><div class="proof-label">Más conversiones</div></div>
     </div>
   </div>
 
-  <!-- CHAT WIDGET DEMO -->
-  <div class="chat-widget" id="demo">
-    <div class="chat-topbar">
-      <div class="chat-avatar">🦷</div>
+  <!-- Right — live dashboard frame -->
+  <div class="hero-right">
+    <!-- Floating chat -->
+    <div class="chat-float">
+      <div class="cf-header">
+        <div class="cf-avatar">✦</div>
+        <div>
+          <div class="cf-name">Asistente ReActiva</div>
+          <div class="cf-status">● En línea</div>
+        </div>
+      </div>
+      <div class="cf-body" id="cfBody"></div>
+    </div>
+
+    <div class="dashboard-frame">
+      <div class="frame-bar">
+        <div class="frame-dots"><span class="fdot r"></span><span class="fdot y"></span><span class="fdot g"></span></div>
+        <div class="frame-url">reactiva.app/dashboard</div>
+        <div class="frame-live"><span class="frame-live-dot"></span> En vivo</div>
+      </div>
+      <div class="mock-content">
+        <!-- KPIs -->
+        <div class="mock-kpi-row">
+          <div class="mock-kpi mk-v"><div class="mk-label">Leads totales</div><div class="mk-value" id="mkLeads">0</div><div class="mk-delta">▲ hoy</div></div>
+          <div class="mock-kpi mk-a"><div class="mk-label">Convertidos</div><div class="mk-value" id="mkConv">0</div><div class="mk-delta">semana</div></div>
+          <div class="mock-kpi mk-o"><div class="mk-label">Conversión</div><div class="mk-value" id="mkTasa">0%</div><div class="mk-delta neu">del total</div></div>
+          <div class="mock-kpi mk-r"><div class="mk-label">Ingresos est.</div><div class="mk-value" id="mkRev">0€</div><div class="mk-delta">▲ mes</div></div>
+        </div>
+        <!-- Charts -->
+        <div class="mock-mid">
+          <div class="mock-panel">
+            <div class="mp-title">Actividad semanal</div>
+            <div class="mock-bars" id="mkBars"></div>
+            <div class="mock-bar-days"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+          </div>
+          <div class="mock-panel">
+            <div class="mp-title">Últimos leads</div>
+            <div id="mkLeadList"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Notification inside frame -->
+      <div class="mock-toast" id="mkToast" style="display:none">
+        <div class="mt-icon">◎</div>
+        <div class="mt-body">
+          <strong>Nuevo lead capturado</strong>
+          <span id="mkToastText">—</span>
+        </div>
+        <div class="mt-time">ahora</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── HERO BOTTOM ── -->
+<div class="hero-bottom">
+
+  <!-- Social proof strip -->
+  <div class="proof-strip">
+    <div class="proof-avatars">
+      <div class="proof-av">C</div>
+      <div class="proof-av">F</div>
+      <div class="proof-av">M</div>
+      <div class="proof-av">P</div>
+      <div class="proof-av">+</div>
+    </div>
+    <div class="proof-strip-text"><strong>+120 clínicas</strong> ya automatizan su captación con ReActiva</div>
+    <div class="proof-stars">★★★★★ <span style="color:var(--gris-texto);font-size:.75rem">4.9/5</span></div>
+  </div>
+
+  <!-- Features -->
+  <!-- ── CHANNELS SECTION ── -->
+  <div class="channels-section">
+    <div class="channels-headline">
       <div>
-        <div class="chat-name">Asistente ReActiva</div>
-        <div class="chat-online">En línea</div>
+        <div class="section-label">Dónde captamos</div>
+        <div class="channels-title">Tus pacientes están<br>en todas partes.<br><em>Nosotros también.</em></div>
       </div>
-      <div class="win-dots">
-        <div class="win-dot"></div>
-        <div class="win-dot"></div>
-        <div class="win-dot" style="background:rgba(0,230,118,0.5)"></div>
-      </div>
+      <div class="channels-sub">No importa dónde te encuentren — Instagram, Messenger o email — ReActiva captura cada conversación y la convierte en un lead real en tu panel.</div>
     </div>
-    <div class="chat-area" id="chatArea"></div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chatInput" placeholder="Escribe tu consulta...">
-      <button class="chat-send" id="sendBtn">➤</button>
+
+    <div class="channels-grid">
+
+      <!-- Instagram -->
+      <div class="ch-card ch-ig">
+        <div class="ch-live"><div class="ch-live-dot"></div> Activo</div>
+        <div class="ch-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </div>
+        <div class="ch-name">Instagram</div>
+        <div class="ch-title">DMs que no se escapan</div>
+        <div class="ch-desc">Cada mensaje directo en tu perfil de Instagram es respondido al instante y registrado como lead en tu panel. Sin dejar a nadie en visto.</div>
+      </div>
+
+      <!-- Facebook Messenger -->
+      <div class="ch-card ch-fb">
+        <div class="ch-live"><div class="ch-live-dot"></div> Activo</div>
+        <div class="ch-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg>
+        </div>
+        <div class="ch-name">Facebook Messenger</div>
+        <div class="ch-title">Tu página siempre responde</div>
+        <div class="ch-desc">El bot gestiona los mensajes de tu página de Facebook 24/7. Los interesados reciben respuesta inmediata y tú recibes sus datos.</div>
+      </div>
+
+      <!-- Email -->
+      <div class="ch-card ch-email">
+        <div class="ch-live"><div class="ch-live-dot"></div> Activo</div>
+        <div class="ch-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </div>
+        <div class="ch-name">Email</div>
+        <div class="ch-title">Cada consulta, capturada</div>
+        <div class="ch-desc">Los emails de interés se procesan automáticamente. ReActiva extrae los datos clave y los añade a tu panel sin que tengas que revisar la bandeja.</div>
+      </div>
+
+    </div>
+
+    <!-- Bottom strip -->
+    <div class="channels-strip">
+      <div class="cs-left">
+        <div class="cs-icons">
+          <div class="cs-icon ig"><svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+          <div class="cs-icon fb"><svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg></div>
+          <div class="cs-icon em"><svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+        </div>
+        <div>
+          <div class="cs-text">Todos los canales, un solo panel</div>
+          <div class="cs-sub">Instagram · Facebook Messenger · Email · Web chat</div>
+        </div>
+      </div>
+      <div class="cs-badge">✦ Omnicanal incluido</div>
     </div>
   </div>
-</section>
 
-<!-- ── DEMO SECTION ── -->
-<section class="demo-section" id="demo-section">
-  <div class="demo-inner">
-    <div class="demo-label">Demo en vivo</div>
-    <h2 class="demo-title">Mira cómo funciona<br><em>en tiempo real</em></h2>
-    <p class="demo-sub">Así ve el equipo de la clínica cada conversación capturada. El bot trabaja, tú recibes los datos.</p>
-
-    <!-- MOCK DASHBOARD SCREENSHOT -->
-    <div class="demo-frame">
-      <!-- Barra de navegador falsa -->
-      <div class="browser-bar">
-        <div class="browser-dots">
-          <span class="bdot red"></span>
-          <span class="bdot yellow"></span>
-          <span class="bdot green"></span>
-        </div>
-        <div class="browser-url">reactiva.app/dashboard</div>
-      </div>
-
-      <!-- Dashboard mock -->
-      <div class="mock-dash">
-
-        <!-- Sidebar mock -->
-        <div class="mock-sidebar">
-          <div class="mock-logo">
-            <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
-        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
-        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
-        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
-        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
-        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
-        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-            <span class="mock-logo-text">ReActiva<span>.</span></span>
-          </div>
-          <div class="mock-nav active-nav">▦ Dashboard</div>
-          <div class="mock-nav">◎ Leads</div>
-          <div class="mock-nav">◷ Citas</div>
-          <div class="mock-nav">€ Facturación</div>
-        </div>
-
-        <!-- Content mock -->
-        <div class="mock-content">
-
-          <!-- KPIs -->
-          <div class="mock-kpi-row">
-            <div class="mock-kpi verde">
-              <div class="mk-label">Leads totales</div>
-              <div class="mk-value" id="demoLeads">0</div>
-              <div class="mk-delta up">▲ 3 nuevos hoy</div>
-            </div>
-            <div class="mock-kpi azul">
-              <div class="mk-label">Convertidos</div>
-              <div class="mk-value" id="demoConv">0</div>
-              <div class="mk-delta">esta semana</div>
-            </div>
-            <div class="mock-kpi oro">
-              <div class="mk-label">Conversión</div>
-              <div class="mk-value" id="demoTasa">0%</div>
-              <div class="mk-delta">del total</div>
-            </div>
-            <div class="mock-kpi rojo">
-              <div class="mk-label">Ingresos est.</div>
-              <div class="mk-value" id="demoRev">0€</div>
-              <div class="mk-delta up">▲ este mes</div>
-            </div>
-          </div>
-
-          <!-- Mini bar chart -->
-          <div class="mock-chart-row">
-            <div class="mock-chart-panel">
-              <div class="mc-title">Leads esta semana</div>
-              <div class="mock-bars" id="demoBars"></div>
-              <div class="mock-bar-labels">
-                <span>Lun</span><span>Mar</span><span>Mié</span>
-                <span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
-              </div>
-            </div>
-            <div class="mock-chart-panel">
-              <div class="mc-title">Últimos leads</div>
-              <div class="mock-lead-list" id="demoLeadList"></div>
-            </div>
-          </div>
-
-          <!-- Notification badge animada -->
-          <div class="mock-notif" id="demoNotif" style="display:none">
-            <div class="notif-icon">🔔</div>
-            <div class="notif-text">
-              <strong>Nuevo lead capturado</strong>
-              <span id="notifName">Ana García · 612 345 678 · Blanqueamiento</span>
-            </div>
-            <div class="notif-time">ahora</div>
-          </div>
-
-        </div><!-- /mock-content -->
-      </div><!-- /mock-dash -->
-
-      <!-- Chat flotante encima -->
-      <div class="demo-chat-float">
-        <div class="dcf-header">
-          <div class="dcf-avatar">🦷</div>
-          <div>
-            <div class="dcf-name">Asistente</div>
-            <div class="dcf-status">● En línea</div>
-          </div>
-        </div>
-        <div class="dcf-body" id="dcfBody"></div>
-      </div>
-    </div><!-- /demo-frame -->
-
-    <!-- CTA bajo demo -->
-    <div class="demo-cta-row">
-      <a href="precios.html" class="btn-hero primary">Quiero esto para mi clínica →</a>
-      <span class="demo-cta-note">Instalación en menos de 24h · Sin conocimientos técnicos</span>
+  <div class="section-label" id="features">Por qué ReActiva</div>
+  <div class="section-title">Todo lo que necesita tu clínica.<br>Nada de lo que no.</div>
+  <div class="features-wrap">
+    <div class="feat">
+      <div class="feat-icon">◎</div>
+      <div class="feat-title">Captación automática</div>
+      <div class="feat-desc">El bot recoge nombre, teléfono y servicio de cada visita. Sin formularios, sin fricción. Solo una conversación natural que convierte.</div>
+      <div class="feat-tag">→ Funciona solo</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⚡</div>
+      <div class="feat-title">Aviso en tiempo real</div>
+      <div class="feat-desc">En cuanto entra un lead, tu equipo recibe una notificación. El primer centro en llamar convierte hasta 5 veces más. Tú llegas primero.</div>
+      <div class="feat-tag">→ En menos de 10 segundos</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">▦</div>
+      <div class="feat-title">Panel de control</div>
+      <div class="feat-desc">Dashboard en tiempo real con leads, conversiones, ingresos estimados y agenda de citas. Todo en un solo lugar, sin complicaciones.</div>
+      <div class="feat-tag">→ Sin curva de aprendizaje</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">◷</div>
+      <div class="feat-title">Agenda integrada</div>
+      <div class="feat-desc">Gestiona citas directamente desde el panel. Slots libres y ocupados, confirmaciones automáticas y recordatorios. Tu recepcionista digital.</div>
+      <div class="feat-tag">→ Siempre organizado</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">✦</div>
+      <div class="feat-title">Universal y adaptable</div>
+      <div class="feat-desc">Fisioterapia, estética, odontología, podología, psicología. ReActiva se adapta al lenguaje y servicios de cualquier tipo de clínica.</div>
+      <div class="feat-tag">→ Tu especialidad, tu bot</div>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">↓</div>
+      <div class="feat-title">Exporta tus datos</div>
+      <div class="feat-desc">Descarga todos tus leads en CSV con un clic. Intégralos en tu CRM, en Excel o en tu software de gestión. Sin bloqueos, sin dependencias.</div>
+      <div class="feat-tag">→ Tus datos, siempre</div>
     </div>
   </div>
-</section>
 
-<!-- FEATURES -->
-<section class="features-section" id="features">
-  <div class="section-label">Por qué ReActiva</div>
-  <h2 class="section-title">Todo lo que necesita tu clínica para no perder ni un cliente</h2>
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">◎</div>
-      <div class="feature-title">Captación Inteligente</div>
-      <div class="feature-desc">Convertimos cada conversación en un teléfono real. El bot recoge nombre, teléfono y servicio de interés automáticamente.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">⚡</div>
-      <div class="feature-title">Aviso Instantáneo</div>
-      <div class="feature-desc">En cuanto entra un lead, tu equipo recibe una notificación por email. Cero retrasos, máxima conversión.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">▦</div>
-      <div class="feature-title">Panel de Métricas</div>
-      <div class="feature-desc">Visualiza en tiempo real cuántos leads entran, cuántos se convierten y cuántos ingresos genera el bot.</div>
+  <!-- How it works -->
+  <div class="how-wrap">
+    <div class="section-label">Cómo funciona</div>
+    <div class="section-title">En marcha en menos de 24 horas</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Instalamos el bot en tu web</div>
+        <div class="step-desc">Solo necesitamos acceso a tu web. Nosotros configuramos el asistente con tus servicios, horarios y estilo de comunicación.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">El bot capta y cualifica</div>
+        <div class="step-desc">Cada visita que interactúa queda registrada con sus datos. El bot pregunta, responde y convierte sin que intervengas.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Tú llamas y conviertes</div>
+        <div class="step-desc">Recibes el aviso, abres el panel y tienes toda la información del lead lista. Solo queda marcar el número y cerrar la cita.</div>
+      </div>
     </div>
   </div>
-</section>
+
+  <!-- CTA Banner -->
+  <div class="cta-banner">
+    <div>
+      <div class="cta-title">Tu próximo paciente<br>ya está <em>buscándote.</em><br>¿Le vas a dejar ir?</div>
+      <div class="cta-sub">Sin permanencia. Sin conocimientos técnicos. Instalación en 24h.</div>
+    </div>
+    <div class="cta-right">
+      <a href="precios.html" class="btn primary" style="font-size:.92rem;padding:16px 32px">Ver planes y precios →</a>
+      <span class="cta-note">Desde 49€/mes · Cancela cuando quieras</span>
+    </div>
+  </div>
+
+</div>
 
 <!-- FOOTER -->
 <footer>
-  <div class="logo-wrap" style="text-decoration:none">
-    <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/>
-        <rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/>
-        <path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-        <path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/>
-        <circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/>
-        <rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/>
-        <rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/>
-        <rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/>
-        <polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    <span class="footer-copy" style="font-weight:700;color:var(--blanco);"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
-  </div>
-  <span class="footer-copy">© 2025 ReActiva Clínicas · Automatización Premium</span>
-  <div class="footer-links">
-    <a href="precios.html" class="footer-link">Precios</a>
-    <a href="dashboard.html" class="footer-link">Panel</a>
-  </div>
+  <a href="#" class="logo-wrap" style="text-decoration:none">
+    <svg width="24" height="24" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/></svg>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
+  </a>
+  <span class="footer-copy" style="color:#f97316">2025 ReActiva · Automatización Premium para Clínicas</span>
+
 </footer>
 
 <script>
-const BACKEND_URL = "https://reactiva-backend.up.railway.app";
-
-// ── DEMO ANIMATION ──
+// ── Demo data ──
 const demoLeads = [
-  { name:"Ana García",    service:"Blanqueamiento", color:"#00e676" },
-  { name:"Carlos Ruiz",   service:"Ortodoncia",     color:"#4ea8f0" },
-  { name:"María López",   service:"Implantes",      color:"#d4a843" },
-  { name:"Pedro Sanz",    service:"Revisión",       color:"#00e676" },
-  { name:"Laura Díaz",    service:"Urgencia",       color:"#ff5c5c" },
+  { name:"Sara Martínez",  service:"Revisión general",  color:"#00e676" },
+  { name:"Carlos Ruiz",    service:"Ortodoncia",         color:"#4ea8f0" },
+  { name:"Marta Iglesias", service:"Tratamiento facial", color:"#d4a843" },
+  { name:"Pedro Sanz",     service:"Podología",          color:"#00e676" },
+  { name:"Laura Díaz",     service:"Fisioterapia",       color:"#4ea8f0" },
+  { name:"Javier Mora",    service:"Consulta estética",  color:"#d4a843" },
 ];
 
-const demoChatScript = [
-  { role:"bot",  text:"¡Hola! 👋 Soy el asistente. ¿En qué puedo ayudarte?" },
-  { role:"user", text:"Hola, me interesa el blanqueamiento" },
-  { role:"bot",  text:"¡Genial! Realizamos blanqueamiento profesional ✨ ¿Cómo te llamas?" },
-  { role:"user", text:"Soy Ana" },
-  { role:"bot",  text:"Encantados, Ana 😊 ¿Nos dejas tu teléfono?" },
-  { role:"user", text:"612 345 678" },
-  { role:"bot",  text:"Perfecto 🙌 Te llamamos hoy mismo. ¡Hasta pronto!" },
+const chatScript = [
+  { role:"bot",  text:"¡Hola! 👋 ¿En qué puedo ayudarte?" },
+  { role:"user", text:"Me interesa el tratamiento facial" },
+  { role:"bot",  text:"¡Perfecto! ¿Me dices tu nombre?" },
+  { role:"user", text:"Marta" },
+  { role:"bot",  text:"¡Hola Marta! ¿Nos dejas un teléfono?" },
+  { role:"user", text:"622 100 200" },
+  { role:"bot",  text:"¡Genial! Te llamamos hoy. ¡Hasta pronto! ✨" },
 ];
 
-const barData = [2, 5, 3, 8, 6, 4, 7];
+const barHeights = [25, 60, 42, 90, 68, 35, 78];
+let leadCount = 0, convCount = 0;
 
-let demoLeadCount = 0, demoConvCount = 0;
-
-function initDemoBars() {
-  const container = document.getElementById("demoBars");
-  if (!container) return;
-  container.innerHTML = "";
-  const max = Math.max(...barData);
-  barData.forEach(v => {
-    const wrap = document.createElement("div");
-    wrap.className = "mock-bar-wrap";
+// ── Init bars ──
+function initBars() {
+  const c = document.getElementById("mkBars");
+  if (!c) return;
+  const max = Math.max(...barHeights);
+  barHeights.forEach(v => {
     const bar = document.createElement("div");
-    bar.className = "mock-bar-inner";
-    bar.style.height = "4px";
-    wrap.appendChild(bar);
-    container.appendChild(wrap);
-    setTimeout(() => { bar.style.height = Math.round((v/max)*68) + "px"; }, 400);
+    bar.className = "mock-bar";
+    bar.style.height = "2px";
+    bar.style.flex = "1";
+    c.appendChild(bar);
+    setTimeout(() => { bar.style.height = Math.round(v / max * 58) + "px"; }, 500);
   });
 }
 
-function addDemoLead(lead) {
-  const list = document.getElementById("demoLeadList");
+// ── Add lead ──
+function addLead(lead) {
+  const list = document.getElementById("mkLeadList");
   if (!list) return;
   const row = document.createElement("div");
-  row.className = "mock-lead-row";
-  row.style.animationDelay = "0s";
-  row.innerHTML = `
-    <div class="ml-dot" style="background:${lead.color}"></div>
-    <div class="ml-name">${lead.name}</div>
-    <div class="ml-service">${lead.service}</div>
-    <div class="ml-badge">Nuevo</div>
-  `;
+  row.className = "mock-lead";
+  row.innerHTML = `<div class="ml-dot" style="background:${lead.color}"></div><div class="ml-name">${lead.name}</div><div class="ml-svc">${lead.service}</div><div class="ml-badge-mini">Nuevo</div>`;
   list.prepend(row);
   if (list.children.length > 3) list.removeChild(list.lastChild);
-
-  demoLeadCount++;
-  demoConvCount = Math.round(demoLeadCount * 0.62);
-  animNum("demoLeads", demoLeadCount);
-  animNum("demoConv",  demoConvCount);
-  document.getElementById("demoTasa").textContent = Math.round(demoConvCount/demoLeadCount*100) + "%";
-  document.getElementById("demoRev").textContent  = (demoConvCount * 180) + "€";
+  leadCount++;
+  convCount = Math.round(leadCount * 0.65);
+  animNum("mkLeads", leadCount);
+  animNum("mkConv", convCount);
+  document.getElementById("mkTasa").textContent = Math.round(convCount / leadCount * 100) + "%";
+  document.getElementById("mkRev").textContent = (convCount * 180) + "€";
 }
 
-function showNotif(lead) {
-  const n = document.getElementById("demoNotif");
-  if (!n) return;
-  document.getElementById("notifName").textContent = `${lead.name} · ${lead.service}`;
-  n.style.display = "flex";
-  setTimeout(() => { n.style.display = "none"; }, 3500);
+// ── Toast ──
+function showToast(lead) {
+  const t = document.getElementById("mkToast");
+  if (!t) return;
+  document.getElementById("mkToastText").textContent = `${lead.name} · ${lead.service}`;
+  t.style.display = "flex";
+  setTimeout(() => { t.style.display = "none"; }, 3200);
 }
 
+// ── Animated number ──
 function animNum(id, val) {
   const el = document.getElementById(id);
   if (!el) return;
   let cur = parseInt(el.textContent) || 0;
-  const step = () => {
-    if (cur < val) { cur++; el.textContent = cur; requestAnimationFrame(step); }
-  };
+  const step = () => { if (cur < val) { cur++; el.textContent = cur; requestAnimationFrame(step); } };
   requestAnimationFrame(step);
 }
 
-function runChatDemo() {
-  const body = document.getElementById("dcfBody");
+// ── Chat demo ──
+function runChat() {
+  const body = document.getElementById("cfBody");
   if (!body) return;
   body.innerHTML = "";
   let i = 0;
   const next = () => {
-    if (i >= demoChatScript.length) {
-      setTimeout(() => { runChatDemo(); }, 4000);
-      return;
-    }
-    const m = demoChatScript[i];
+    if (i >= chatScript.length) { setTimeout(runChat, 4000); return; }
+    const m = chatScript[i];
     const div = document.createElement("div");
-    div.className = `dcf-msg ${m.role}`;
+    div.className = `cf-msg ${m.role}`;
     div.textContent = m.text;
     body.appendChild(div);
     body.scrollTop = body.scrollHeight;
     i++;
-    setTimeout(next, m.role === "bot" ? 1800 : 1200);
+    setTimeout(next, m.role === "bot" ? 1800 : 1300);
   };
-  setTimeout(next, 800);
+  setTimeout(next, 700);
 }
 
-function runLeadDemo() {
+// ── Lead cycle ──
+function runLeads() {
   let idx = 0;
   const cycle = () => {
-    addDemoLead(demoLeads[idx % demoLeads.length]);
-    showNotif(demoLeads[idx % demoLeads.length]);
+    addLead(demoLeads[idx % demoLeads.length]);
+    showToast(demoLeads[idx % demoLeads.length]);
     idx++;
-    setTimeout(cycle, 3800);
+    setTimeout(cycle, 3600);
   };
-  setTimeout(cycle, 2200);
+  setTimeout(cycle, 2000);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initDemoBars();
-  runChatDemo();
-  runLeadDemo();
-  // seed initial values
-  document.getElementById("demoLeads").textContent = "0";
-  document.getElementById("demoConv").textContent  = "0";
-  document.getElementById("demoTasa").textContent  = "0%";
-  document.getElementById("demoRev").textContent   = "0€";
+  initBars();
+  runChat();
+  runLeads();
 });
 </script>
-<script src="script.js"></script>
 </body>
 </html>
