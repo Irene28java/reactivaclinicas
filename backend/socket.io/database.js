@@ -1,9 +1,16 @@
+//backend>socket.io>database.js
+const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./reactiva.db');
+
+// ── Ruta absoluta para la base de datos ──
+const dbPath = path.join(__dirname, '..', 'reactiva.db'); // apunta a la misma base de datos que backend/database.js
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) console.error('Error al abrir la DB:', err.message);
+    else console.log('Base de datos lista en', dbPath);
+});
 
 db.serialize(() => {
-
-    // ── USERS ──
+    // ── CREACIÓN DE TABLAS (si no existen) ──
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,7 +25,6 @@ db.serialize(() => {
         )
     `);
 
-    // ── LEADS ──
     db.run(`
         CREATE TABLE IF NOT EXISTS leads (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +43,6 @@ db.serialize(() => {
         )
     `);
 
-    // ── PAGOS ──
     db.run(`
         CREATE TABLE IF NOT EXISTS pagos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +56,6 @@ db.serialize(() => {
         )
     `);
 
-    // ── CITAS ──
     db.run(`
         CREATE TABLE IF NOT EXISTS citas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,26 +73,18 @@ db.serialize(() => {
         )
     `);
 
-    // ── MIGRACIONES SEGURAS (solo si alguna columna falta) ──
-    const migrations = [
-        `ALTER TABLE leads ADD COLUMN email TEXT`,
-        `ALTER TABLE leads ADD COLUMN servicio TEXT`,
-        `ALTER TABLE pagos ADD COLUMN plan TEXT`,
-        `ALTER TABLE pagos ADD COLUMN paypal_order_id TEXT`,
-        `ALTER TABLE users ADD COLUMN paypal_order_id TEXT`,
-        `ALTER TABLE leads ADD COLUMN canal TEXT DEFAULT 'web'`,
-        `ALTER TABLE leads ADD COLUMN external_id TEXT`,
-        `ALTER TABLE users ADD COLUMN tipo_clinica TEXT`,
-        `ALTER TABLE users ADD COLUMN page_id TEXT`
-    ];
-
-    migrations.forEach(sql => {
-        db.run(sql, err => {
-            if (err && !err.message.includes('duplicate column')) {
-                console.error('Migration error:', err.message);
-            }
-        });
-    });
+    db.run(`
+        CREATE TABLE IF NOT EXISTS horarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clinic_id INTEGER,
+            fecha TEXT,
+            hora TEXT,
+            disponible INTEGER DEFAULT 1,
+            lead_id INTEGER,
+            FOREIGN KEY (clinic_id) REFERENCES users(id),
+            FOREIGN KEY (lead_id) REFERENCES leads(id)
+        )
+    `);
 
 });
 

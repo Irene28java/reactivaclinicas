@@ -1,3 +1,4 @@
+//backend>paypalClient.js
 const paypal = require("@paypal/checkout-server-sdk");
 
 const environment = new paypal.core.SandboxEnvironment(

@@ -662,27 +662,35 @@ function enviarMensaje(recipientId, texto) {
 
 // ═════════════════════════════════════════════
 // HORARIOS
-// ═════════════════════════════════════════════
-function generarHorarios() {
-    const slots = [], horas = ["10:00","11:30","16:00","17:30","12:00","18:00"];
-    const dias  = ["lunes","martes","miércoles","jueves","viernes"];
-    const hoy   = new Date(); let add = 1;
+// ═════════════════════════════════════════════function generarHorarios(clinicId, callback) {
+    const hoy = new Date();
+    const hoyStr = hoy.toISOString().split('T')[0]; // YYYY-MM-DD
 
-    while (slots.length < 3 && add <= 14) {
-        const f = new Date(hoy); f.setDate(hoy.getDate() + add);
-        const d = f.getDay();
-        if (d !== 0 && d !== 6) {
-            slots.push({
-                label : `${dias[d-1]} ${f.getDate()} de ${f.toLocaleDateString("es-ES",{month:"long"})} a las ${horas[slots.length]}`,
-                fecha : f.toISOString().slice(0,10),
-                hora  : horas[slots.length],
-                num   : slots.length + 1
-            });
+    db.all(
+        `SELECT id, fecha, hora FROM horarios
+         WHERE clinic_id = ? AND disponible = 1 AND fecha >= ?
+         ORDER BY fecha ASC, hora ASC
+         LIMIT 3`,
+        [clinicId, hoyStr],
+        (err, rows) => {
+            if (err) {
+                console.error("Error generando horarios:", err);
+                return callback([]);
+            }
+
+            // Transformar para el flujo del chatbot
+            const horarios = rows.map((h, i) => ({
+                num: i + 1,
+                id: h.id,
+                fecha: h.fecha,
+                hora: h.hora,
+                label: `${h.fecha} a las ${h.hora}`
+            }));
+
+            callback(horarios);
         }
-        add++;
-    }
-    return slots;
-}
+    );
+
 
 // ═════════════════════════════════════════════
 // UTILIDADES
