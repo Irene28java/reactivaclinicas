@@ -6,15 +6,22 @@ const jwt        = require("jsonwebtoken");
 const rateLimit  = require("express-rate-limit");
 const { Server } = require("socket.io");
 const nodemailer = require("nodemailer");
-const db         = require("./database");
+const db = require("./database");
 
 // ─────────────────────────────────────────────
-// SERVICES
+// SERVICES — carga segura (no crashea si no existe)
 // ─────────────────────────────────────────────
-const { generarHorariosDia, generarHorarios30Dias } = require("./services/horariosGenerator");
-const { reservarCita }      = require("./services/reservarCita");
-const { listenEmails }      = require("./services/gmailListener");
-const { iniciarRecordatorios } = require("./services/recordatorios");
+let generarHorariosDia    = () => {};
+let generarHorarios30Dias = () => {};
+let reservarCita          = () => {};
+let listenEmails          = () => {};
+let iniciarRecordatorios  = () => {};
+
+try { ({ generarHorariosDia, generarHorarios30Dias } = require("./services/horariosGenerator")); } catch(e) { console.warn("⚠️  horariosGenerator no encontrado"); }
+try { ({ reservarCita }         = require("./services/reservarCita"));    } catch(e) { console.warn("⚠️  reservarCita no encontrado"); }
+try { ({ listenEmails }         = require("./services/gmailListener"));   } catch(e) { console.warn("⚠️  gmailListener no encontrado"); }
+try { ({ iniciarRecordatorios } = require("./services/recordatorios"));   } catch(e) { console.warn("⚠️  recordatorios no encontrado"); }
+
 
 // ─────────────────────────────────────────────
 // ROUTES
