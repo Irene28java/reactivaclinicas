@@ -126,6 +126,10 @@ db.serialize(() => {
         created_at TEXT,
         FOREIGN KEY(clinic_id) REFERENCES users(id)
     )`);
+
+    // ─────────── COLUMNA recordatorio_enviado en CITAS
+    // ALTER TABLE ignora el error si la columna ya existe (comportamiento normal en SQLite)
+    db.run(`ALTER TABLE citas ADD COLUMN recordatorio_enviado INTEGER NOT NULL DEFAULT 0`, () => {});
 });
 
 module.exports = db;

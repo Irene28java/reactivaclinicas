@@ -213,25 +213,28 @@ function getClinicaPorPageId(pageId, callback) {
 }
 
 // ═════════════════════════════════════════════
-// VERIFICACIÓN META
+// VERIFICACIÓN META — GET /webhook
 // ═════════════════════════════════════════════
 router.get("/", (req, res) => {
     const mode      = req.query["hub.mode"];
     const token     = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
 
+    console.log(`🔍 Webhook verify — mode:${mode} token:${token}`);
+
     if (mode === "subscribe" && token === VERIFY_TOKEN) {
-        console.log("✅ Webhook verificado");
+        console.log("✅ Webhook verificado correctamente");
         return res.status(200).send(challenge);
     }
+    console.warn(`❌ Verificación fallida — esperado:${VERIFY_TOKEN} recibido:${token}`);
     res.sendStatus(403);
 });
 
 // ═════════════════════════════════════════════
-// MENSAJES ENTRANTES META (FB/IG)
+// MENSAJES ENTRANTES META — POST /webhook
 // ═════════════════════════════════════════════
 router.post("/", (req, res) => {
-    res.sendStatus(200);
+    res.sendStatus(200); // Meta requiere 200 inmediato
 
     const body = req.body;
     if (body.object !== "page" && body.object !== "instagram") return;
@@ -273,6 +276,7 @@ function getSesion(id, tipo) {
             telefono    : null,
             servicio    : null,
             leadId      : null,
+            citaId      : null,
             horarios    : [],
             horaElegida : null,
             fechaElegida: null,
@@ -286,8 +290,7 @@ function resetSesion(id) { delete sesiones[id]; }
 
 // ═════════════════════════════════════════════
 // MOTOR DEL FLUJO
-// callback(respuesta) → solo se usa desde el chat web
-// cuando es FB/IG, callback es null y se usa enviarMensaje()
+// callback → web chat | null → FB/IG (usa enviarMensaje)
 // ═════════════════════════════════════════════
 function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
     const tipo   = clinica.tipo || ESPECIALIDAD_DEFAULT;
@@ -295,7 +298,6 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
     const sesion = getSesion(senderId, tipo);
     const t      = texto.toLowerCase().trim();
 
-    // Función helper: responde por callback (web) o por Meta API (FB/IG)
     function responder(msg) {
         if (callback) return callback(msg);
         enviarMensaje(senderId, msg);
@@ -303,7 +305,8 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
 
     // ── Detectores globales ──
 
-    if (/^(adiós|adios|hasta luego|bye|chao|ciao|gracias y adiós|hasta pronto|nos vemos)$/.test(t)) {
+    // Despedida
+    if (/^(adiós|adios|hasta luego|bye|chao|ciao|hasta pronto|nos vemos)$/.test(t)) {
         return responder(pick([
             "¡Hasta pronto! 😊 Ha sido un placer atenderte. Que tengas un buen día.",
             "¡Hasta luego! 👋 Cuando quieras puedes escribirnos. ¡Cuídate!",
@@ -311,9 +314,10 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
         ]));
     }
 
+    // Gracias
     if (/^(gracias+|muchas gracias|thank you|genial gracias|ok gracias|perfecto gracias)$/.test(t)) {
         if (sesion.paso === "confirmado") {
-            return responder(`¡A ti! 😊 Te esperamos el ${sesion.fechaElegida} a las ${sesion.horaElegida}. Hasta pronto 👋`);
+            return responder(`¡A ti! 😊 Te esperamos el ${sesion.fechaElegida} a las ${sesion.horaElegida}. ¡Hasta pronto! 👋`);
         }
         return responder(pick([
             "¡De nada! 😊 ¿Hay algo más en lo que pueda ayudarte?",
@@ -321,22 +325,28 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
         ]));
     }
 
+    // Cancelar cita existente
+    if ((t.includes("cancelar") || t.includes("anular") || t.includes("cancel mi cita") || t === "cancel") && sesion.paso === "confirmado") {
+        return cancelarCita(req, senderId, sesion, responder);
+    }
+
+    // Precio
     if (["precio","precios","cuánto","cuanto","cuánto cuesta","coste","presupuesto","tarifas","tarifa"].some(p => t.includes(p))
         && !["horario","confirmacion","confirmado"].includes(sesion.paso)) {
         return responder(esp.respPrecio);
     }
 
-    if (esp.servicios.find(s => s.label.toLowerCase().includes("urgencia"))
-        && ["urgencia","urgente","dolor","duele","mucho dolor","dolor fuerte","ayuda"].some(p => t.includes(p))
+    // Urgencia
+    const srvUrgencia = esp.servicios.find(s => s.label.toLowerCase().includes("urgencia"));
+    if (srvUrgencia && ["urgencia","urgente","dolor","duele","mucho dolor","dolor fuerte","ayuda"].some(p => t.includes(p))
         && !["horario","confirmacion","confirmado"].includes(sesion.paso)) {
-
-        sesion.servicio = esp.servicios.find(s => s.label.toLowerCase().includes("urgencia"))?.label
-                          || esp.servicios[0].label;
+        sesion.servicio = srvUrgencia.label;
         sesion.paso     = "telefono";
         guardarLead(req, senderId, canal, clinica, sesion, texto);
         return responder(esp.respUrgencia);
     }
 
+    // Saludo / reinicio
     const saludos = ["hola","buenas","buenos días","buenos","hey","hi","buenas tardes","buenas noches","inicio","start","menú","menu","empezar","reiniciar"];
     if (saludos.some(p => t === p || t.startsWith(p + " ")) && !["horario","confirmacion"].includes(sesion.paso)) {
         resetSesion(senderId);
@@ -384,7 +394,9 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
         }
 
         case "nombre": {
-            const nombre = extraerNombre(texto) || (texto.length >= 2 && texto.length <= 40 && /^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/.test(texto) ? capitalizarPrimera(texto.split(" ")[0]) : null);
+            const nombre = extraerNombre(texto)
+                || (texto.length >= 2 && texto.length <= 40 && /^[a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]+$/.test(texto)
+                    ? capitalizarPrimera(texto.split(" ")[0]) : null);
             if (!nombre) {
                 sesion.reintentos = (sesion.reintentos || 0) + 1;
                 if (sesion.reintentos >= 2) {
@@ -424,11 +436,19 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
             sesion.telefono   = tel;
             sesion.paso       = "horario";
             sesion.reintentos = 0;
-            sesion.horarios   = generarHorarios();
             guardarLead(req, senderId, canal, clinica, sesion, texto, true);
 
-            const opcs = sesion.horarios.map(h => `${h.num}️⃣  ${h.label}`).join("\n");
-            return responder(`Perfecto ${sesion.nombre || ""} 🙌\n\nEstos son nuestros próximos horarios disponibles:\n\n${opcs}\n\n¿Cuál te viene mejor? Responde 1, 2 o 3`.trim());
+            // Obtener horarios reales de la BD
+            generarHorarios(clinica.clinicId, (horarios) => {
+                if (!horarios.length) {
+                    sesion.horarios = generarHorariosDemo();
+                } else {
+                    sesion.horarios = horarios;
+                }
+                const opcs = sesion.horarios.map(h => `${h.num}️⃣  ${h.label}`).join("\n");
+                responder(`Perfecto ${sesion.nombre || ""} 🙌\n\nEstos son nuestros próximos horarios disponibles:\n\n${opcs}\n\n¿Cuál te viene mejor? Responde 1, 2 o 3`.trim());
+            });
+            return; // Respuesta asíncrona
         }
 
         case "horario": {
@@ -439,10 +459,11 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
                     "Escribe solo el número: 1, 2 o 3 👆",
                 ]));
             }
-            const elegido       = sesion.horarios[opcion-1];
-            sesion.horaElegida  = elegido.hora;
-            sesion.fechaElegida = elegido.fecha;
-            sesion.paso         = "confirmacion";
+            const elegido        = sesion.horarios[opcion-1];
+            sesion.horaElegida   = elegido.hora;
+            sesion.fechaElegida  = elegido.fecha;
+            sesion.horarioId     = elegido.id || null;
+            sesion.paso          = "confirmacion";
             return responder(
                 `Perfecto, has elegido:\n\n` +
                 `📅 ${elegido.label}\n` +
@@ -455,7 +476,8 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
         case "confirmacion": {
             const confirma = /^(sí|si|s|ok|vale|confirm|yes|claro|perfecto|adelante|de acuerdo|correcto|exacto)$/i.test(t)
                              || t.startsWith("sí") || t === "si";
-            const cancela  = /^no$/i.test(t) || t.startsWith("no ") || t.includes("cancel") || t.includes("otro horario") || t.includes("cambiar");
+            const cancela  = /^no$/i.test(t) || t.startsWith("no ")
+                             || t.includes("cancel") || t.includes("otro horario") || t.includes("cambiar");
 
             if (cancela) {
                 sesion.paso = "horario";
@@ -466,20 +488,24 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
                 return responder("Responde SÍ para confirmar la cita o NO para cambiar el horario 😊");
             }
 
-            guardarCita(req, senderId, canal, clinica, sesion);
-            sesion.paso = "confirmado";
-            return responder(
-                `✅ ¡Cita confirmada, ${sesion.nombre || ""}!\n\n` +
-                `📅 ${sesion.fechaElegida} a las ${sesion.horaElegida}\n` +
-                `${esp.emoji} ${sesion.servicio}\n` +
-                `📱 ${sesion.telefono}\n\n` +
-                `Te enviaremos un recordatorio. ¡Hasta pronto! 😊`
-            );
+            guardarCita(req, senderId, canal, clinica, sesion, (citaId) => {
+                sesion.citaId = citaId;
+                sesion.paso   = "confirmado";
+                responder(
+                    `✅ ¡Cita confirmada, ${sesion.nombre || ""}!\n\n` +
+                    `📅 ${sesion.fechaElegida} a las ${sesion.horaElegida}\n` +
+                    `${esp.emoji} ${sesion.servicio}\n` +
+                    `📱 ${sesion.telefono}\n\n` +
+                    `Te enviaremos un recordatorio 24h antes por email. ¡Hasta pronto! 😊\n\n` +
+                    `Si necesitas cancelar escribe CANCELAR.`
+                );
+            });
+            return; // Respuesta asíncrona
         }
 
         case "confirmado": {
-            if (t.includes("cancelar") || t.includes("anular") || t.includes("cancel")) {
-                return responder(`Para cancelar o modificar tu cita llámanos directamente 📞 Estaremos encantados de ayudarte.`);
+            if (t.includes("cancelar") || t.includes("anular") || t === "cancel") {
+                return cancelarCita(req, senderId, sesion, responder);
             }
             resetSesion(senderId);
             const s = getSesion(senderId, tipo);
@@ -495,6 +521,31 @@ function procesarMensaje(req, senderId, texto, canal, clinica, callback) {
 }
 
 // ═════════════════════════════════════════════
+// CANCELAR CITA
+// ═════════════════════════════════════════════
+function cancelarCita(req, senderId, sesion, responder) {
+    if (!sesion.citaId) {
+        return responder("Para cancelar o modificar tu cita llámanos directamente 📞 Estaremos encantados de ayudarte.");
+    }
+    db.run(
+        `UPDATE citas SET status='cancelada' WHERE id=?`,
+        [sesion.citaId],
+        (err) => {
+            if (err) console.error("Error cancelando cita:", err);
+            // Liberar el slot si existe
+            if (sesion.horarioId) {
+                db.run(`UPDATE horarios SET disponible=1 WHERE id=?`, [sesion.horarioId]);
+            }
+            resetSesion(senderId);
+            responder(
+                `❌ Tu cita ha sido cancelada correctamente.\n\n` +
+                `Si quieres reservar otra cita escríbenos cuando quieras 😊`
+            );
+        }
+    );
+}
+
+// ═════════════════════════════════════════════
 // BUILDER MENÚ SERVICIOS
 // ═════════════════════════════════════════════
 function buildMenuServicios(esp) {
@@ -507,7 +558,7 @@ function buildMenuServicios(esp) {
 // DETECCIÓN DE SERVICIO
 // ═════════════════════════════════════════════
 function detectarServicio(texto, esp) {
-    const t = texto.toLowerCase().trim();
+    const t   = texto.toLowerCase().trim();
     const num = parseInt(t);
     if (!isNaN(num) && num >= 1 && num <= esp.servicios.length) {
         return esp.servicios[num-1].label;
@@ -517,6 +568,73 @@ function detectarServicio(texto, esp) {
         if (srv.keys.some(k => t.includes(k))) return srv.label;
     }
     return null;
+}
+
+// ═════════════════════════════════════════════
+// HORARIOS — lee de la BD, fallback a demo
+// ═════════════════════════════════════════════
+function generarHorarios(clinicId, callback) {
+    const hoy    = new Date();
+    const hoyStr = hoy.toISOString().split("T")[0];
+
+    db.all(
+        `SELECT id, fecha, hora FROM horarios
+         WHERE clinic_id=? AND disponible=1 AND fecha>=?
+         ORDER BY fecha ASC, hora ASC
+         LIMIT 3`,
+        [clinicId, hoyStr],
+        (err, rows) => {
+            if (err || !rows || !rows.length) {
+                console.warn("Sin horarios en BD, usando demo");
+                return callback([]);
+            }
+            const horarios = rows.map((h, i) => ({
+                num   : i + 1,
+                id    : h.id,
+                fecha : h.fecha,
+                hora  : h.hora,
+                label : `${formatFechaHumana(h.fecha)} a las ${h.hora}`
+            }));
+            callback(horarios);
+        }
+    );
+}
+
+// Fallback: genera 3 horarios demo si la BD está vacía
+function generarHorariosDemo() {
+    const dias   = ["Lunes","Martes","Miércoles","Jueves","Viernes"];
+    const horas  = ["09:00","10:30","11:00","12:00","16:00","17:30","18:00"];
+    const hoy    = new Date();
+    const result = [];
+    let offset   = 1;
+
+    while (result.length < 3) {
+        const d = new Date(hoy);
+        d.setDate(hoy.getDate() + offset);
+        const dow = d.getDay(); // 0=dom, 6=sab
+        if (dow >= 1 && dow <= 5) {
+            const fecha = d.toISOString().split("T")[0];
+            const hora  = horas[result.length * 2 % horas.length];
+            result.push({
+                num   : result.length + 1,
+                id    : null,
+                fecha,
+                hora,
+                label : `${dias[dow-1]} ${fecha} a las ${hora}`
+            });
+        }
+        offset++;
+        if (offset > 14) break;
+    }
+    return result;
+}
+
+function formatFechaHumana(iso) {
+    const [y, m, d] = iso.split("-");
+    const meses = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+    const fecha  = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+    const dias   = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+    return `${dias[fecha.getDay()]} ${d}/${m}/${y}`;
 }
 
 // ═════════════════════════════════════════════
@@ -558,6 +676,7 @@ function guardarLead(req, senderId, canal, clinica, sesion, mensaje, notificar =
                     function(err2) {
                         if (err2) return console.error("Error insertando lead:", err2);
                         sesion.leadId = this.lastID;
+
                         const io = req.app.get("io");
                         if (io) {
                             io.to(`clinic_${clinicId}`).emit("new_lead", {
@@ -580,33 +699,109 @@ function guardarLead(req, senderId, canal, clinica, sesion, mensaje, notificar =
 // ═════════════════════════════════════════════
 // GUARDAR CITA
 // ═════════════════════════════════════════════
-function guardarCita(req, senderId, canal, clinica, sesion) {
+function guardarCita(req, senderId, canal, clinica, sesion, callback) {
     const clinicId = clinica.clinicId;
     const ts       = new Date().toISOString();
 
+    // Marcar el slot como no disponible si existe
+    if (sesion.horarioId) {
+        db.run(`UPDATE horarios SET disponible=0 WHERE id=?`, [sesion.horarioId]);
+    }
+
     db.run(
         `INSERT INTO citas
-         (clinic_id,lead_id,canal,external_id,name,phone,servicio,fecha,hora,status,created_at)
-         VALUES (?,?,?,?,?,?,?,?,?,'pendiente',?)`,
+         (clinic_id,lead_id,canal,external_id,name,phone,servicio,fecha,hora,status,recordatorio_enviado,created_at)
+         VALUES (?,?,?,?,?,?,?,?,?,'pendiente',0,?)`,
         [clinicId, sesion.leadId||null, canal, senderId,
          sesion.nombre, sesion.telefono, sesion.servicio,
          sesion.fechaElegida, sesion.horaElegida, ts],
         function(err) {
-            if (err) return console.error("Error guardando cita:", err);
-            console.log(`📅 Cita #${this.lastID} — ${sesion.nombre} ${sesion.fechaElegida} ${sesion.horaElegida}`);
+            if (err) {
+                console.error("Error guardando cita:", err);
+                return callback(null);
+            }
+            const citaId = this.lastID;
+            console.log(`📅 Cita #${citaId} — ${sesion.nombre} ${sesion.fechaElegida} ${sesion.horaElegida}`);
+
             const io = req.app.get("io");
             if (io) {
                 io.to(`clinic_${clinicId}`).emit("new_cita", {
-                    id: this.lastID, name: sesion.nombre,
+                    id: citaId, name: sesion.nombre,
                     phone: sesion.telefono, servicio: sesion.servicio,
                     fecha: sesion.fechaElegida, hora: sesion.horaElegida,
                     canal, status: "pendiente"
                 });
             }
+
             notificarEmailCita(req, sesion, canal, clinica);
+
             if (sesion.leadId) {
                 db.run(`UPDATE leads SET status='pending' WHERE id=?`, [sesion.leadId]);
             }
+
+            callback(citaId);
+        }
+    );
+}
+
+// ═════════════════════════════════════════════
+// RECORDATORIOS 24h — llamar desde server.js con setInterval
+// ═════════════════════════════════════════════
+function procesarRecordatorios(app) {
+    const sendEmail = app.get("sendEmail");
+    if (!sendEmail) return;
+
+    const ahora    = new Date();
+    const maniana  = new Date(ahora);
+    maniana.setDate(ahora.getDate() + 1);
+    const fechaStr = maniana.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    db.all(
+        `SELECT c.id, c.name, c.phone, c.servicio, c.fecha, c.hora, c.canal,
+                c.external_id, c.clinic_id,
+                u.clinic_name
+         FROM citas c
+         LEFT JOIN users u ON u.id = c.clinic_id
+         WHERE c.fecha=? AND c.status='pendiente' AND c.recordatorio_enviado=0`,
+        [fechaStr],
+        (err, citas) => {
+            if (err) return console.error("Error buscando citas para recordatorio:", err);
+            if (!citas || !citas.length) return;
+
+            console.log(`🔔 Enviando ${citas.length} recordatorio(s) para ${fechaStr}`);
+
+            citas.forEach(cita => {
+                const clinicaNombre = cita.clinic_name || "la clínica";
+                const asunto  = `Recordatorio: tu cita mañana — ${cita.servicio}`;
+                const cuerpo  =
+                    `Hola ${cita.name || "paciente"} 👋\n\n` +
+                    `Te recordamos que mañana tienes una cita en ${clinicaNombre}:\n\n` +
+                    `📅 Fecha: ${cita.fecha}\n` +
+                    `🕐 Hora:  ${cita.hora}\n` +
+                    `💊 Servicio: ${cita.servicio}\n\n` +
+                    `Si necesitas cancelar o cambiar la cita, contáctanos lo antes posible.\n\n` +
+                    `¡Hasta mañana! 😊\n` +
+                    `— El equipo de ${clinicaNombre}`;
+
+                // Email a la clínica
+                const clinicEmail = process.env.CLINIC_EMAIL || process.env.EMAIL_USER;
+                sendEmail(clinicEmail, cuerpo, `📅 Recordatorio cita — ${cita.name} mañana ${cita.hora}`);
+
+                // También enviar recordatorio por FB/IG Messenger si el canal lo permite
+                if ((cita.canal === "facebook" || cita.canal === "instagram") && PAGE_TOKEN && cita.external_id) {
+                    const msgRecordatorio =
+                        `¡Hola ${cita.name || ""}! 👋 Te recordamos tu cita de mañana:\n\n` +
+                        `📅 ${cita.fecha} a las ${cita.hora}\n` +
+                        `💊 ${cita.servicio}\n\n` +
+                        `Si necesitas cancelar escribe CANCELAR 😊`;
+                    enviarMensaje(cita.external_id, msgRecordatorio);
+                }
+
+                // Marcar como recordatorio enviado
+                db.run(`UPDATE citas SET recordatorio_enviado=1 WHERE id=?`, [cita.id],
+                    err2 => { if (err2) console.error(`Error marcando recordatorio #${cita.id}:`, err2); }
+                );
+            });
         }
     );
 }
@@ -615,9 +810,9 @@ function guardarCita(req, senderId, canal, clinica, sesion) {
 // EMAILS
 // ═════════════════════════════════════════════
 function notificarEmailLead(req, sesion, canal, clinica) {
-    const sendEmail = req.app.get("sendEmail");
+    const sendEmail = app_get_sendEmail(req);
     if (!sendEmail) return;
-    const c       = canal === "instagram" ? "📸 Instagram" : canal === "web" ? "🌐 Web" : "📘 Facebook";
+    const c       = labelCanal(canal);
     const toEmail = process.env.CLINIC_EMAIL || process.env.EMAIL_USER;
     sendEmail(
         toEmail,
@@ -627,19 +822,27 @@ function notificarEmailLead(req, sesion, canal, clinica) {
 }
 
 function notificarEmailCita(req, sesion, canal, clinica) {
-    const sendEmail = req.app.get("sendEmail");
+    const sendEmail = app_get_sendEmail(req);
     if (!sendEmail) return;
-    const c       = canal === "instagram" ? "📸 Instagram" : canal === "web" ? "🌐 Web" : "📘 Facebook";
+    const c       = labelCanal(canal);
     const toEmail = process.env.CLINIC_EMAIL || process.env.EMAIL_USER;
     sendEmail(
         toEmail,
         `${c} — Cita confirmada\n\nPaciente:  ${sesion.nombre}\nTeléfono:  ${sesion.telefono}\nServicio:  ${sesion.servicio}\nFecha:     ${sesion.fechaElegida}\nHora:      ${sesion.horaElegida}`,
-        `📅 Cita — ${sesion.nombre} — ${sesion.fechaElegida} ${sesion.horaElegida}`
+        `📅 Cita confirmada — ${sesion.nombre} — ${sesion.fechaElegida} ${sesion.horaElegida}`
     );
 }
 
+function app_get_sendEmail(req) {
+    try { return req.app.get("sendEmail"); } catch { return null; }
+}
+
+function labelCanal(canal) {
+    return canal === "instagram" ? "📸 Instagram" : canal === "web" ? "🌐 Web" : "📘 Facebook";
+}
+
 // ═════════════════════════════════════════════
-// ENVIAR MENSAJE — Graph API Meta (solo FB/IG)
+// ENVIAR MENSAJE — Graph API Meta
 // ═════════════════════════════════════════════
 function enviarMensaje(recipientId, texto) {
     if (!PAGE_TOKEN) { console.warn("⚠️  PAGE_ACCESS_TOKEN no configurado"); return; }
@@ -656,41 +859,9 @@ function enviarMensaje(recipientId, texto) {
         }
     )
     .then(r => r.json())
-    .then(d => { if (d.error) console.error("❌ Graph:", d.error.message); })
-    .catch(e => console.error("❌ fetch:", e.message));
+    .then(d => { if (d.error) console.error("❌ Graph API:", d.error.message); })
+    .catch(e => console.error("❌ fetch Meta:", e.message));
 }
-
-// ═════════════════════════════════════════════
-// HORARIOS
-// ═════════════════════════════════════════════function generarHorarios(clinicId, callback) {
-    const hoy = new Date();
-    const hoyStr = hoy.toISOString().split('T')[0]; // YYYY-MM-DD
-
-    db.all(
-        `SELECT id, fecha, hora FROM horarios
-         WHERE clinic_id = ? AND disponible = 1 AND fecha >= ?
-         ORDER BY fecha ASC, hora ASC
-         LIMIT 3`,
-        [clinicId, hoyStr],
-        (err, rows) => {
-            if (err) {
-                console.error("Error generando horarios:", err);
-                return callback([]);
-            }
-
-            // Transformar para el flujo del chatbot
-            const horarios = rows.map((h, i) => ({
-                num: i + 1,
-                id: h.id,
-                fecha: h.fecha,
-                hora: h.hora,
-                label: `${h.fecha} a las ${h.hora}`
-            }));
-
-            callback(horarios);
-        }
-    );
-
 
 // ═════════════════════════════════════════════
 // UTILIDADES
@@ -699,7 +870,7 @@ function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function extraerTelefono(t) {
     const m = t.match(/(\+?[\d\s\-\.]{9,15})/);
-    return m ? m[0].replace(/[\s\-\.]/g,"") : null;
+    return m ? m[0].replace(/[\s\-\.]/g, "") : null;
 }
 
 function extraerNombre(t) {
@@ -712,7 +883,8 @@ function capitalizarPrimera(s) {
 }
 
 // ═════════════════════════════════════════════
-// EXPORTAR procesarMensaje para uso desde server.js
+// EXPORTS
 // ═════════════════════════════════════════════
-module.exports = router;
-module.exports.procesarMensaje = procesarMensaje;
+module.exports                        = router;
+module.exports.procesarMensaje        = procesarMensaje;
+module.exports.procesarRecordatorios  = procesarRecordatorios;
