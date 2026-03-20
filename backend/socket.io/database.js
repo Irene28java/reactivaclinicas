@@ -85,6 +85,7 @@ db.serialize(() => {
             FOREIGN KEY (lead_id) REFERENCES leads(id)
         )
     `);
+   
 
 });
 
