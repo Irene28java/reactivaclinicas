@@ -1,3 +1,4 @@
+//backend>services>horariosGenerador.js
 const db = require("../database");
 
 function generarHorariosDia(clinicId, fecha) {

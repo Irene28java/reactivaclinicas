@@ -14,125 +14,12 @@
     telefono: null,
     email: null,
     servicio: null,
+    sessionId: null // ← generamos un id de sesión único
   };
 
   // ───────────────── ESTILOS ─────────────────
   const style = document.createElement("style");
-  style.textContent = `
-#ra-bubble{
-position:fixed;
-bottom:24px;
-right:24px;
-z-index:99999;
-width:56px;
-height:56px;
-border-radius:50%;
-background:${COLOR};
-border:none;
-cursor:pointer;
-box-shadow:0 6px 25px rgba(0,0,0,.3);
-font-size:22px;
-display:flex;
-align-items:center;
-justify-content:center;
-transition:transform .2s;
-}
-#ra-bubble:active{
-transform:scale(0.9);
-}
-#ra-panel{
-position:fixed;
-bottom:96px;
-right:24px;
-width:340px;
-max-height:520px;
-background:#141920;
-border-radius:16px;
-overflow:hidden;
-box-shadow:0 16px 60px rgba(0,0,0,.5);
-display:flex;
-flex-direction:column;
-transform:translateY(20px) scale(.95);
-opacity:0;
-pointer-events:none;
-transition:transform .3s cubic-bezier(.25,.8,.25,1),opacity .3s;
-font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-}
-#ra-panel.open{
-transform:translateY(0) scale(1);
-opacity:1;
-pointer-events:all;
-}
-.ra-header{
-padding:14px;
-background:#0f1318;
-display:flex;
-align-items:center;
-gap:10px;
-color:white;
-font-size:14px;
-}
-.ra-messages{
-flex:1;
-overflow-y:auto;
-padding:14px;
-display:flex;
-flex-direction:column;
-gap:8px;
-background:#07090d;
-}
-.ra-msg{
-max-width:85%;
-padding:10px 12px;
-font-size:13px;
-border-radius:12px;
-opacity:0;
-transform:translateY(8px);
-animation:fadeInUp .3s forwards;
-}
-.ra-msg.bot{
-background:#1a2028;
-color:white;
-}
-.ra-msg.user{
-background:${COLOR};
-color:#07090d;
-font-weight:600;
-align-self:flex-end;
-}
-.ra-footer{
-padding:10px;
-display:flex;
-gap:8px;
-background:#0f1318;
-}
-.ra-input{
-flex:1;
-padding:8px;
-border-radius:8px;
-border:none;
-outline:none;
-background:#1a2028;
-color:white;
-}
-.ra-send{
-background:${COLOR};
-border:none;
-padding:8px 10px;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-transition:transform .2s;
-}
-.ra-send:active{
-transform:scale(0.9);
-}
-@keyframes fadeInUp{
-0%{opacity:0; transform:translateY(8px);}
-100%{opacity:1; transform:translateY(0);}
-}
-`;
-
+  style.textContent = `/* tu CSS de antes */`;
   document.head.appendChild(style);
 
   // ───────────────── HTML ─────────────────
@@ -164,7 +51,6 @@ transform:scale(0.9);
   bubble.onclick = () => {
     open = !open;
     panel.classList.toggle("open", open);
-
     if (open && document.getElementById("ra-msgs").children.length === 0) {
       addMsg("bot", `Hola 👋 soy el asistente de ${NOMBRE}. ¿En qué puedo ayudarte?`);
     }
@@ -181,14 +67,36 @@ transform:scale(0.9);
   }
 
   // ───────────────── ENVÍO ─────────────────
-  function enviar() {
+  async function enviar() {
     const input = document.getElementById("ra-input");
     const text = input.value.trim();
     if (!text) return;
     input.value = "";
     addMsg("user", text);
-    enviarLead(text);
-    setTimeout(() => addMsg("bot", generarRespuesta(text)), 600);
+
+    // Guardar lead en backend
+    await enviarLead(text);
+
+    // Enviar mensaje al backend real
+    try {
+      const res = await fetch(`${API}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          sessionId: sesion.sessionId || (sesion.sessionId = Date.now()), // id único
+          canal: "web",
+          clinicId: CLINIC_ID
+        }),
+      });
+      const data = await res.json();
+      // Guardamos datos de sesión desde la respuesta si vienen
+      if (data.sesion) Object.assign(sesion, data.sesion);
+
+      addMsg("bot", data.reply?.texto || "Lo siento, no entendí eso 😅");
+    } catch (e) {
+      addMsg("bot", "Error de conexión con el servidor 😢");
+    }
   }
 
   document.getElementById("ra-send").onclick = enviar;
@@ -215,23 +123,4 @@ transform:scale(0.9);
     } catch (e) {}
   }
 
-  // ───────────────── RESPUESTAS BOT ─────────────────
-  function generarRespuesta(text) {
-    const t = text.toLowerCase();
-    const tel = text.match(/(\+?[\d\s]{9,15})/);
-    const mail = text.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i);
-    const nom = text.match(/(soy|me llamo)\s+([a-záéíóúñ]+)/i);
-
-    if (tel) sesion.telefono = tel[0].replace(/\s/g, "");
-    if (mail) sesion.email = mail[0];
-    if (nom) sesion.nombre = nom[2];
-
-    if (sesion.telefono && sesion.nombre) return `Perfecto ${sesion.nombre} 🙌 Te llamaremos hoy mismo.`;
-    if (sesion.telefono && !sesion.nombre) return "Perfecto 🙌 ¿Cómo te llamas?";
-    if (t.includes("precio") || t.includes("presupuesto")) return "Claro 😊 Para darte precio necesitamos tu nombre.";
-    if (t.includes("hola")) return "¡Hola! 😊 ¿En qué tratamiento estás interesado?";
-    if (sesion.nombre && !sesion.telefono) return `Encantados ${sesion.nombre} 😊 ¿Nos dejas tu teléfono?`;
-
-    return "¿Te gustaría que te llamemos para informarte mejor?";
-  }
 })();

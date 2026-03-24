@@ -1,3 +1,4 @@
+//backendz>services>horariosDisponible.js
 const db = require("../database")
 
 function generarHorarios(clinicId, callback) {

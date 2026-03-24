@@ -1,3 +1,4 @@
+// backend/server.js
 require("dotenv").config();
 const express    = require("express");
 const cors       = require("cors");
@@ -22,7 +23,6 @@ try { ({ reservarCita }         = require("./services/reservarCita"));    } catc
 try { ({ listenEmails }         = require("./services/gmailListener"));   } catch(e) { console.warn("⚠️  gmailListener no encontrado"); }
 try { ({ iniciarRecordatorios } = require("./services/recordatorios"));   } catch(e) { console.warn("⚠️  recordatorios no encontrado"); }
 
-
 // ─────────────────────────────────────────────
 // ROUTES
 // ─────────────────────────────────────────────
@@ -30,11 +30,13 @@ const leadsRoutes     = require("./routes/leads");
 const authRoutes      = require("./routes/auth");
 const dashboardRoutes = require("./routes/dashboard");
 const pagosRouter     = require("./routes/payments");
-const { iniciarRecordatorios } = require("./services/recordatorios");
 
 // Webhook con bot multicanal + procesarRecordatorios exportado
 const webhookRoutes           = require("./routes/webhook");
 const { procesarRecordatorios } = require("./routes/webhook");
+
+// Motor del bot
+const { procesarMensaje } = require("./routes/bot");
 
 const app    = express();
 const server = http.createServer(app);
@@ -43,7 +45,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "reactiva_secret";
 // ─────────────────────────────────────────────
 // BODY PARSER
 // Webhook de Meta necesita raw antes que json()
-// ─────────────────────────────────────────────
 app.use((req, res, next) => {
     if (req.path.startsWith("/webhook") && req.method === "POST") {
         express.raw({ type: "*/*" })(req, res, () => {
@@ -54,7 +55,6 @@ app.use((req, res, next) => {
         express.json()(req, res, next);
     }
 });
-
 app.use(express.urlencoded({ extended: true }));
 
 // ─────────────────────────────────────────────
@@ -130,8 +130,6 @@ function sendEmail(to, text, subject = "ReActiva") {
         console.error("❌ Error email:", err.message);
     });
 }
-
-// Exponer sendEmail para que el webhook y otros servicios lo usen
 app.set("sendEmail", sendEmail);
 
 // ─────────────────────────────────────────────
@@ -150,7 +148,7 @@ function authenticateToken(req, res, next) {
 }
 
 // ─────────────────────────────────────────────
-// OTP LOGIN (sin contraseña)
+// OTP LOGIN
 // ─────────────────────────────────────────────
 const otpStore    = {};
 const otpRequests = {};
@@ -211,192 +209,11 @@ app.use("/api/auth",      authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/pagos",     pagosRouter);
 
-// Webhook Meta (FB/IG) — debe ir ANTES de otras rutas /webhook
-// La URL que metes en Meta Developer Console:
-//   https://TU-APP.up.railway.app/webhook
+// Webhook FB/IG
 app.use("/webhook", webhookRoutes);
 
 // ─────────────────────────────────────────────
-// API HORARIOS
-// ─────────────────────────────────────────────
-
-// GET /api/horarios?fecha=YYYY-MM-DD
-// Sin fecha → devuelve todos los futuros
-app.get("/api/horarios", authenticateToken, (req, res) => {
-    const { fecha } = req.query;
-    const clinicId  = req.user.id;
-
-    const q = fecha
-        ? `SELECT * FROM horarios WHERE clinic_id=? AND fecha=? ORDER BY hora ASC`
-        : `SELECT * FROM horarios WHERE clinic_id=? AND fecha>=date('now') ORDER BY fecha ASC, hora ASC`;
-    const params = fecha ? [clinicId, fecha] : [clinicId];
-
-    db.all(q, params, (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows || []);
-    });
-});
-
-// POST /api/horarios — crear un slot
-app.post("/api/horarios", authenticateToken, (req, res) => {
-    const { fecha, hora } = req.body;
-    const clinicId        = req.user.id;
-
-    if (!fecha || !hora)
-        return res.status(400).json({ error: "fecha y hora son obligatorios" });
-
-    db.run(
-        `INSERT OR IGNORE INTO horarios (clinic_id, fecha, hora, disponible) VALUES (?,?,?,1)`,
-        [clinicId, fecha, hora],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID, clinic_id: clinicId, fecha, hora, disponible: 1 });
-        }
-    );
-});
-
-// DELETE /api/horarios/:id — eliminar slot
-app.delete("/api/horarios/:id", authenticateToken, (req, res) => {
-    db.run(
-        `DELETE FROM horarios WHERE id=? AND clinic_id=?`,
-        [req.params.id, req.user.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            if (this.changes === 0) return res.status(404).json({ error: "Slot no encontrado" });
-            res.json({ deleted: true });
-        }
-    );
-});
-
-// PATCH /api/horarios/:id/disponible — marcar libre/ocupado manualmente
-app.patch("/api/horarios/:id/disponible", authenticateToken, (req, res) => {
-    const { disponible } = req.body; // 0 o 1
-    db.run(
-        `UPDATE horarios SET disponible=? WHERE id=? AND clinic_id=?`,
-        [disponible ? 1 : 0, req.params.id, req.user.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            if (this.changes === 0) return res.status(404).json({ error: "Slot no encontrado" });
-            res.json({ updated: true, disponible: disponible ? 1 : 0 });
-        }
-    );
-});
-
-// ─────────────────────────────────────────────
-// API CITAS
-// ─────────────────────────────────────────────
-
-// GET /api/citas?fecha=YYYY-MM-DD&status=pendiente
-app.get("/api/citas", authenticateToken, (req, res) => {
-    const { fecha, status } = req.query;
-    const clinicId          = req.user.id;
-
-    let q      = `SELECT * FROM citas WHERE clinic_id=?`;
-    let params = [clinicId];
-
-    if (fecha)  { q += ` AND fecha=?`;  params.push(fecha); }
-    if (status) { q += ` AND status=?`; params.push(status); }
-    q += ` ORDER BY fecha ASC, hora ASC`;
-
-    db.all(q, params, (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows || []);
-    });
-});
-
-// POST /api/citas — crear cita manualmente (desde el dashboard)
-app.post("/api/citas", authenticateToken, (req, res) => {
-    const { name, phone, servicio, fecha, hora, notas, canal } = req.body;
-    const clinicId = req.user.id;
-
-    if (!fecha || !hora || !name)
-        return res.status(400).json({ error: "name, fecha y hora son obligatorios" });
-
-    const ts = new Date().toISOString();
-
-    db.run(
-        `INSERT OR IGNORE INTO citas
-         (clinic_id, name, phone, servicio, fecha, hora, status, canal, created_at)
-         VALUES (?,?,?,?,?,?,'pendiente',?,?)`,
-        [clinicId, name, phone||"", servicio||"", fecha, hora, canal||"web", ts],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            if (this.lastID) {
-                // Marcar slot como ocupado
-                db.run(
-                    `UPDATE horarios SET disponible=0
-                     WHERE clinic_id=? AND fecha=? AND hora=? AND disponible=1`,
-                    [clinicId, fecha, hora]
-                );
-                // Emitir por socket
-                const io = req.app.get("io");
-                if (io) io.to(`clinic_${clinicId}`).emit("new_cita", { id: this.lastID, name, phone, servicio, fecha, hora, canal: canal||"web", status: "pendiente" });
-            }
-            res.json({ id: this.lastID, name, phone, servicio, fecha, hora, status: "pendiente" });
-        }
-    );
-});
-
-// PUT /api/citas/:id/status — cambiar estado
-app.put("/api/citas/:id/status", authenticateToken, (req, res) => {
-    const { status } = req.body;
-    const allowed     = ["pendiente","confirmada","cancelada","completada"];
-    if (!allowed.includes(status))
-        return res.status(400).json({ error: "Estado no válido. Usa: " + allowed.join("|") });
-
-    const clinicId = req.user.id;
-    const citaId   = req.params.id;
-
-    db.run(
-        `UPDATE citas SET status=? WHERE id=? AND clinic_id=?`,
-        [status, citaId, clinicId],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            if (this.changes === 0) return res.status(404).json({ error: "Cita no encontrada" });
-
-            // Si se cancela → liberar el slot de horarios
-            if (status === "cancelada") {
-                db.get(`SELECT fecha, hora FROM citas WHERE id=?`, [citaId], (err2, cita) => {
-                    if (!err2 && cita) {
-                        db.run(
-                            `UPDATE horarios SET disponible=1
-                             WHERE clinic_id=? AND fecha=? AND hora=?`,
-                            [clinicId, cita.fecha, cita.hora]
-                        );
-                    }
-                });
-            }
-
-            res.json({ updated: true, status });
-        }
-    );
-});
-
-// DELETE /api/citas/:id — eliminar cita definitivamente
-app.delete("/api/citas/:id", authenticateToken, (req, res) => {
-    const clinicId = req.user.id;
-    const citaId   = req.params.id;
-
-    // Primero recuperar fecha/hora para liberar el slot
-    db.get(`SELECT fecha, hora FROM citas WHERE id=? AND clinic_id=?`, [citaId, clinicId], (err, cita) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!cita) return res.status(404).json({ error: "Cita no encontrada" });
-
-        db.run(`DELETE FROM citas WHERE id=? AND clinic_id=?`, [citaId, clinicId], function(err2) {
-            if (err2) return res.status(500).json({ error: err2.message });
-            // Liberar slot
-            db.run(
-                `UPDATE horarios SET disponible=1
-                 WHERE clinic_id=? AND fecha=? AND hora=?`,
-                [clinicId, cita.fecha, cita.hora]
-            );
-            res.json({ deleted: true });
-        });
-    });
-});
-
-// ─────────────────────────────────────────────
-// CHAT WEB (widget en la web del cliente)
+// CHAT WEB
 // ─────────────────────────────────────────────
 app.post("/api/chat", (req, res) => {
     const { message, sessionId, canal, clinicId } = req.body;
@@ -404,7 +221,6 @@ app.post("/api/chat", (req, res) => {
 
     const clinicaId = parseInt(clinicId) || 1;
 
-    // Resolución de clínica por clinicId directo
     db.get(`SELECT id, clinic_name, tipo_clinica FROM users WHERE id=?`, [clinicaId], (err, user) => {
         const clinica = {
             clinicId : user ? user.id : clinicaId,
@@ -412,10 +228,11 @@ app.post("/api/chat", (req, res) => {
             nombre   : user ? user.clinic_name : "Clínica"
         };
 
-        const { procesarMensaje } = require("./routes/webhook");
-        procesarMensaje(req, sessionId, message, canal || "web", clinica, (reply) => {
-            res.json({ reply });
-        });
+        procesarMensaje(
+            message,
+            { leadId: sessionId, clinicId: clinica.clinicId, canal: canal || "web" },
+            (reply) => res.json({ reply })
+        );
     });
 });
 
@@ -429,33 +246,29 @@ app.get("/health", (req, res) => res.json({ status: "ok", timestamp: new Date().
 // INICIAR SERVICIOS
 // ─────────────────────────────────────────────
 listenEmails(app);       // Gmail listener
-iniciarRecordatorios();  // Recordatorios internos del servicio (si existe la lógica ahí)
+iniciarRecordatorios();  // Recordatorios internos
 
-// Generar horarios 30 días para todas las clínicas
 db.all("SELECT id FROM users", [], (err, rows) => {
     if (!err && rows) {
         rows.forEach(c => {
-            try { generarHorarios30Dias(c.id); } catch(e) { /* servicio opcional */ }
+            try { generarHorarios30Dias(c.id); } catch(e) { /* opcional */ }
         });
     }
 });
 
 // ─────────────────────────────────────────────
-// CRON: RECORDATORIOS 24h — webhook.js los envía
-// Revisa cada hora si hay citas para mañana sin aviso
+// CRON: RECORDATORIOS 24h
 // ─────────────────────────────────────────────
 const HORA_MS = 60 * 60 * 1000;
-
 function ejecutarRecordatorios() {
     console.log("⏰ Verificando recordatorios de citas...");
     try { procesarRecordatorios(app); } catch(e) { console.error("Error recordatorios:", e.message); }
 }
-
 setInterval(ejecutarRecordatorios, HORA_MS);
-setTimeout(ejecutarRecordatorios, 8_000); // ejecutar 8s después de arrancar
+setTimeout(ejecutarRecordatorios, 8_000);
 
 // ─────────────────────────────────────────────
-// CRON: SUSCRIPCIONES — downgrade si llevan >30 días sin renovar
+// CRON: SUSCRIPCIONES
 // ─────────────────────────────────────────────
 function checkSubscriptions() {
     db.all(`SELECT * FROM users WHERE plan_status='active'`, [], (err, users) => {
@@ -470,7 +283,6 @@ function checkSubscriptions() {
         });
     });
 }
-
 setInterval(checkSubscriptions, HORA_MS);
 
 // ─────────────────────────────────────────────
