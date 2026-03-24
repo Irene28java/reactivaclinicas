@@ -1,12 +1,22 @@
 [build]
   publish = "frontend"
+  command = "reactivaclinicas"
 
+# Redirección del backend
 [[redirects]]
   from = "/api/*"
   to = "https://reactiva-backend.up.railway.app/:splat"
   status = 200
   force = true
 
+# Catch-all para SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
+# Headers de seguridad
 [[headers]]
   for = "/*"
   [headers.values]
