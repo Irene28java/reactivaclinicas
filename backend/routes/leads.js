@@ -1,21 +1,107 @@
-// backend/routes/leads.js
 const express = require("express");
 const router = express.Router();
-const db = require('../database.js')
+const db = require('../database.js');
 const auth = require("../middleware/auth");
 
-// Sanitizador simple
+// ──────────────────────────────
+// CONFIG
+// ──────────────────────────────
+
+const ALL_SLOTS = [
+  '9:00','9:30','10:00','10:30','11:00','11:30',
+  '12:00','12:30','13:00','16:00','16:30',
+  '17:00','17:30','18:00','18:30','19:00'
+];
+
 const sanitize = (v) => v ? String(v).trim() : null;
 
 // ──────────────────────────────
-// Función interna para crear lead
+// HELPERS
 // ──────────────────────────────
+
+// 🔹 Detectar urgencia (VENTAS)
+function detectarUrgencia(texto = "") {
+  const t = texto.toLowerCase();
+  return /dolor|urgente|muela|sangra|inflamado/.test(t);
+}
+
+// 🔹 Obtener slots libres
+function obtenerSlibres(fecha, clinic_id) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      `SELECT hora FROM citas WHERE fecha=? AND clinic_id=?`,
+      [fecha, clinic_id],
+      (err, rows) => {
+        if (err) return reject(err);
+
+        const ocupados = rows.map(r => r.hora);
+        const libres = ALL_SLOTS.filter(h => !ocupados.includes(h));
+
+        resolve(libres);
+      }
+    );
+  });
+}
+
+// 🔹 Crear cita
+function crearCita({ clinic_id, lead_id, fecha, hora, nombre, telefono, canal }) {
+  return new Promise((resolve, reject) => {
+
+    db.get(
+      `SELECT id FROM citas WHERE fecha=? AND hora=? AND clinic_id=?`,
+      [fecha, hora, clinic_id],
+      (err, row) => {
+        if (err) return reject(err);
+        if (row) return reject(new Error("Slot ocupado"));
+
+        db.run(
+          `INSERT INTO citas 
+          (clinic_id, lead_id, canal, name, phone, servicio, fecha, hora, status)
+          VALUES (?,?,?,?,?,?,?,?,?)`,
+          [
+            clinic_id,
+            lead_id,
+            canal || 'bot',
+            nombre || 'Paciente',
+            telefono || '',
+            'Revisión dental',
+            fecha,
+            hora,
+            'confirmada'
+          ],
+          function(err){
+            if (err) return reject(err);
+            resolve({ id: this.lastID });
+          }
+        );
+      }
+    );
+  });
+}
+
+// ──────────────────────────────
+// CREAR LEAD (MEJORADO CON VENTAS)
+// ──────────────────────────────
+
 function crearLead({clinic_id, name, phone, email, servicio, message, timestamp}, req, res) {
+
+    const esUrgente = detectarUrgencia(message);
+
     db.run(
         `INSERT INTO leads (clinic_id, name, phone, email, servicio, message, timestamp, status)
          VALUES (?,?,?,?,?,?,?,?)`,
-        [clinic_id, sanitize(name), sanitize(phone), sanitize(email), sanitize(servicio), message, timestamp, "new"],
+        [
+          clinic_id,
+          sanitize(name),
+          sanitize(phone),
+          sanitize(email),
+          sanitize(servicio),
+          message,
+          timestamp,
+          esUrgente ? "pending" : "new"
+        ],
         function(err){
+
             if(err){
                 console.error("Error guardando lead:", err);
                 return res.status(500).json({ error: "Error guardando lead" });
@@ -29,34 +115,31 @@ function crearLead({clinic_id, name, phone, email, servicio, message, timestamp}
                 servicio,
                 message,
                 timestamp,
-                status: "new"
+                urgente: esUrgente
             };
 
-            // SOCKET.IO en tiempo real
+            // 🔥 SOCKET REALTIME
             const io = req.app.get("io");
             if(io) io.to(`clinic_${clinic_id}`).emit("new_lead", leadData);
 
-            // EMAIL automático
+            // 🔥 EMAIL
             const sendEmail = req.app.get("sendEmail");
             if(sendEmail){
-                const toEmail = clinic_id === 1
-                    ? (process.env.CLINIC_EMAIL || process.env.EMAIL_USER)
-                    : null;
+                const toEmail = process.env.CLINIC_EMAIL || process.env.EMAIL_USER;
 
-                if(toEmail){
-                    const emailText = `
-📩 Nuevo lead
+                const emailText = `
+📩 Nuevo paciente
+
+${esUrgente ? "🚨 URGENTE 🚨\n" : ""}
 
 Nombre: ${name || "—"}
 Teléfono: ${phone || "—"}
 Email: ${email || "—"}
-Servicio: ${servicio || "—"}
 
 Mensaje:
 ${message}
 `;
-                    sendEmail(toEmail, emailText);
-                }
+                sendEmail(toEmail, emailText);
             }
 
             res.json({ success: true, lead_id: this.lastID });
@@ -65,34 +148,46 @@ ${message}
 }
 
 // ──────────────────────────────
-// POST /api/leads/public (landing page)
+// LEADS
 // ──────────────────────────────
+
+// PUBLIC (landing)
 router.post("/public", (req, res) => {
     const { message, phone, name, email, servicio, timestamp } = req.body;
     const clinic_id = process.env.DEFAULT_CLINIC_ID || 1;
 
     if(!message) return res.status(400).json({ error: "Mensaje obligatorio" });
-    if(message.length > 2000) return res.status(400).json({ error: "Mensaje demasiado largo" });
 
-    crearLead({ clinic_id, name, phone, email, servicio, message, timestamp: timestamp || new Date().toISOString() }, req, res);
+    crearLead({
+      clinic_id,
+      name,
+      phone,
+      email,
+      servicio,
+      message,
+      timestamp: timestamp || new Date().toISOString()
+    }, req, res);
 });
 
-// ──────────────────────────────
-// POST /api/leads (bot web cliente)
-// ──────────────────────────────
+// PRIVADO
 router.post("/", auth, (req, res) => {
     const { message, phone, name, email, servicio, timestamp } = req.body;
     const clinic_id = req.user.id;
 
     if(!message) return res.status(400).json({ error: "Mensaje obligatorio" });
-    if(message.length > 2000) return res.status(400).json({ error: "Mensaje demasiado largo" });
 
-    crearLead({ clinic_id, name, phone, email, servicio, message, timestamp: timestamp || new Date().toISOString() }, req, res);
+    crearLead({
+      clinic_id,
+      name,
+      phone,
+      email,
+      servicio,
+      message,
+      timestamp: timestamp || new Date().toISOString()
+    }, req, res);
 });
 
-// ──────────────────────────────
-// GET /api/leads
-// ──────────────────────────────
+// GET LEADS
 router.get("/", auth, (req, res) => {
     const clinic_id = req.user.id;
 
@@ -100,52 +195,76 @@ router.get("/", auth, (req, res) => {
         `SELECT * FROM leads WHERE clinic_id=? ORDER BY id DESC`,
         [clinic_id],
         (err, rows) => {
-            if(err){
-                console.error("Error cargando leads:", err);
-                return res.status(500).json({ error: "Error cargando leads" });
-            }
+            if(err) return res.status(500).json({ error: "Error cargando leads" });
             res.json(rows);
         }
     );
 });
 
-// ──────────────────────────────
-// PUT /api/leads/:id/status
-// ──────────────────────────────
+// STATUS
 router.put("/:id/status", auth, (req, res) => {
     const { status } = req.body;
-    const validStatuses = ["new", "pending", "closed"];
-    if(!validStatuses.includes(status)) return res.status(400).json({ error: "Estado inválido" });
+    const clinic_id = req.user.id;
 
     db.run(
         `UPDATE leads SET status=? WHERE id=? AND clinic_id=?`,
-        [status, req.params.id, req.user.id],
-        function(err){
-            if(err){
-                console.error("Error actualizando lead:", err);
-                return res.status(500).json({ error: "Error actualizando lead" });
-            }
-            res.json({ success: true });
-        }
+        [status, req.params.id, clinic_id],
+        () => res.json({ success: true })
     );
 });
 
-// ──────────────────────────────
-// DELETE /api/leads/:id
-// ──────────────────────────────
+// DELETE
 router.delete("/:id", auth, (req, res) => {
     db.run(
         `DELETE FROM leads WHERE id=? AND clinic_id=?`,
         [req.params.id, req.user.id],
-        function(err){
-            if(err){
-                console.error("Error eliminando lead:", err);
-                return res.status(500).json({ error: "Error eliminando lead" });
-            }
-            if(this.changes === 0) return res.status(404).json({ error: "Lead no encontrado" });
-            res.json({ success: true });
-        }
+        () => res.json({ success: true })
     );
 });
 
+// ──────────────────────────────
+// CITAS (CLAVE DEL NEGOCIO)
+// ──────────────────────────────
+
+// 🔹 Ver slots disponibles
+router.get("/slots", auth, async (req, res) => {
+    try {
+        const { fecha } = req.query;
+        const clinic_id = req.user.id;
+
+        const libres = await obtenerSlibres(fecha, clinic_id);
+
+        res.json({ fecha, libres, todos: ALL_SLOTS });
+
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// 🔹 Crear cita manual
+router.post("/citas", auth, async (req, res) => {
+    try {
+        const clinic_id = req.user.id;
+        const { fecha, hora, nombre, telefono } = req.body;
+
+        const cita = await crearCita({
+            clinic_id,
+            fecha,
+            hora,
+            nombre,
+            telefono,
+            canal: 'manual'
+        });
+
+        res.json({ success: true, cita });
+
+    } catch (e) {
+        res.status(409).json({ error: e.message });
+    }
+});
+
+// ──────────────────────────────
+
 module.exports = router;
+module.exports.crearCita = crearCita;
+module.exports.obtenerSlibres = obtenerSlibres;

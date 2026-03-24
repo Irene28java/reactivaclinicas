@@ -4,15 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel | ReActiva Clínicas</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root {
+/* ── TOKENS ── */
+:root{
   --negro:#07090d;--blanco:#f0ede8;--verde:#00e676;--verde-dim:rgba(0,230,118,0.1);--verde-borde:rgba(0,230,118,0.25);
-  --gris:#0f1318;--gris2:#141920;--gris3:#1a2028;--gris-texto:#6e7a8a;--azul:#4ea8f0;--oro:#d4a843;--rojo:#ff5c5c;--sidebar-w:250px;
+  --gris:#0f1318;--gris2:#141920;--gris3:#1a2028;--gris-texto:#6e7a8a;
+  --azul:#4ea8f0;--oro:#d4a843;--rojo:#ff5c5c;--lila:#b48aff;--sidebar-w:250px;
+  --radio:14px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);min-height:100vh;display:flex;overflow-x:hidden}
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.4}
+
+/* ── SIDEBAR ── */
 .sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--gris);border-right:1px solid rgba(255,255,255,.05);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:100;overflow:hidden}
 .sidebar::before{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,.07) 0%,transparent 70%);top:-60px;left:-60px;pointer-events:none}
 .sidebar-header{padding:28px 22px 20px;border-bottom:1px solid rgba(255,255,255,.04)}
@@ -31,6 +36,8 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .user-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;background:var(--verde-dim);border:2px solid var(--verde-borde);color:var(--verde);font-size:.85rem;font-weight:800;display:flex;align-items:center;justify-content:center}
 .user-info-name{font-size:.82rem;font-weight:700}
 .plan-chip{display:inline-block;font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:100px;margin-top:2px;background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde)}
+
+/* ── MAIN ── */
 .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 36px;background:rgba(7,9,13,.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04);position:sticky;top:0;z-index:50}
 .page-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:700}
@@ -39,28 +46,30 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .live-pill{display:flex;align-items:center;gap:6px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:.72rem;font-weight:600;padding:6px 12px;border-radius:100px}
 .live-dot{width:6px;height:6px;border-radius:50%;background:var(--verde);animation:livePulse 1.5s ease-in-out infinite}
 @keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,230,118,.4)}50%{opacity:.7;box-shadow:0 0 0 5px rgba(0,230,118,0)}}
-.btn-top{padding:9px 18px;border-radius:10px;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.btn-top.primary{background:var(--verde);color:var(--negro)}
-.btn-top.primary:hover{background:#1fffa0;box-shadow:0 4px 16px rgba(0,230,118,.4)}
-.btn-top.ghost{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--blanco)}
-.btn-top.ghost:hover{background:rgba(255,255,255,.09)}
+.btn{padding:9px 18px;border-radius:10px;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn.primary{background:var(--verde);color:var(--negro)}
+.btn.primary:hover{background:#1fffa0;box-shadow:0 4px 16px rgba(0,230,118,.4)}
+.btn.ghost{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--blanco)}
+.btn.ghost:hover{background:rgba(255,255,255,.09)}
+.btn.danger{background:rgba(255,92,92,.1);border:1px solid rgba(255,92,92,.2);color:var(--rojo)}
+.btn.danger:hover{background:rgba(255,92,92,.2)}
 .content{padding:28px 36px;flex:1}
 
-/* WELCOME */
+/* ── WELCOME ── */
 .welcome-banner{background:linear-gradient(120deg,rgba(0,230,118,.07) 0%,rgba(0,230,118,.03) 50%,rgba(78,168,240,.04) 100%);border:1px solid var(--verde-borde);border-radius:20px;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px;position:relative;overflow:hidden;animation:slideDown .5s ease both}
 .welcome-banner::before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,.07) 0%,transparent 70%);right:-80px;top:-100px;pointer-events:none}
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-.wb-initials{flex-shrink:0;width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,rgba(0,230,118,.15),rgba(0,230,118,.05));border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--verde);position:relative;z-index:1}
+.wb-av{flex-shrink:0;width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,rgba(0,230,118,.15),rgba(0,230,118,.05));border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:700;color:var(--verde);position:relative;z-index:1}
 .wb-body{flex:1;position:relative;z-index:1}
 .wb-greeting{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--verde);opacity:.75;margin-bottom:4px}
 .wb-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--blanco);line-height:1.2;margin-bottom:8px}
 .wb-meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.wb-bot-status{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;color:var(--verde)}
-.wb-bot-dot{width:6px;height:6px;border-radius:50%;background:var(--verde);animation:livePulse 1.5s ease-in-out infinite}
+.wb-stat{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;color:var(--verde)}
+.wb-dot{width:6px;height:6px;border-radius:50%;background:var(--verde);animation:livePulse 1.5s ease-in-out infinite}
 .wb-phrase{font-size:.72rem;color:var(--gris-texto);font-style:italic}
 .wb-close{background:none;border:none;color:var(--gris-texto);cursor:pointer;font-size:1rem;padding:6px;flex-shrink:0;position:relative;z-index:1;align-self:flex-start}
 
-/* KPIs */
+/* ── KPIs ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
 .kpi{background:var(--gris2);border:1px solid rgba(255,255,255,.055);border-radius:16px;padding:20px 22px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;animation:kpiIn .5s ease both}
 @keyframes kpiIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -83,17 +92,19 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .kpi-value{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;line-height:1;margin-bottom:6px}
 .kpi-sub{font-size:.72rem;color:var(--gris-texto)}
 
-/* SECCIONES */
+/* ── SECTIONS ── */
 .section{display:none;animation:kpiIn .4s ease both}
 .section.active{display:block}
 
-/* LEADS PANEL */
+/* ── PANELS ── */
 .mid-row{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-bottom:22px}
 .panel{background:var(--gris2);border:1px solid rgba(255,255,255,.055);border-radius:16px;padding:22px;position:relative;overflow:hidden}
 .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .panel-title{font-size:.85rem;font-weight:700}
 .panel-sub{font-size:.72rem;color:var(--gris-texto);margin-top:2px}
 .panel-badge{font-size:.68rem;padding:4px 10px;border-radius:100px;background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde);font-weight:600}
+
+/* ── BAR CHART ── */
 .bar-chart-area{display:flex;flex-direction:column;gap:8px}
 .bar-row{display:flex;align-items:center;gap:12px}
 .bar-day{font-size:.68rem;color:var(--gris-texto);width:26px;flex-shrink:0;text-align:right}
@@ -101,6 +112,8 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .bar-fill{height:100%;border-radius:6px;width:0;background:linear-gradient(90deg,var(--verde),rgba(0,230,118,.5));transition:width 1.2s cubic-bezier(.2,.8,.3,1);display:flex;align-items:center;justify-content:flex-end;padding-right:8px}
 .bar-fill-val{font-size:.66rem;font-weight:700;color:var(--negro)}
 .bar-num{font-size:.72rem;font-weight:700;width:24px;color:var(--verde)}
+
+/* ── DONUT ── */
 .donut-panel{display:flex;flex-direction:column;align-items:center;justify-content:center}
 .donut-wrap{position:relative;margin-bottom:20px}
 .donut-svg{transform:rotate(-90deg);display:block}
@@ -111,7 +124,8 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .dl-item{display:flex;align-items:center;justify-content:space-between;font-size:.8rem}
 .dl-left{display:flex;align-items:center;gap:8px;color:var(--gris-texto)}
 .dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.dl-val{font-weight:700}
+
+/* ── TABLE ── */
 .table-panel{background:var(--gris2);border:1px solid rgba(255,255,255,.055);border-radius:16px;overflow:hidden}
 .table-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid rgba(255,255,255,.04);flex-wrap:wrap;gap:12px}
 .search-input{padding:8px 14px 8px 34px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:var(--blanco);font-family:'Syne',sans-serif;font-size:.8rem;outline:none;transition:border-color .2s;width:200px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236e7a8a' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center}
@@ -125,10 +139,7 @@ tbody tr:hover{background:rgba(255,255,255,.02)}
 tbody tr:last-child td{border-bottom:none}
 .td-name{font-weight:600}
 .td-msg{color:var(--gris-texto);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.td-phone{font-size:.78rem;color:var(--gris-texto)}
-.td-service{font-size:.72rem;padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.04);color:#c5cdd8;border:1px solid rgba(255,255,255,.06);white-space:nowrap}
-.td-date{font-size:.75rem;color:var(--gris-texto)}
-.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:.68rem;font-weight:700;white-space:nowrap}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;font-size:.68rem;font-weight:700}
 .status-badge::before{content:'';width:5px;height:5px;border-radius:50%}
 .status-badge.new{background:rgba(78,168,240,.1);color:var(--azul);border:1px solid rgba(78,168,240,.2)}
 .status-badge.new::before{background:var(--azul)}
@@ -137,43 +148,41 @@ tbody tr:last-child td{border-bottom:none}
 .status-badge.pending{background:rgba(212,168,67,.1);color:var(--oro);border:1px solid rgba(212,168,67,.2)}
 .status-badge.pending::before{background:var(--oro)}
 .act-btn{padding:5px 11px;border-radius:7px;font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;background:none;border:none;cursor:pointer;transition:all .15s}
-.act-btn.convert{color:var(--verde)}
-.act-btn.convert:hover{background:var(--verde-dim)}
-.act-btn.del{color:var(--rojo)}
-.act-btn.del:hover{background:rgba(255,92,92,.08)}
+.act-btn.convert{color:var(--verde)}.act-btn.convert:hover{background:var(--verde-dim)}
+.act-btn.del{color:var(--rojo)}.act-btn.del:hover{background:rgba(255,92,92,.08)}
 
-/* ── BOT CHAT ── */
+/* ── CHAT ── */
 .bot-layout{display:grid;grid-template-columns:1fr 380px;gap:16px;align-items:start}
-.chat-panel{background:var(--gris2);border:1px solid rgba(255,255,255,.06);border-radius:18px;display:flex;flex-direction:column;height:600px;overflow:hidden}
+.chat-panel{background:var(--gris2);border:1px solid rgba(255,255,255,.06);border-radius:18px;display:flex;flex-direction:column;height:620px;overflow:hidden}
 .chat-header{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:12px}
 .chat-bot-av{width:38px;height:38px;border-radius:50%;background:var(--verde-dim);border:2px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
 .chat-bot-name{font-size:.88rem;font-weight:700}
-.chat-bot-status{font-size:.68rem;color:var(--verde);display:flex;align-items:center;gap:5px}
+.chat-bot-sub{font-size:.68rem;color:var(--verde);display:flex;align-items:center;gap:5px}
 .chat-dot{width:5px;height:5px;border-radius:50%;background:var(--verde);animation:livePulse 1.5s infinite}
 .chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scroll-behavior:smooth}
 .chat-messages::-webkit-scrollbar{width:4px}
-.chat-messages::-webkit-scrollbar-track{background:transparent}
 .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
 .msg{max-width:80%;animation:msgIn .3s cubic-bezier(.2,.8,.3,1) both}
 @keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.msg.bot{align-self:flex-start}
-.msg.user{align-self:flex-end}
+.msg.bot{align-self:flex-start}.msg.user{align-self:flex-end}
 .msg-bubble{padding:11px 15px;border-radius:14px;font-size:.83rem;line-height:1.5}
 .msg.bot .msg-bubble{background:var(--gris3);border:1px solid rgba(255,255,255,.06);border-bottom-left-radius:4px}
 .msg.user .msg-bubble{background:var(--verde);color:var(--negro);font-weight:600;border-bottom-right-radius:4px}
-.msg-time{font-size:.62rem;color:var(--gris-texto);margin-top:4px;text-align:right}
-.msg.bot .msg-time{text-align:left}
+.msg-time{font-size:.62rem;color:var(--gris-texto);margin-top:4px}
+.msg.bot .msg-time{text-align:left}.msg.user .msg-time{text-align:right}
 .typing-indicator{display:flex;gap:4px;padding:12px 16px;align-self:flex-start}
 .typing-dot{width:7px;height:7px;border-radius:50%;background:var(--gris-texto);animation:typingBounce 1.2s ease-in-out infinite}
-.typing-dot:nth-child(2){animation-delay:.2s}
-.typing-dot:nth-child(3){animation-delay:.4s}
-@keyframes typingBounce{0%,80%,100%{transform:scale(0.8);opacity:.5}40%{transform:scale(1.1);opacity:1}}
+.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1.1);opacity:1}}
 .chat-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.05);display:flex;gap:10px;align-items:center}
 .chat-input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:11px 16px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.84rem;outline:none;transition:border-color .2s;resize:none}
 .chat-input:focus{border-color:var(--verde-borde)}
 .chat-send{width:40px;height:40px;border-radius:12px;background:var(--verde);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;transition:all .2s}
 .chat-send:hover{background:#1fffa0;box-shadow:0 4px 14px rgba(0,230,118,.4)}
 .chat-send:disabled{opacity:.4;cursor:not-allowed}
+.quick-replies{display:flex;gap:8px;flex-wrap:wrap;padding:8px 16px 0}
+.qr-btn{padding:6px 14px;border-radius:100px;background:none;border:1px solid var(--verde-borde);color:var(--verde);font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s}
+.qr-btn:hover{background:var(--verde-dim)}
 
 /* ── CALENDARIO ── */
 .cal-panel{background:var(--gris2);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:20px}
@@ -184,7 +193,7 @@ tbody tr:last-child td{border-bottom:none}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal-weekday{text-align:center;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-texto);padding:6px 0}
 .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:9px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;position:relative;background:transparent;border:none;color:var(--blanco)}
-.cal-day:hover:not(.empty):not(.other-month){background:rgba(255,255,255,.07)}
+.cal-day:hover:not(.other-month){background:rgba(255,255,255,.07)}
 .cal-day.other-month{color:var(--gris-texto);opacity:.4;cursor:default}
 .cal-day.today{background:rgba(0,230,118,.12);color:var(--verde);border:1px solid var(--verde-borde)}
 .cal-day.selected{background:var(--verde);color:var(--negro)!important;font-weight:800;box-shadow:0 0 0 3px rgba(0,230,118,.25)}
@@ -195,47 +204,142 @@ tbody tr:last-child td{border-bottom:none}
 .cal-slot{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;margin-bottom:6px;font-size:.78rem}
 .cal-slot.libre{background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde)}
 .cal-slot.ocupado{background:rgba(255,92,92,.07);border:1px solid rgba(255,92,92,.2);color:var(--rojo)}
-.cal-slot-time{font-weight:700;min-width:42px}
-.cal-slot-info{flex:1;color:inherit;opacity:.85}
-.cal-slot-del{background:none;border:none;cursor:pointer;color:inherit;opacity:.5;padding:2px 6px;border-radius:4px;transition:opacity .2s;font-size:.75rem}
+.cal-slot-time{font-weight:700;min-width:48px}
+.cal-slot-info{flex:1;opacity:.85}
+.cal-slot-del{background:none;border:none;cursor:pointer;color:inherit;opacity:.5;padding:2px 6px;border-radius:4px;font-size:.75rem;transition:opacity .2s}
 .cal-slot-del:hover{opacity:1}
 
-/* NUEVO LEAD animado */
+/* ── CITAS ── */
+.citas-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cita-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--gris3);border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:8px}
+.cita-time-badge{background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:.78rem;font-weight:700;padding:6px 12px;border-radius:9px;white-space:nowrap;min-width:70px;text-align:center}
+
+/* ── FIELD SYSTEM ── */
+.field-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:6px;display:block}
+.field-input{width:100%;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s}
+.field-input:focus{border-color:var(--verde-borde)}
+select.field-input option{background:var(--gris2)}
+.field-group{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field-full{margin-bottom:12px}
+
+/* ── BOT CONFIG ── */
+.config-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.config-card{background:var(--gris2);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:22px}
+.config-card.full{grid-column:1/-1}
+.config-title{font-size:.88rem;font-weight:700;margin-bottom:4px}
+.config-sub{font-size:.72rem;color:var(--gris-texto);margin-bottom:18px}
+
+/* Personalidad cards */
+.personality-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0}
+.p-card{padding:14px 16px;border-radius:12px;border:2px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);cursor:pointer;transition:all .2s;position:relative}
+.p-card:hover{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+.p-card.selected{border-color:var(--verde-borde);background:var(--verde-dim)}
+.p-card.selected .p-name{color:var(--verde)}
+.p-emoji{font-size:1.4rem;margin-bottom:8px}
+.p-name{font-size:.82rem;font-weight:700;margin-bottom:4px}
+.p-desc{font-size:.7rem;color:var(--gris-texto);line-height:1.4}
+.p-card.selected .p-desc{color:rgba(0,230,118,.7)}
+.p-check{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;background:var(--verde);color:var(--negro);font-size:.65rem;font-weight:900;display:none;align-items:center;justify-content:center}
+.p-card.selected .p-check{display:flex}
+
+/* Canales toggles */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{display:flex;align-items:center;gap:10px;font-size:.84rem;font-weight:500}
+.toggle-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;border-radius:24px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:all .25s}
+.toggle-track::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--gris-texto);transition:all .25s}
+.toggle-switch input:checked~.toggle-track{background:var(--verde-dim);border-color:var(--verde-borde)}
+.toggle-switch input:checked~.toggle-track::after{transform:translateX(20px);background:var(--verde)}
+
+/* Instrucciones del bot */
+.instrucciones-area{width:100%;min-height:140px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.82rem;line-height:1.6;outline:none;resize:vertical;transition:border-color .2s}
+.instrucciones-area:focus{border-color:var(--verde-borde)}
+.char-count{font-size:.68rem;color:var(--gris-texto);text-align:right;margin-top:4px}
+
+/* ── BASE DE DATOS BOT (respuestas predefinidas) ── */
+.respuestas-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto}
+.respuestas-list::-webkit-scrollbar{width:4px}
+.respuestas-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.resp-card{background:var(--gris3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px 16px;transition:border-color .2s}
+.resp-card:hover{border-color:rgba(255,255,255,.1)}
+.resp-trigger{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--azul);margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.resp-trigger-tag{background:rgba(78,168,240,.1);border:1px solid rgba(78,168,240,.2);padding:2px 8px;border-radius:100px;font-size:.65rem}
+.resp-text{font-size:.82rem;color:var(--blanco);line-height:1.5;margin-bottom:8px}
+.resp-meta{display:flex;align-items:center;gap:10px;font-size:.68rem;color:var(--gris-texto)}
+.resp-cat{background:rgba(255,255,255,.05);padding:2px 8px;border-radius:100px}
+.resp-actions{display:flex;gap:6px;margin-left:auto}
+.resp-actions button{padding:4px 10px;border-radius:7px;font-family:'Syne',sans-serif;font-size:.68rem;font-weight:600;background:none;border:none;cursor:pointer;transition:all .15s}
+.resp-actions .edit-btn{color:var(--azul)}.resp-actions .edit-btn:hover{background:rgba(78,168,240,.1)}
+.resp-actions .del-btn{color:var(--rojo)}.resp-actions .del-btn:hover{background:rgba(255,92,92,.08)}
+.add-resp-form{background:var(--negro);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px;margin-top:14px;display:none}
+.add-resp-form.open{display:block}
+
+/* ── EMAIL TEMPLATE ── */
+.email-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:16px;align-items:start}
+.email-preview{background:var(--negro);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden}
+.email-preview-bar{background:rgba(255,255,255,.04);padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.email-dot{width:10px;height:10px;border-radius:50%}
+.email-subject-bar{padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.06)}
+.email-subject-label{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:4px}
+.email-subject-val{font-size:.85rem;font-weight:700}
+.email-body{padding:20px;font-size:.82rem;line-height:1.8;color:var(--gris-texto)}
+.email-body strong{color:var(--blanco)}
+.email-body .email-cta{display:inline-block;margin-top:14px;padding:10px 22px;background:var(--verde);color:var(--negro);border-radius:9px;font-weight:700;font-size:.8rem;text-decoration:none}
+.email-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.email-stat{background:var(--gris3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;text-align:center}
+.email-stat-val{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--verde)}
+.email-stat-label{font-size:.68rem;color:var(--gris-texto);margin-top:2px}
+
+/* ── FILOSOFÍA ── */
+.filosofia-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fil-card{background:var(--gris2);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:26px;position:relative;overflow:hidden}
+.fil-card::before{content:'';position:absolute;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,.06) 0%,transparent 70%);bottom:-60px;right:-60px;pointer-events:none}
+.fil-num{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:700;color:rgba(0,230,118,.12);line-height:1;margin-bottom:12px}
+.fil-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:700;color:var(--verde);margin-bottom:10px}
+.fil-text{font-size:.82rem;color:var(--gris-texto);line-height:1.7}
+.fil-founder{background:linear-gradient(120deg,rgba(0,230,118,.07),rgba(0,230,118,.03));border:1px solid var(--verde-borde);border-radius:16px;padding:26px;display:flex;gap:20px;align-items:flex-start;margin-top:16px}
+.fil-founder-av{width:56px;height:56px;border-radius:50%;flex-shrink:0;background:var(--verde-dim);border:2px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--verde)}
+.fil-founder-name{font-size:.88rem;font-weight:700;margin-bottom:3px}
+.fil-founder-role{font-size:.72rem;color:var(--verde);margin-bottom:10px}
+.fil-founder-text{font-size:.82rem;color:var(--gris-texto);line-height:1.6;font-style:italic}
+
+/* ── SCRIPT LOCK ── */
+.script-locked-panel{display:flex;flex-direction:column;align-items:center;gap:14px;padding:32px 20px;background:var(--negro);border:1px solid rgba(255,255,255,.07);border-radius:14px;margin-top:16px;text-align:center}
+.script-code{background:var(--negro);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px;font-family:monospace;font-size:.75rem;color:#a8c8ff;line-height:1.8;user-select:all;min-height:140px;margin-top:16px;display:none}
+.script-code.visible{display:block}
+.unlock-form{display:flex;gap:8px}
+.unlock-input{padding:9px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.8rem;outline:none;transition:border-color .2s;width:180px}
+.unlock-input:focus{border-color:var(--verde-borde)}
+.unlock-btn{padding:9px 18px;border-radius:9px;background:var(--verde);color:var(--negro);font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;border:none;cursor:pointer;transition:all .2s}
+.unlock-btn:hover{background:#1fffa0}
+
+/* ── NOTIF / TOAST ── */
 .lead-incoming{position:fixed;bottom:90px;right:28px;background:var(--gris3);border:1px solid var(--verde-borde);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(0,230,118,.15);z-index:9998;min-width:280px;transform:translateX(120%);transition:transform .4s cubic-bezier(.2,.8,.3,1)}
 .lead-incoming.show{transform:translateX(0)}
-.lead-in-icon{font-size:1.2rem;flex-shrink:0}
-.lead-in-title{font-size:.8rem;font-weight:700;color:var(--verde)}
-.lead-in-sub{font-size:.7rem;color:var(--gris-texto);margin-top:2px}
-
-/* TOAST */
 .toast{position:fixed;bottom:28px;right:28px;background:var(--gris3);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);z-index:9999;min-width:260px;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.2,.8,.3,1);overflow:hidden}
 .toast.show{transform:translateY(0);opacity:1}
-.toast-icon{font-size:1.1rem}
 .toast-body{flex:1}
 .toast-title{font-size:.82rem;font-weight:700}
 .toast-sub{font-size:.72rem;color:var(--gris-texto);margin-top:1px}
 .toast-bar{position:absolute;bottom:0;left:0;height:2px;background:var(--verde);width:100%;transform-origin:left;animation:toastBar 3.2s linear forwards}
 @keyframes toastBar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
 
-/* QUICK REPLIES */
-.quick-replies{display:flex;gap:8px;flex-wrap:wrap;padding:8px 16px 0}
-.qr-btn{padding:6px 14px;border-radius:100px;background:none;border:1px solid var(--verde-borde);color:var(--verde);font-family:'Syne',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
-.qr-btn:hover{background:var(--verde-dim)}
-
-/* BOT LEAD COUNTER badge animado */
-.bot-leads-counter{display:inline-flex;align-items:center;gap:6px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:100px;margin-left:auto}
+.leads-counter{display:inline-flex;align-items:center;gap:6px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:100px}
 .counter-num{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700}
 
 @media(max-width:900px){
   .sidebar{transform:translateX(-100%)}.main{margin-left:0}.content{padding:16px}
-  .kpi-grid{grid-template-columns:repeat(2,1fr)}.mid-row{grid-template-columns:1fr}
-  .bot-layout{grid-template-columns:1fr}
+  .kpi-grid,.config-layout,.citas-layout,.filosofia-layout,.email-layout{grid-template-columns:1fr}
+  .mid-row,.bot-layout{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
+<!-- ════════════════ SIDEBAR ════════════════ -->
 <aside class="sidebar">
   <div class="sidebar-header">
     <a href="#" class="sidebar-logo">
@@ -249,14 +353,19 @@ tbody tr:last-child td{border-bottom:none}
     <button class="nav-item" onclick="setTab('leads',this)"><span class="nav-icon">◎</span> Leads<span class="nav-count" id="navLeadCount">0</span></button>
     <button class="nav-item" onclick="setTab('bot',this)"><span class="nav-icon">◈</span> Bot Chat<span class="nav-count" id="navBotBadge" style="background:var(--azul)">EN VIVO</span></button>
     <button class="nav-item" onclick="setTab('citas',this)"><span class="nav-icon">◷</span> Citas<span class="nav-count" id="navCitasCount" style="display:none">0</span></button>
+    <div class="nav-section-label">Configurar</div>
+    <button class="nav-item" onclick="setTab('configbot',this)"><span class="nav-icon">⚙</span> Configurar Bot</button>
+    <button class="nav-item" onclick="setTab('email',this)"><span class="nav-icon">✉</span> Email automático</button>
+    <button class="nav-item" onclick="setTab('filosofia',this)"><span class="nav-icon">◉</span> Nuestra filosofía</button>
     <div class="nav-section-label">Cuenta</div>
+    <button class="nav-item" onclick="setTab('config',this)"><span class="nav-icon">◫</span> Ajustes & Script</button>
     <button class="nav-item" style="color:var(--oro)"><span class="nav-icon">⬆</span> Upgrade plan</button>
   </nav>
   <div class="sidebar-footer">
     <div class="user-card">
-      <div class="user-av">RC</div>
+      <div class="user-av" id="sidebarAv">IV</div>
       <div>
-        <div class="user-info-name">ReActiva Clínica</div>
+        <div class="user-info-name" id="sidebarName">Irene Vaquerizo</div>
         <span class="plan-chip">premium</span>
       </div>
     </div>
@@ -264,7 +373,7 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 </aside>
 
-<!-- MAIN -->
+<!-- ════════════════ MAIN ════════════════ -->
 <div class="main">
   <div class="topbar">
     <div>
@@ -273,28 +382,28 @@ tbody tr:last-child td{border-bottom:none}
     </div>
     <div class="topbar-right">
       <div class="live-pill"><div class="live-dot"></div> En vivo</div>
-      <span id="topLeadCounter" class="bot-leads-counter"><span class="counter-num" id="topLeadNum">0</span> leads hoy</span>
-      <button class="btn-top ghost" onclick="simularNuevoLead()">+ Simular lead</button>
+      <span class="leads-counter"><span class="counter-num" id="topLeadNum">0</span> leads hoy</span>
+      <button class="btn ghost" onclick="simularLead()">+ Simular lead</button>
     </div>
   </div>
 
   <div class="content">
 
-    <!-- WELCOME -->
+    <!-- WELCOME BANNER -->
     <div class="welcome-banner" id="welcomeBanner">
-      <div class="wb-initials">RC</div>
+      <div class="wb-av" id="wbAv">IV</div>
       <div class="wb-body">
         <div class="wb-greeting" id="wbGreeting">Buenos días ☀️</div>
-        <div class="wb-title">ReActiva Clínica · Panel de Control</div>
+        <div class="wb-title" id="wbTitle">Irene, bienvenida a tu panel</div>
         <div class="wb-meta">
-          <span class="wb-bot-status"><span class="wb-bot-dot"></span> Bot activo · capturando leads en tiempo real</span>
+          <span class="wb-stat"><span class="wb-dot"></span> <span id="wbBotNombre">Aria</span> activa · sin pausas</span>
           <span class="wb-phrase" id="wbPhrase"></span>
         </div>
       </div>
       <button class="wb-close" onclick="document.getElementById('welcomeBanner').style.display='none'">✕</button>
     </div>
 
-    <!-- DASHBOARD -->
+    <!-- ════ DASHBOARD ════ -->
     <div id="sec-dashboard" class="section active">
       <div class="kpi-grid">
         <div class="kpi cv" style="animation-delay:.05s">
@@ -322,19 +431,16 @@ tbody tr:last-child td{border-bottom:none}
           <div class="kpi-sub">basado en conversiones</div>
         </div>
       </div>
-
       <div class="mid-row">
         <div class="panel">
           <div class="panel-head">
-            <div><div class="panel-title">Actividad semanal</div><div class="panel-sub">Leads capturados por día</div></div>
+            <div><div class="panel-title">Actividad semanal</div><div class="panel-sub">Leads por día</div></div>
             <div class="panel-badge" id="weekTotal">0 esta semana</div>
           </div>
           <div class="bar-chart-area" id="barChart"></div>
         </div>
         <div class="panel donut-panel">
-          <div class="panel-head" style="width:100%">
-            <div><div class="panel-title">Estado leads</div><div class="panel-sub">distribución actual</div></div>
-          </div>
+          <div class="panel-head" style="width:100%"><div><div class="panel-title">Estado leads</div><div class="panel-sub">distribución</div></div></div>
           <div class="donut-wrap">
             <svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="14"/>
@@ -347,208 +453,985 @@ tbody tr:last-child td{border-bottom:none}
             </div>
           </div>
           <div class="donut-legend">
-            <div class="dl-item"><span class="dl-left"><span class="dl-dot" style="background:#4ea8f0"></span>Nuevos</span><span class="dl-val" id="dlNew">0</span></div>
-            <div class="dl-item"><span class="dl-left"><span class="dl-dot" style="background:#00e676"></span>Convertidos</span><span class="dl-val" id="dlClosed">0</span></div>
-            <div class="dl-item"><span class="dl-left"><span class="dl-dot" style="background:#d4a843"></span>Pendientes</span><span class="dl-val" id="dlPending">0</span></div>
+            <div class="dl-item"><span class="dl-left"><span class="dl-dot" style="background:#4ea8f0"></span>Nuevos</span><span style="font-weight:700" id="dlNew">0</span></div>
+            <div class="dl-item"><span class="dl-left"><span class="dl-dot" style="background:#00e676"></span>Convertidos</span><span style="font-weight:700" id="dlClosed">0</span></div>
+            <div class="dl-item"><span class="dl-left"><span class="dl-dot" style="background:#d4a843"></span>Pendientes</span><span style="font-weight:700" id="dlPending">0</span></div>
           </div>
         </div>
       </div>
-
       <div class="table-panel">
         <div class="table-head">
-          <div><div class="panel-title">Leads recientes</div><div class="panel-sub" id="tableSub">0 leads en total</div></div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input class="search-input" id="searchInput" placeholder="Buscar lead…" oninput="filtrarLeads()">
-            <button class="btn-top ghost" onclick="exportCSV()">↓ CSV</button>
+          <div><div class="panel-title">Leads recientes</div><div class="panel-sub" id="tableSub">0 leads</div></div>
+          <div style="display:flex;gap:8px">
+            <input class="search-input" id="searchDash" placeholder="Buscar…" oninput="renderDashTable()">
+            <button class="btn ghost" onclick="exportCSV()">↓ CSV</button>
           </div>
         </div>
-        <div id="tableWrapper"><div style="padding:40px;text-align:center;color:var(--gris-texto)">El bot está listo. Haz clic en <strong style="color:var(--verde)">+ Simular lead</strong> o chatea con el bot.</div></div>
+        <div id="tableWrapper"><div style="padding:40px;text-align:center;color:var(--gris-texto)">Simula un lead o chatea con el bot para ver resultados aquí.</div></div>
       </div>
     </div>
 
-    <!-- LEADS -->
+    <!-- ════ LEADS ════ -->
     <div id="sec-leads" class="section">
       <div class="table-panel" style="border-radius:16px">
         <div class="table-head">
           <div><div class="panel-title">Todos los leads</div><div class="panel-sub" id="leadsTabSub">0 en total</div></div>
           <div style="display:flex;gap:8px">
-            <input class="search-input" id="searchLeadsTab" placeholder="Buscar…" oninput="filtrarLeadsTab()">
-            <button class="btn-top ghost" onclick="exportCSV()">↓ CSV</button>
+            <input class="search-input" id="searchLeads" placeholder="Buscar…" oninput="renderLeadsTable()">
+            <button class="btn ghost" onclick="exportCSV()">↓ CSV</button>
           </div>
         </div>
-        <div id="tableWrapperFull"><div style="padding:40px;text-align:center;color:var(--gris-texto)">Sin leads aún.</div></div>
+        <div id="tableWrapperFull"></div>
       </div>
     </div>
 
-    <!-- BOT CHAT -->
+    <!-- ════ BOT CHAT ════ -->
     <div id="sec-bot" class="section">
       <div class="bot-layout">
         <div class="chat-panel">
           <div class="chat-header">
             <div class="chat-bot-av">🤖</div>
             <div>
-              <div class="chat-bot-name">Bot ReActiva · Clínica Demo</div>
-              <div class="chat-bot-status"><span class="chat-dot"></span> En línea · responde al instante</div>
+              <div class="chat-bot-name" id="chatBotName">Aria · ReActiva Clínica</div>
+              <div class="chat-bot-sub"><span class="chat-dot"></span> En línea · responde al instante</div>
             </div>
-            <div style="margin-left:auto;font-size:.72rem;color:var(--gris-texto)">Powered by Claude AI</div>
+            <div style="margin-left:auto;font-size:.68rem;color:var(--gris-texto)">Motor propio</div>
           </div>
           <div class="chat-messages" id="chatMessages"></div>
           <div id="quickRepliesContainer"></div>
           <div class="chat-footer">
-            <textarea class="chat-input" id="chatInput" placeholder="Escríbele al bot…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensaje()}"></textarea>
+            <textarea class="chat-input" id="chatInput" placeholder="Escribe aquí…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensaje()}"></textarea>
             <button class="chat-send" id="chatSendBtn" onclick="enviarMensaje()">➤</button>
           </div>
         </div>
-
-        <!-- CALENDARIO -->
         <div>
           <div class="cal-panel">
             <div class="cal-header">
-              <button class="cal-nav" onclick="cambiarMes(-1)">‹</button>
-              <div class="cal-title" id="calTitle"></div>
-              <button class="cal-nav" onclick="cambiarMes(1)">›</button>
+              <button class="cal-nav" onclick="cambiarMes(-1,'bot')">‹</button>
+              <div class="cal-title" id="calTitleBot"></div>
+              <button class="cal-nav" onclick="cambiarMes(1,'bot')">›</button>
             </div>
-            <div class="cal-grid" id="calGrid"></div>
-            <div class="cal-day-detail" id="calDetail"></div>
+            <div class="cal-grid" id="calGridBot"></div>
+            <div class="cal-day-detail" id="calDetailBot"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- CITAS -->
+    <!-- ════ CITAS ════ -->
     <div id="sec-citas" class="section">
       <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;margin-bottom:20px">Gestión de Citas</div>
-      <div class="panel" style="margin-bottom:16px">
-        <div class="panel-head">
-          <div><div class="panel-title">Nueva cita manual</div></div>
+      <div class="citas-layout">
+        <div class="panel">
+          <div class="panel-head"><div><div class="panel-title">Nueva cita</div><div class="panel-sub">Añadir manualmente</div></div></div>
+          <div class="field-group">
+            <div><label class="field-label">Fecha</label><input type="date" id="citaFecha" class="field-input"></div>
+            <div>
+              <label class="field-label">Hora</label>
+              <select id="citaHora" class="field-input">
+                <option value="">Seleccionar…</option>
+                <option>9:00</option><option>9:30</option><option>10:00</option><option>10:30</option>
+                <option>11:00</option><option>11:30</option><option>12:00</option><option>13:00</option>
+                <option>16:00</option><option>16:30</option><option>17:00</option><option>17:30</option>
+                <option>18:00</option><option>18:30</option><option>19:00</option>
+              </select>
+            </div>
+            <div><label class="field-label">Paciente</label><input type="text" id="citaPaciente" placeholder="Nombre completo" class="field-input"></div>
+            <div><label class="field-label">Teléfono</label><input type="tel" id="citaTelefono" placeholder="612 345 678" class="field-input"></div>
+          </div>
+          <div class="field-full">
+            <label class="field-label">Servicio</label>
+            <select id="citaServicio" class="field-input"></select>
+          </div>
+          <button class="btn primary" onclick="agregarCita()">+ Añadir cita</button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-          <div>
-            <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:6px">Fecha</div>
-            <input type="date" id="citaFecha" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.85rem;outline:none">
+        <div class="cal-panel" style="margin:0">
+          <div class="cal-header">
+            <button class="cal-nav" onclick="cambiarMes(-1,'citas')">‹</button>
+            <div class="cal-title" id="calTitleCitas"></div>
+            <button class="cal-nav" onclick="cambiarMes(1,'citas')">›</button>
           </div>
-          <div>
-            <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:6px">Hora</div>
-            <select id="citaHora" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.85rem;outline:none">
-              <option value="">Seleccionar…</option>
-              <option>9:00</option><option>9:30</option><option>10:00</option><option>10:30</option>
-              <option>11:00</option><option>11:30</option><option>12:00</option><option>13:00</option>
-              <option>16:00</option><option>16:30</option><option>17:00</option><option>17:30</option>
-              <option>18:00</option><option>18:30</option><option>19:00</option>
-            </select>
-          </div>
-          <div>
-            <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:6px">Paciente</div>
-            <input type="text" id="citaPaciente" placeholder="Nombre" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.85rem;outline:none">
-          </div>
-          <div>
-            <div style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:6px">Teléfono</div>
-            <input type="tel" id="citaTelefono" placeholder="612 345 678" style="width:100%;padding:10px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.85rem;outline:none">
-          </div>
+          <div class="cal-grid" id="calGridCitas"></div>
+          <div class="cal-day-detail" id="calDetailCitas"></div>
         </div>
-        <button class="btn-top primary" onclick="agregarCitaManual()">+ Añadir cita</button>
       </div>
-      <div class="panel">
+      <div class="panel" style="margin-top:16px">
         <div class="panel-head">
           <div><div class="panel-title">Citas confirmadas</div><div class="panel-sub" id="citasSubtitle">0 citas</div></div>
         </div>
-        <div id="citasList"><div style="padding:30px;text-align:center;color:var(--gris-texto)">Sin citas aún.</div></div>
+        <div id="citasList"><div style="padding:30px;text-align:center;color:var(--gris-texto)">Sin citas. El bot las registrará automáticamente.</div></div>
       </div>
     </div>
 
-  </div>
-</div>
+    <!-- ════ CONFIGURAR BOT ════ -->
+    <div id="sec-configbot" class="section">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;margin-bottom:6px">Configura tu Bot ⚙</div>
+      <div style="font-size:.78rem;color:var(--gris-texto);margin-bottom:24px">Define cómo habla, qué sabe y por qué canales llega tu asistente.</div>
 
-<!-- LEAD INCOMING NOTIF -->
+      <div class="config-layout">
+        <!-- Personalidad -->
+        <div class="config-card">
+          <div class="config-title">🎭 Personalidad del bot</div>
+          <div class="config-sub">Elige el tono con el que Aria habla a tus pacientes</div>
+          <div class="personality-grid" id="personalityGrid">
+            <div class="p-card selected" data-val="cercano" onclick="selectPersonality(this)">
+              <div class="p-check">✓</div>
+              <div class="p-emoji">😊</div>
+              <div class="p-name">Cercano y amable</div>
+              <div class="p-desc">Emojis, tuteo, ambiente cálido. Ideal para clínicas de estética y familias.</div>
+            </div>
+            <div class="p-card" data-val="profesional" onclick="selectPersonality(this)">
+              <div class="p-check">✓</div>
+              <div class="p-emoji">🏥</div>
+              <div class="p-name">Serio y profesional</div>
+              <div class="p-desc">Formal, sin emojis, usted. Para centros de alto ticket o especialidades médicas.</div>
+            </div>
+            <div class="p-card" data-val="experto" onclick="selectPersonality(this)">
+              <div class="p-check">✓</div>
+              <div class="p-emoji">🔬</div>
+              <div class="p-name">Experto técnico</div>
+              <div class="p-desc">Explica procedimientos, términos clínicos, genera confianza especializada.</div>
+            </div>
+            <div class="p-card" data-val="urgencias" onclick="selectPersonality(this)">
+              <div class="p-check">✓</div>
+              <div class="p-emoji">⚡</div>
+              <div class="p-name">Rápido y directo</div>
+              <div class="p-desc">Respuestas cortas, acción inmediata. Para urgencias y clínicas de alta rotación.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canales activos -->
+        <div class="config-card">
+          <div class="config-title">🌐 Canales activos</div>
+          <div class="config-sub">El bot responde automáticamente en los canales activados</div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-icon" style="background:rgba(225,48,108,.1);color:#e1306c">📷</div>
+              <div><div style="font-size:.84rem;font-weight:600">Instagram DM</div><div style="font-size:.68rem;color:var(--gris-texto)">Captura leads desde DMs y comentarios</div></div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" id="togIg" checked onchange="guardarConfigBot()"><div class="toggle-track"></div></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-icon" style="background:rgba(24,119,242,.1);color:#1877f2">📘</div>
+              <div><div style="font-size:.84rem;font-weight:600">Facebook Messenger</div><div style="font-size:.68rem;color:var(--gris-texto)">Atiende comentarios y DMs automáticamente</div></div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" id="togFb" checked onchange="guardarConfigBot()"><div class="toggle-track"></div></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-icon" style="background:rgba(234,67,53,.1);color:#ea4335">✉️</div>
+              <div><div style="font-size:.84rem;font-weight:600">Email (Gmail)</div><div style="font-size:.68rem;color:var(--gris-texto)">Confirmaciones y recordatorios 24h antes</div></div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" id="togGmail" checked onchange="guardarConfigBot()"><div class="toggle-track"></div></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-icon" style="background:rgba(0,230,118,.1);color:var(--verde)">🌐</div>
+              <div><div style="font-size:.84rem;font-weight:600">Web chat</div><div style="font-size:.68rem;color:var(--gris-texto)">Widget flotante en tu web</div></div>
+            </div>
+            <label class="toggle-switch"><input type="checkbox" id="togWeb" checked onchange="guardarConfigBot()"><div class="toggle-track"></div></label>
+          </div>
+        </div>
+
+        <!-- Instrucciones personalizadas (full width) -->
+        <div class="config-card full">
+          <div class="config-title">📋 Instrucciones personalizadas</div>
+          <div class="config-sub">Escribe aquí todo lo que Aria debe saber: precios actualizados, ofertas del mes, condiciones especiales, horario, ubicación…</div>
+          <textarea class="instrucciones-area" id="instrucciones" oninput="updateCharCount()" placeholder="Ejemplos:&#10;— Oferta de marzo: blanqueamiento a 199€ (normalmente 280€)&#10;— Horario: lunes a viernes 9:00–20:00, sábados 9:00–14:00&#10;— Estamos en Calle Mayor 12, Madrid (metro Callao)&#10;— Si preguntan por financiación: disponemos de Aplazame desde 0%&#10;— Urgencias: llamar al 91 XXX XXXX en horario de apertura"></textarea>
+          <div class="char-count"><span id="charCount">0</span> / 1000 caracteres</div>
+          <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+            <button class="btn primary" onclick="guardarConfigBot()">✓ Guardar · aplicar al bot ahora</button>
+            <span id="savedBadge" style="font-size:.72rem;color:var(--verde);display:none">✓ Guardado</span>
+          </div>
+        </div>
+
+        <!-- Base de respuestas predefinidas -->
+        <div class="config-card full">
+          <div class="panel-head">
+            <div><div class="config-title">🗃 Base de respuestas del bot</div><div class="config-sub" style="margin-bottom:0">Respuestas rápidas antes de escalar a IA. Añade, edita o elimina.</div></div>
+            <button class="btn ghost" onclick="toggleAddForm()" style="font-size:.78rem">+ Añadir respuesta</button>
+          </div>
+
+          <div class="add-resp-form" id="addRespForm">
+            <div class="field-group">
+              <div>
+                <label class="field-label">Triggers (palabras clave, separadas por |)</label>
+                <input type="text" id="newTrigger" class="field-input" placeholder="precio|cuánto cuesta|presupuesto">
+              </div>
+              <div>
+                <label class="field-label">Categoría</label>
+                <select id="newCategoria" class="field-input">
+                  <option value="saludo">Saludo</option>
+                  <option value="precios" selected>Precios</option>
+                  <option value="citas">Citas</option>
+                  <option value="urgencias">Urgencias</option>
+                  <option value="info">Información</option>
+                  <option value="financiacion">Financiación</option>
+                  <option value="despedida">Despedida</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-full">
+              <label class="field-label">Respuesta del bot</label>
+              <textarea id="newRespuesta" class="field-input" rows="3" placeholder="Escribe la respuesta que dará el bot cuando detecte estas palabras clave…" style="resize:vertical"></textarea>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn primary" onclick="addRespuesta()">Guardar respuesta</button>
+              <button class="btn ghost" onclick="toggleAddForm()">Cancelar</button>
+            </div>
+          </div>
+
+          <div class="respuestas-list" id="respuestasList" style="margin-top:14px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ EMAIL AUTOMÁTICO ════ -->
+    <div id="sec-email" class="section">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;margin-bottom:6px">📧 Email automático — 24h antes de la cita</div>
+      <div style="font-size:.78rem;color:var(--gris-texto);margin-bottom:24px">Se envía solo. Reduce el no-show hasta un 40%.</div>
+
+      <div class="email-layout">
+        <!-- Preview -->
+        <div>
+          <div style="font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px">Vista previa</div>
+          <div class="email-preview">
+            <div class="email-preview-bar">
+              <div class="email-dot" style="background:#ff5c5c"></div>
+              <div class="email-dot" style="background:#d4a843"></div>
+              <div class="email-dot" style="background:#00e676"></div>
+              <span style="font-size:.72rem;color:var(--gris-texto);margin-left:8px">Gmail — ReActiva Clínica</span>
+            </div>
+            <div class="email-subject-bar">
+              <div class="email-subject-label">Asunto</div>
+              <div class="email-subject-val" id="emailSubjectPreview">Recordatorio: tu cita mañana ✅</div>
+            </div>
+            <div class="email-body" id="emailBodyPreview">
+              <strong>Hola, [Nombre] 👋</strong><br><br>
+              Mañana tienes cita con nosotros.<br><br>
+              📅 <strong>Fecha:</strong> [Fecha]<br>
+              🕙 <strong>Hora:</strong> [Hora]<br>
+              🦷 <strong>Tratamiento:</strong> [Servicio]<br><br>
+              Si necesitas cambiar o cancelar, responde este email.<br><br>
+              <em>El equipo de <span id="emailClinicaName">ReActiva Clínica</span></em><br><br>
+              <a class="email-cta">✓ Confirmar asistencia</a>
+            </div>
+          </div>
+
+          <div class="email-stats-row">
+            <div class="email-stat">
+              <div class="email-stat-val">↓40%</div>
+              <div class="email-stat-label">Reducción no-show</div>
+            </div>
+            <div class="email-stat">
+              <div class="email-stat-val">100%</div>
+              <div class="email-stat-label">Automático</div>
+            </div>
+            <div class="email-stat">
+              <div class="email-stat-val">24h</div>
+              <div class="email-stat-label">Antes de la cita</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Config email -->
+        <div class="config-card" style="height:fit-content">
+          <div class="config-title">Personaliza la plantilla</div>
+          <div class="config-sub">Los campos entre [corchetes] se rellenan automáticamente.</div>
+          <div class="field-full">
+            <label class="field-label">Asunto del email</label>
+            <input type="text" id="emailSubject" class="field-input" value="Recordatorio: tu cita mañana ✅" oninput="updateEmailPreview()">
+          </div>
+          <div class="field-full">
+            <label class="field-label">Nombre de la clínica en firma</label>
+            <input type="text" id="emailClinica" class="field-input" value="ReActiva Clínica" oninput="updateEmailPreview()">
+          </div>
+          <div class="field-full">
+            <label class="field-label">Mensaje adicional (opcional)</label>
+            <textarea id="emailExtra" class="field-input" rows="3" placeholder="Ej: Recuerda venir con 15 minutos de antelación. Trae el informe previo si tienes." oninput="updateEmailPreview()" style="resize:vertical"></textarea>
+          </div>
+          <div class="field-full">
+            <label class="field-label">Activar recordatorio automático</label>
+            <div class="toggle-row" style="padding:8px 0;border:none">
+              <span style="font-size:.82rem;color:var(--gris-texto)">Enviar 24h antes automáticamente</span>
+              <label class="toggle-switch"><input type="checkbox" id="togEmail" checked onchange="guardarEmail()"><div class="toggle-track"></div></label>
+            </div>
+          </div>
+          <button class="btn primary" onclick="guardarEmail()">✓ Guardar plantilla</button>
+
+          <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.05)">
+            <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px">¿Qué consigues?</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="font-size:.78rem;color:var(--gris-texto);display:flex;gap:8px"><span style="color:var(--verde)">—</span> No-show reducido hasta un 40%</div>
+              <div style="font-size:.78rem;color:var(--gris-texto);display:flex;gap:8px"><span style="color:var(--verde)">—</span> El paciente siente que le recuerdas y que le importas</div>
+              <div style="font-size:.78rem;color:var(--gris-texto);display:flex;gap:8px"><span style="color:var(--verde)">—</span> Se envía solo, sin que hagas nada</div>
+              <div style="font-size:.78rem;color:var(--gris-texto);display:flex;gap:8px"><span style="color:var(--verde)">—</span> Genera confianza y fidelización desde el primer contacto</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ FILOSOFÍA ════ -->
+    <div id="sec-filosofia" class="section">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;margin-bottom:6px">La tecnología que siente lo que necesita tu paciente</div>
+      <div style="font-size:.78rem;color:var(--gris-texto);margin-bottom:24px">Por qué ReActiva funciona — y por qué importa.</div>
+
+      <div class="filosofia-layout">
+        <div class="fil-card">
+          <div class="fil-num">01</div>
+          <div class="fil-title">El paciente no puede esperar</div>
+          <div class="fil-text">Cuando alguien escribe a una clínica, tiene una necesidad real encima. Si no responden en minutos, no siente que "no le atendieron". Siente que no le importan. ReActiva garantiza que ningún paciente quede sin respuesta, sin importar la hora ni el canal.</div>
+        </div>
+        <div class="fil-card">
+          <div class="fil-num">02</div>
+          <div class="fil-title">Todos tus canales, una sola voz</div>
+          <div class="fil-text">Tus pacientes te escriben por Instagram, Facebook, email y tu web. Sin ReActiva, eso son cuatro plataformas distintas, cuatro posibles silencios. Con ReActiva, todos los canales hablan con la misma voz: la tuya. Coherente, rápida y humana.</div>
+        </div>
+        <div class="fil-card">
+          <div class="fil-num">03</div>
+          <div class="fil-title">Automatización que amplifica, no reemplaza</div>
+          <div class="fil-text">No vendemos un robot frío que despache consultas. Vendemos la extensión digital de la acogida de tu clínica. Aria aprende tu tono, tus precios, tus ofertas y tu forma de tratar a las personas. La tecnología bien hecha hace que parezcas más humano, no menos.</div>
+        </div>
+        <div class="fil-card">
+          <div class="fil-num">04</div>
+          <div class="fil-title">Cada lead es una persona, no un número</div>
+          <div class="fil-text">El dashboard existe para que no pierdas ni un solo contacto. Cada lead que entra es alguien que confió en tu clínica lo suficiente como para escribir. ReActiva te ayuda a honrar esa confianza: registrando, recordando y convirtiendo, siempre con respeto.</div>
+        </div>
+      </div>
+
+      <div class="fil-founder">
+        <div class="fil-founder-av">IV</div>
+        <div>
+          <div class="fil-founder-name">Irene Vaquerizo</div>
+          <div class="fil-founder-role">Fundadora de ReActiva</div>
+          <div class="fil-founder-text">"Construí ReActiva porque vi demasiadas clínicas excelentes perder pacientes por silencio digital. No por falta de cuidado, sino por falta de herramientas. Nuestra misión es simple: que ningún paciente sienta que no le escucharon. Eso construye clínicas que perduran."</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════ AJUSTES & SCRIPT ════ -->
+    <div id="sec-config" class="section">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;margin-bottom:20px">Ajustes & Script</div>
+      <div class="config-layout">
+        <div class="config-card">
+          <div class="config-title">Datos de la clínica</div>
+          <div class="config-sub">Base de todos los textos y mensajes del sistema</div>
+          <div class="field-full"><label class="field-label">Nombre de la clínica</label><input type="text" id="cfgClinica" class="field-input" oninput="guardarCfg()"></div>
+          <div class="field-full"><label class="field-label">Nombre del asistente / bot</label><input type="text" id="cfgBot" class="field-input" oninput="guardarCfg()"></div>
+          <div class="field-full"><label class="field-label">Especialidad</label><input type="text" id="cfgEspecialidad" class="field-input" oninput="guardarCfg()"></div>
+          <div class="field-full"><label class="field-label">Servicios (uno por línea)</label><textarea id="cfgServicios" class="field-input" rows="5" oninput="guardarCfg()" style="resize:vertical"></textarea></div>
+          <div class="field-full"><label class="field-label">Precios (Servicio: precio, uno por línea)</label><textarea id="cfgPrecios" class="field-input" rows="5" oninput="guardarCfg()" style="resize:vertical"></textarea></div>
+          <button class="btn primary" onclick="guardarCfg();showToast('Configuración guardada','','✓')">Guardar</button>
+        </div>
+        <div class="config-card">
+          <div class="config-title">Script de instalación</div>
+          <div class="config-sub">Instala el bot en tu web con este código. Solo disponible con plan activo.</div>
+          <div id="scriptLocked" style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:30px 20px;background:var(--negro);border:1px solid rgba(255,255,255,.07);border-radius:14px;text-align:center;margin-top:8px">
+            <div style="font-size:2rem">🔒</div>
+            <div style="font-size:.85rem;font-weight:700">Acceso restringido</div>
+            <div style="font-size:.74rem;color:var(--gris-texto);max-width:260px">Introduce el código de acceso que recibiste al contratar tu plan.</div>
+            <div class="unlock-form">
+              <input class="unlock-input" id="unlockInput" type="password" placeholder="Código de acceso" onkeydown="if(event.key==='Enter')desbloquear()">
+              <button class="unlock-btn" onclick="desbloquear()">Acceder</button>
+            </div>
+            <div id="unlockError" style="font-size:.72rem;color:var(--rojo);display:none">Código incorrecto.</div>
+          </div>
+          <div id="scriptPanel" style="display:none;margin-top:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <span style="font-size:.72rem;color:var(--verde);font-weight:600">🔓 Desbloqueado</span>
+              <button class="btn ghost" style="font-size:.72rem;padding:6px 14px" onclick="copiarScript()">⧉ Copiar</button>
+            </div>
+            <pre class="script-code visible" id="scriptCode"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- NOTIF -->
 <div class="lead-incoming" id="leadIncoming">
-  <div class="lead-in-icon">🔔</div>
+  <div style="font-size:1.2rem">🔔</div>
   <div>
-    <div class="lead-in-title" id="leadInTitle">Nuevo lead capturado</div>
-    <div class="lead-in-sub" id="leadInSub">El bot ha registrado un contacto</div>
+    <div style="font-size:.8rem;font-weight:700;color:var(--verde)" id="leadInTitle">Nuevo lead</div>
+    <div style="font-size:.7rem;color:var(--gris-texto);margin-top:2px" id="leadInSub"></div>
   </div>
 </div>
 
 <!-- TOAST -->
 <div class="toast" id="toast">
-  <div class="toast-icon" id="toastIcon">✓</div>
+  <div style="font-size:1.1rem" id="toastIcon">✓</div>
   <div class="toast-body">
-    <div class="toast-title" id="toastTitle">Acción completada</div>
+    <div class="toast-title" id="toastTitle"></div>
     <div class="toast-sub" id="toastSub"></div>
   </div>
   <div class="toast-bar" id="toastBar"></div>
 </div>
 
+<!-- ════════════════ JS ════════════════ -->
 <script>
-// ─────────────────────────────────────────────
-//  ESTADO GLOBAL
-// ─────────────────────────────────────────────
-const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
-let allLeads = JSON.parse(localStorage.getItem("ra_leads")||"[]");
-let citas    = JSON.parse(localStorage.getItem("ra_citas")||"[]");
-let calYear, calMonth, calSelected;
-let chatHistory = [];
-let botState = { fase: "saludo", fechaPropuesta: null, horaPropuesta: null, nombre: null, telefono: null };
-let toastTimer, leadTimer;
-let todayLeads = 0;
+/* ────────────────────────────────────────
+   CONFIG POR DEFECTO
+──────────────────────────────────────── */
+const DEFAULTS = {
+  clinica:      "ReActiva Clínica",
+  bot:          "Aria",
+  duena:        "Irene Vaquerizo",
+  especialidad: "Clínica dental",
+  personalidad: "cercano",
+  servicios:    ["Blanqueamiento dental","Ortodoncia","Implantes","Limpieza dental","Revisión general","Endodoncia","Urgencias"],
+  precios: {
+    "Blanqueamiento dental":  "280€",
+    "Ortodoncia":             "desde 1.200€",
+    "Implantes":              "desde 900€",
+    "Limpieza dental":        "60€",
+    "Revisión general":       "gratis primera vez",
+    "Endodoncia":             "desde 350€"
+  },
+  instrucciones: "",
+  canales:       { ig: true, fb: true, gmail: true, web: true },
+  emailSubject:  "Recordatorio: tu cita mañana ✅",
+  emailClinica:  "ReActiva Clínica",
+  emailExtra:    "",
+  emailActivo:   true,
+  scriptUnlocked: false
+};
 
-const NOMBRES_DEMO = ["Ana García","Carlos Ruiz","Laura Martín","Miguel Pérez","Sofía López","Javier Torres","Elena Sánchez","Pablo Jiménez","María Fernández","David Romero"];
-const SERVICIOS_DEMO = ["Blanqueamiento","Ortodoncia","Implantes","Revisión general","Limpieza dental","Endodoncia","Consulta estética","Urgencia"];
-const MENSAJES_DEMO = [
-  "Hola, me interesa el blanqueamiento dental",
-  "Quiero información sobre ortodoncia invisible",
-  "¿Cuánto cuesta un implante?",
-  "Me gustaría pedir una revisión general",
-  "Tengo dolor de muelas urgente",
-  "Busco clínica dental cerca de mí",
-  "¿Hacéis limpieza dental?",
-  "Me recomendaron vuestra clínica para ortodoncia",
+/* ────────────────────────────────────────
+   BASE DE RESPUESTAS PREDEFINIDAS (simula DB)
+──────────────────────────────────────── */
+const DB_DEFAULTS = [
+  { id:1, trigger:"hola|buenos días|buenas tardes|buenas noches|hey|hi|saludos", respuesta:"¡Hola! 👋 Soy {BOT}, asistente de {CLINICA}. ¿En qué puedo ayudarte hoy?", categoria:"saludo", prioridad:5 },
+  { id:2, trigger:"precio|cuánto cuesta|cuánto vale|presupuesto|tarifa|coste", respuesta:"Con mucho gusto te informo de nuestros precios. ¿Qué tratamiento te interesa? Tenemos opciones desde la revisión gratuita hasta tratamientos especializados.", categoria:"precios", prioridad:6 },
+  { id:3, trigger:"cita|reservar|pedir hora|turno|disponibilidad|cuando puedo venir", respuesta:"Claro, te ayudo a encontrar el hueco perfecto. ¿Qué servicio necesitas y cuándo te va mejor, mañana o esta semana? 📅", categoria:"citas", prioridad:7 },
+  { id:4, trigger:"urgencia|dolor|emergencia|me duele|urgente|ahora mismo", respuesta:"Entiendo que necesitas atención urgente. 🚨 Te pedimos que llames directamente a nuestra línea de urgencias para atenderte lo antes posible. ¿Tienes el número?", categoria:"urgencias", prioridad:9 },
+  { id:5, trigger:"donde|dirección|ubicación|cómo llegar|calle|localización", respuesta:"Estamos en el centro, muy bien comunicados. 📍 Escríbenos y te enviamos la dirección exacta y cómo llegar en metro o bus.", categoria:"info", prioridad:5 },
+  { id:6, trigger:"horario|hora|abrir|cerrar|cuando abren|cuando cierran", respuesta:"Nuestro horario habitual es de lunes a viernes de 9:00 a 20:00, y sábados de 9:00 a 14:00. 🕘 ¿Necesitas cita fuera de este horario?", categoria:"info", prioridad:5 },
+  { id:7, trigger:"financiación|pagar|plazos|cuotas|financiar|aplazado", respuesta:"¡Sí! Disponemos de opciones de financiación desde el 0%. Puedes pagar tu tratamiento en cómodos plazos. ¿Te informo de los detalles? 💳", categoria:"financiacion", prioridad:6 },
+  { id:8, trigger:"gracias|ok|perfecto|genial|hasta luego|adiós|ciao", respuesta:"¡Un placer ayudarte! 😊 Recuerda que estamos aquí siempre que nos necesites. ¡Hasta pronto!", categoria:"despedida", prioridad:5 },
 ];
 
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", ()=>{
+/* ────────────────────────────────────────
+   ESTADO GLOBAL
+──────────────────────────────────────── */
+let cfg       = { ...DEFAULTS, ...JSON.parse(localStorage.getItem("ra_cfg")||"{}") };
+let allLeads  = JSON.parse(localStorage.getItem("ra_leads")||"[]");
+let citas     = JSON.parse(localStorage.getItem("ra_citas")||"[]");
+let respDB    = JSON.parse(localStorage.getItem("ra_respuestas")||JSON.stringify(DB_DEFAULTS));
+let chatHist = []; // histórico visual solamente
+let todayLeads= 0;
+let calState  = { bot:{ y:0,m:0,sel:"" }, citas:{ y:0,m:0,sel:"" } };
+let toastTimer;
+let editingId = null;
+
+const NOMBRES_DEMO = ["Ana García","Carlos Ruiz","Laura Martín","Miguel Pérez","Sofía López","Javier Torres","Elena Sánchez","Pablo Jiménez","María Fernández","David Romero"];
+
+/* ────────────────────────────────────────
+   INIT
+──────────────────────────────────────── */
+document.addEventListener("DOMContentLoaded", () => {
+  applyGlobalCfg();
+
   const h = new Date().getHours();
-  document.getElementById("wbGreeting").textContent = h<13?"Buenos días ☀️":h<20?"Buenas tardes 🌤":"Buenas noches 🌙";
-  document.getElementById("pageDate").textContent = new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-  const frases = ["Cada lead es una oportunidad. ¡A por ellos!","Tu bot nunca duerme.","Hoy es un buen día para convertir leads.","Datos claros, decisiones inteligentes."];
+  const greet = h<13 ? "Buenos días ☀️" : h<20 ? "Buenas tardes 🌤" : "Buenas noches 🌙";
+  document.getElementById("wbGreeting").textContent = greet;
+  document.getElementById("wbTitle").textContent    = `${cfg.duena || "Hola"}, ${greet.split(" ")[0].toLowerCase()} a tu panel`;
+  document.getElementById("pageDate").textContent   = new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+
+  const frases = [
+    `Tu bot no duerme. Tú puedes descansar tranquila.`,
+    `Hoy ${cfg.bot} ya está lista para tu próxima consulta.`,
+    `Cada respuesta a tiempo es un paciente que no perdiste.`,
+    `La constancia construye clínicas que perduran.`
+  ];
   document.getElementById("wbPhrase").textContent = "✦ " + frases[Math.floor(Math.random()*frases.length)];
 
-  initCalendar();
+  // Calendarios
+  const n = new Date();
+  ["bot","citas"].forEach(k => { calState[k].y = n.getFullYear(); calState[k].m = n.getMonth(); calState[k].sel = n.toISOString().slice(0,10); });
+  renderCal("bot"); renderCal("citas");
+
   refreshDashboard();
   renderCitasPanel();
+  populateServicioSelect();
+  renderRespuestas();
+  updateEmailPreview();
+  updateScriptCode();
 
-  // Simular llegada periódica de leads cada 18-35s
+  // Saludo inicial del bot
+  setTimeout(() => {
+    const greetMsg = getPersonalitySaludo();
+    addBotMsg(greetMsg, ["Quiero una cita","¿Qué servicios tenéis?","¿Cuánto cuesta?"]);
+  }, 600);
+
   scheduleAutoLead();
-
-  // Mensaje inicial del bot
-  setTimeout(()=>{ addBotMsg("¡Hola! 👋 Soy el asistente virtual de ReActiva Clínica. ¿En qué puedo ayudarte hoy? Puedo informarte sobre nuestros servicios o ayudarte a reservar una cita 😊", ["Quiero una cita","¿Qué servicios tenéis?","¿Cuánto cuesta un implante?"]); },600);
 });
 
-// ─────────────────────────────────────────────
-//  TABS
-// ─────────────────────────────────────────────
-function setTab(tab, el){
-  document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
-  el.classList.add("active");
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.getElementById("sec-"+tab).classList.add("active");
-  const titles={dashboard:"Dashboard",leads:"Leads",bot:"Bot Chat",citas:"Citas"};
-  document.getElementById("pageTitle").textContent = titles[tab]||tab;
-  if(tab==="leads") renderFullLeadsTable();
-  if(tab==="citas") renderCitasPanel();
+/* ────────────────────────────────────────
+   CONFIG GLOBAL
+──────────────────────────────────────── */
+function applyGlobalCfg() {
+  const s = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+  s("cfgClinica",     cfg.clinica);
+  s("cfgBot",         cfg.bot);
+  s("cfgEspecialidad",cfg.especialidad);
+  s("cfgServicios",   cfg.servicios.join("\n"));
+  s("cfgPrecios",     Object.entries(cfg.precios).map(([k,v])=>`${k}: ${v}`).join("\n"));
+  s("instrucciones",  cfg.instrucciones||"");
+  s("emailSubject",   cfg.emailSubject);
+  s("emailClinica",   cfg.emailClinica);
+  s("emailExtra",     cfg.emailExtra||"");
+
+  // Toggles canales
+  ["Ig","Fb","Gmail","Web"].forEach(k => {
+    const el = document.getElementById("tog"+k);
+    if(el) el.checked = cfg.canales[k.toLowerCase()];
+  });
+  const togE = document.getElementById("togEmail");
+  if(togE) togE.checked = cfg.emailActivo;
+
+  // Personalidad
+  document.querySelectorAll(".p-card").forEach(c => {
+    c.classList.toggle("selected", c.dataset.val === cfg.personalidad);
+  });
+
+  // UI labels
+  const botN = cfg.bot;
+  document.getElementById("sidebarName").textContent  = cfg.duena || "Irene Vaquerizo";
+  document.getElementById("sidebarAv").textContent    = (cfg.duena||"IV").slice(0,2).toUpperCase();
+  document.getElementById("wbBotNombre").textContent  = botN;
+  document.getElementById("wbAv").textContent         = (cfg.duena||"IV").slice(0,2).toUpperCase();
+  const cbn = document.getElementById("chatBotName");
+  if(cbn) cbn.textContent = `${botN} · ${cfg.clinica}`;
+
+  populateServicioSelect();
+  updateScriptCode();
+
+  // Script unlock
+  if(cfg.scriptUnlocked) {
+    document.getElementById("scriptLocked").style.display = "none";
+    document.getElementById("scriptPanel").style.display  = "block";
+  }
 }
 
-// ─────────────────────────────────────────────
-//  DASHBOARD
-// ─────────────────────────────────────────────
-function refreshDashboard(){
-  const total   = allLeads.length;
-  const closed  = allLeads.filter(l=>l.status==="closed").length;
-  const newL    = allLeads.filter(l=>l.status==="new").length;
-  const pending = allLeads.filter(l=>l.status==="pending").length;
-  const tasa    = total ? Math.round(closed/total*100) : 0;
-  const rev     = closed * 350;
+function guardarCfg() {
+  const g = id => document.getElementById(id)?.value||"";
+  const serviciosArr  = g("cfgServicios").split("\n").map(s=>s.trim()).filter(Boolean);
+  const preciosObj    = {};
+  g("cfgPrecios").split("\n").forEach(l => { const i=l.indexOf(":"); if(i>0) preciosObj[l.slice(0,i).trim()] = l.slice(i+1).trim(); });
+  cfg.clinica      = g("cfgClinica")     || cfg.clinica;
+  cfg.bot          = g("cfgBot")         || cfg.bot;
+  cfg.especialidad = g("cfgEspecialidad")|| cfg.especialidad;
+  if(serviciosArr.length) cfg.servicios  = serviciosArr;
+  if(Object.keys(preciosObj).length) cfg.precios = preciosObj;
+  saveCfg(); applyGlobalCfg();
+}
+
+function guardarConfigBot() {
+  cfg.instrucciones = document.getElementById("instrucciones")?.value||"";
+  cfg.personalidad  = document.querySelector(".p-card.selected")?.dataset.val || cfg.personalidad;
+  cfg.canales = {
+    ig:    document.getElementById("togIg")?.checked    ?? true,
+    fb:    document.getElementById("togFb")?.checked    ?? true,
+    gmail: document.getElementById("togGmail")?.checked ?? true,
+    web:   document.getElementById("togWeb")?.checked   ?? true
+  };
+  saveCfg();
+  const badge = document.getElementById("savedBadge");
+  if(badge){ badge.style.display="inline"; setTimeout(()=>badge.style.display="none", 2000); }
+  showToast("Bot actualizado ✓","Los cambios se aplicarán en el siguiente mensaje","⚙");
+}
+
+function guardarEmail() {
+  cfg.emailSubject = document.getElementById("emailSubject")?.value || cfg.emailSubject;
+  cfg.emailClinica = document.getElementById("emailClinica")?.value || cfg.emailClinica;
+  cfg.emailExtra   = document.getElementById("emailExtra")?.value   || "";
+  cfg.emailActivo  = document.getElementById("togEmail")?.checked   ?? true;
+  saveCfg(); updateEmailPreview();
+  showToast("Plantilla guardada ✓","El recordatorio se enviará automáticamente 24h antes","✉️");
+}
+
+function selectPersonality(el) {
+  document.querySelectorAll(".p-card").forEach(c => c.classList.remove("selected"));
+  el.classList.add("selected");
+  cfg.personalidad = el.dataset.val;
+}
+
+function updateCharCount() {
+  const t = document.getElementById("instrucciones")?.value||"";
+  const el = document.getElementById("charCount");
+  if(el) el.textContent = t.length;
+}
+
+function updateEmailPreview() {
+  const subj = document.getElementById("emailSubject")?.value || cfg.emailSubject;
+  const clinica = document.getElementById("emailClinica")?.value || cfg.emailClinica;
+  const extra = document.getElementById("emailExtra")?.value || "";
+  const sp = document.getElementById("emailSubjectPreview");
+  const bp = document.getElementById("emailBodyPreview");
+  const cn = document.getElementById("emailClinicaName");
+  if(sp) sp.textContent = subj;
+  if(cn) cn.textContent = clinica;
+  if(bp) {
+    bp.innerHTML = `<strong>Hola, [Nombre] 👋</strong><br><br>
+      Mañana tienes cita con nosotros.<br><br>
+      📅 <strong>Fecha:</strong> [Fecha]<br>
+      🕙 <strong>Hora:</strong> [Hora]<br>
+      🦷 <strong>Tratamiento:</strong> [Servicio]<br>
+      ${extra ? `<br>${esc(extra).replace(/\n/g,"<br>")}<br>` : ""}
+      <br>Si necesitas cambiar o cancelar, responde este email.<br><br>
+      <em>El equipo de ${esc(clinica)}</em><br><br>
+      <a class="email-cta">✓ Confirmar asistencia</a>`;
+  }
+}
+
+function updateScriptCode() {
+  const el = document.getElementById("scriptCode");
+  if(!el) return;
+  el.textContent =
+`<!-- ${cfg.clinica} · Bot ${cfg.bot} - ReActiva -->
+<script>
+  window.REACTIVA_CONFIG = {
+    clinica: "${cfg.clinica}",
+    bot:     "${cfg.bot}",
+    canales: ${JSON.stringify(cfg.canales, null, 2)}
+  };
+<\/script>
+<script src="https://cdn.reactiva.ai/widget.js" async><\/script>`;
+}
+
+function desbloquear() {
+  const val = document.getElementById("unlockInput").value.trim();
+  if(val === "REACTIVA2025") {
+    cfg.scriptUnlocked = true; saveCfg();
+    document.getElementById("scriptLocked").style.display = "none";
+    document.getElementById("scriptPanel").style.display  = "block";
+    document.getElementById("unlockError").style.display  = "none";
+    updateScriptCode();
+    showToast("Script desbloqueado ✓","Ya puedes instalar el bot en tu web","🔓");
+  } else {
+    document.getElementById("unlockInput").style.borderColor = "var(--rojo)";
+    document.getElementById("unlockError").style.display = "block";
+    setTimeout(()=> document.getElementById("unlockInput").style.borderColor="", 1400);
+  }
+}
+
+function copiarScript() {
+  navigator.clipboard.writeText(document.getElementById("scriptCode").textContent)
+    .then(()=>showToast("Copiado al portapapeles","","⧉"));
+}
+
+/* ────────────────────────────────────────
+   RESPUESTAS PREDEFINIDAS (DB simulada)
+──────────────────────────────────────── */
+function renderRespuestas() {
+  const list = document.getElementById("respuestasList");
+  if(!list) return;
+  if(!respDB.length){ list.innerHTML=`<div style="padding:20px;text-align:center;color:var(--gris-texto)">Sin respuestas. Añade la primera.</div>`; return; }
+  list.innerHTML = respDB.map(r => {
+    const tags = r.trigger.split("|").slice(0,4).map(t=>`<span class="resp-trigger-tag">${esc(t.trim())}</span>`).join(" ");
+    return `<div class="resp-card">
+      <div class="resp-trigger">${tags}${r.trigger.split("|").length>4?`<span style="color:var(--gris-texto);font-size:.65rem">+${r.trigger.split("|").length-4} más</span>`:""}</div>
+      <div class="resp-text">${esc(r.respuesta).replace(/\{BOT\}/g,cfg.bot).replace(/\{CLINICA\}/g,cfg.clinica)}</div>
+      <div class="resp-meta">
+        <span class="resp-cat">${r.categoria}</span>
+        <span>prioridad ${r.prioridad}</span>
+        <div class="resp-actions">
+          <button class="edit-btn" onclick="editRespuesta(${r.id})">✏ Editar</button>
+          <button class="del-btn" onclick="delRespuesta(${r.id})">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function toggleAddForm() {
+  const f = document.getElementById("addRespForm");
+  f.classList.toggle("open");
+  if(!f.classList.contains("open")) { editingId=null; resetAddForm(); }
+}
+
+function resetAddForm() {
+  document.getElementById("newTrigger").value = "";
+  document.getElementById("newRespuesta").value = "";
+  document.getElementById("newCategoria").value = "precios";
+}
+
+function addRespuesta() {
+  const trigger   = document.getElementById("newTrigger").value.trim();
+  const respuesta = document.getElementById("newRespuesta").value.trim();
+  const categoria = document.getElementById("newCategoria").value;
+  if(!trigger||!respuesta){ showToast("Faltan campos","Trigger y respuesta son obligatorios","⚠️"); return; }
+
+  if(editingId) {
+    const r = respDB.find(x=>x.id===editingId);
+    if(r){ r.trigger=trigger; r.respuesta=respuesta; r.categoria=categoria; }
+    editingId=null;
+  } else {
+    respDB.push({ id:Date.now(), trigger, respuesta, categoria, prioridad:5 });
+  }
+  saveRespDB(); renderRespuestas(); toggleAddForm();
+  showToast("Respuesta guardada ✓","El bot la usará en la próxima conversación","⚙");
+}
+
+function editRespuesta(id) {
+  const r = respDB.find(x=>x.id===id);
+  if(!r) return;
+  editingId = id;
+  document.getElementById("newTrigger").value   = r.trigger;
+  document.getElementById("newRespuesta").value = r.respuesta;
+  document.getElementById("newCategoria").value = r.categoria;
+  const f = document.getElementById("addRespForm");
+  if(!f.classList.contains("open")) f.classList.add("open");
+  f.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function delRespuesta(id) {
+  if(!confirm("¿Eliminar esta respuesta?")) return;
+  respDB = respDB.filter(x=>x.id!==id); saveRespDB(); renderRespuestas();
+  showToast("Respuesta eliminada","","🗑");
+}
+
+/* ────────────────────────────────────────
+   MOTOR BOT HÍBRIDO
+   1. Busca en respDB por trigger
+   2. Si no hay match → Claude API
+──────────────────────────────────────── */
+function getPersonalitySaludo() {
+  const h = new Date().getHours();
+  const turno = h<13?"Buenos días":h<20?"Buenas tardes":"Buenas noches";
+  if(cfg.personalidad==="profesional") return turno+". Soy "+cfg.bot+", asistente de "+cfg.clinica+". ¿En qué puedo ayudarle?";
+  if(cfg.personalidad==="urgencias")   return "Hola, soy "+cfg.bot+". ¿En qué puedo ayudarte?";
+  if(cfg.personalidad==="experto")     return turno+"! Soy "+cfg.bot+", especialista de "+cfg.clinica+". ¿Cómo puedo orientarte?";
+  return turno+"! 👋 Soy "+cfg.bot+", asistente de "+cfg.clinica+". ¿En qué puedo ayudarte hoy?";
+}
+
+function buscarEnDB(texto) {
+  const textLower = texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  let best = null, bestScore = 0;
+  for(const r of respDB) {
+    if(r.trigger === "__default__") continue;
+    for(const t of r.trigger.split("|")) {
+      const tNorm = t.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+      if(textLower.includes(tNorm)) {
+        const score = (r.prioridad||5) + tNorm.length;
+        if(score > bestScore){ bestScore=score; best=r; }
+      }
+    }
+  }
+  if(!best) return null;
+  const quickMap = {
+    saludo:      ["Pedir cita","Ver precios","Urgencias"],
+    precios:     ["Pedir cita","Ver financiación","Otros servicios"],
+    citas:       ["Mañana por la mañana","Esta semana","Llámame vosotros"],
+    urgencias:   ["Llamar ahora","Pedir cita urgente"],
+    info:        ["Pedir cita","Ver precios"],
+    financiacion:["Pedir cita","Ver tratamientos"],
+    despedida:   []
+  };
+  return {
+    texto: best.respuesta.replace(/\{BOT\}/g,cfg.bot).replace(/\{CLINICA\}/g,cfg.clinica),
+    qr:    quickMap[best.categoria] || ["Pedir cita","Ver precios"]
+  };
+}
+
+
+
+function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+/* Motor de detección de citas (sin API) */
+let citaContext = { fase: null, fecha: null, hora: null, nombre: null, servicio: null };
+
+function detectarCita(texto) {
+  const tl = texto.toLowerCase();
+  const quiere = /cita|reservar|turno|hora|disponible|cuando|mañana|pasado|esta semana|semana que|agendar/i.test(texto);
+  if(!quiere) return null;
+  const manana = /mañana/i.test(texto);
+  const pasado = /pasado\s*mañana/i.test(texto);
+  const horaMatch = texto.match(/(\d{1,2})[:\s]?(\d{2})?\s*(am|pm|h)?/i);
+  let hora = null;
+  if(horaMatch) {
+    let h = parseInt(horaMatch[1]);
+    const m = horaMatch[2] ? parseInt(horaMatch[2]) : 0;
+    if(horaMatch[3]==="pm" && h<12) h+=12;
+    if(h>=9 && h<=20) hora = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+  }
+  return { quiere:true, hora, manana, pasado };
+}
+
+function manejarFlujoC(intent) {
+  const hoy = new Date();
+  let fecha;
+  if(intent.pasado){ const d=new Date(hoy); d.setDate(d.getDate()+2); fecha=d.toISOString().slice(0,10); }
+  else { const d=new Date(hoy); d.setDate(d.getDate()+1); fecha=d.toISOString().slice(0,10); }
+
+  const horasOcupadas = citas.filter(c=>c.fecha===fecha).map(c=>c.hora);
+  const SLOTS = ["9:00","9:30","10:00","10:30","11:00","11:30","12:00","16:00","16:30","17:00","17:30","18:00","18:30","19:00"];
+  const libres = SLOTS.filter(h=>!horasOcupadas.includes(h));
+
+  if(!libres.length) {
+    const sig = new Date(fecha); sig.setDate(sig.getDate()+1);
+    return {
+      texto: `Para el ${formatFechaLarga(fecha)} no tenemos hueco disponible. ¿Te vendría bien el ${formatFechaLarga(sig.toISOString().slice(0,10))}? 😊`,
+      qr: ["Sí, el día siguiente","Ver más fechas","Llamadme vosotros"]
+    };
+  }
+
+  citaContext.fase  = "espera_confirmacion";
+  citaContext.fecha = fecha;
+  const sugeridas   = libres.slice(0,3);
+  citaContext.hora  = sugeridas[0];
+
+  const emoji = cfg.personalidad==="profesional" ? "" : " 📅";
+  const txt   = cfg.personalidad==="profesional"
+    ? `Para el ${formatFechaLarga(fecha)} disponemos de los siguientes horarios: ${sugeridas.join(", ")}. ¿Cuál le viene mejor?`
+    : `¡Perfecto! Para el ${formatFechaLarga(fecha)} tenemos disponible a las: ${sugeridas.join(", ")}.${emoji} ¿Cuál te viene mejor?`;
+
+  return { texto: txt, qr: sugeridas };
+}
+
+function getDefaultRespuesta(texto) {
+  const tl = texto.toLowerCase();
+  // Detectar si está confirmando hora (fase de cita)
+  if(citaContext.fase==="espera_confirmacion") {
+    const horaMatch = texto.match(/(\d{1,2})[:\s]?(\d{2})?/);
+    const horaSelec = horaMatch ? `${String(parseInt(horaMatch[1])).padStart(2,"0")}:${horaMatch[2]?String(parseInt(horaMatch[2])).padStart(2,"0"):"00"}` : citaContext.hora;
+    citaContext.hora  = horaSelec;
+    citaContext.fase  = "espera_datos";
+    const emoji       = cfg.personalidad==="profesional" ? "" : " 😊";
+    return {
+      texto: cfg.personalidad==="profesional"
+        ? `Perfecto, le reservamos el hueco a las ${horaSelec}. ¿Puede facilitarme su nombre y teléfono?`
+        : `¡Genial! Te reservo las ${horaSelec}${emoji} ¿Me dices tu nombre y teléfono para confirmarlo?`,
+      qr: []
+    };
+  }
+  if(citaContext.fase==="espera_datos") {
+    // Extraer nombre (primera palabra capitalizada) y teléfono
+    const telMatch  = texto.match(/[67]\d{8}/);
+    const nombre    = texto.replace(/[67]\d{8}/g,"").replace(/[^a-záéíóúüñA-ZÁÉÍÓÚÜÑ\s]/g,"").trim().split(/\s+/).slice(0,2).join(" ");
+    const telefono  = telMatch ? telMatch[0] : "";
+    citaContext.nombre    = nombre || "Paciente";
+    citaContext.telefono  = telefono;
+    const servicio        = cfg.servicios[0]||"Consulta";
+    const copia           = {...citaContext};
+    citaContext           = { fase:null, fecha:null, hora:null, nombre:null, servicio:null };
+    const emoji           = cfg.personalidad==="profesional" ? "" : " 😊";
+    return {
+      texto: cfg.personalidad==="profesional"
+        ? `Perfecto. Su cita ha quedado reservada el ${formatFechaLarga(copia.fecha)} a las ${copia.hora}. Le esperamos.`
+        : `¡Perfecto, ${copia.nombre}! Tu cita está reservada para el ${formatFechaLarga(copia.fecha)} a las ${copia.hora}.${emoji} ¡Te esperamos!`,
+      qr: [],
+      cita: { fecha:copia.fecha, hora:copia.hora, nombre:copia.nombre||"Paciente", telefono:copia.telefono, servicio }
+    };
+  }
+
+  // Detectar servicio mencionado
+  const servicioMencionado = cfg.servicios.find(s => tl.includes(s.toLowerCase().split(" ")[0]));
+  const precio = servicioMencionado ? cfg.precios[servicioMencionado] : null;
+  if(precio) {
+    return {
+      texto: cfg.personalidad==="profesional"
+        ? `El tratamiento de ${servicioMencionado} tiene un coste de ${precio}. ¿Desea solicitar una cita?`
+        : `El ${servicioMencionado} tiene un precio de ${precio} 🦷 ¿Te ayudo a pedir una cita para que te lo valoremos en persona?`,
+      qr: ["Sí, quiero cita","¿Tenéis financiación?","¿Qué incluye?"]
+    };
+  }
+
+  // Default genuino
+  const defaults = [
+    { texto: cfg.personalidad==="profesional"
+        ? `Gracias por ponerse en contacto con ${cfg.clinica}. ¿En qué podemos ayudarle?`
+        : `Gracias por escribirnos 😊 ¿En qué te puedo ayudar? Cuéntame lo que necesitas.`,
+      qr: ["Pedir cita","Ver precios","Urgencias","¿Dónde estáis?"] }
+  ];
+  return defaults[0];
+}
+
+function formatFechaLarga(iso) {
+  if(!iso) return "";
+  const d = new Date(iso+"T00:00:00");
+  return d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+}
+
+function registrarCitaBot(fecha,hora,nombre,telefono,servicio) {
+  const c={id:Date.now().toString(),fecha:fecha||getManana(),hora:hora||"10:00",paciente:nombre||"Paciente",telefono:telefono||"",servicio:servicio||cfg.servicios[0]||"Consulta",notas:"Bot",creada:new Date().toISOString()};
+  citas.push(c); saveCitas();
+  if(nombre&&nombre.length>1) addLead(nombre,`Cita · ${servicio}`,telefono,servicio,"closed");
+  renderCal("bot"); renderCal("citas"); renderCitasPanel(); updateCitasBadge();
+  showToast("📅 Cita reservada",`${nombre||"Paciente"} · ${hora||""}`, "✓");
+}
+
+/* ────────────────────────────────────────
+   CHAT UI
+──────────────────────────────────────── */
+function addUserMsg(t) {
+  const d=document.createElement("div"); d.className="msg user";
+  d.innerHTML=`<div class="msg-bubble">${esc(t)}</div><div class="msg-time">${hora()}</div>`;
+  chatMsgs().appendChild(d); scrollChat();
+}
+function addBotMsg(t,qr=[]) {
+  const d=document.createElement("div"); d.className="msg bot";
+  d.innerHTML=`<div class="msg-bubble">${esc(t).replace(/\n/g,"<br>")}</div><div class="msg-time">${cfg.bot} · ${hora()}</div>`;
+  chatMsgs().appendChild(d);
+  if(qr.length) showQR(qr);
+  scrollChat();
+}
+function addTyping() {
+  const d=document.createElement("div"); d.className="typing-indicator";
+  d.innerHTML=`<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
+  chatMsgs().appendChild(d); scrollChat(); return d;
+}
+function showQR(replies) {
+  document.getElementById("quickRepliesContainer").innerHTML=
+    `<div class="quick-replies">${replies.map(r=>`<button class="qr-btn" onclick="selectQR('${esc(r)}')">${esc(r)}</button>`).join("")}</div>`;
+}
+function clearQR() { document.getElementById("quickRepliesContainer").innerHTML=""; }
+function selectQR(t) { document.getElementById("chatInput").value=t; enviarMensaje(); }
+function chatMsgs() { return document.getElementById("chatMessages"); }
+function scrollChat() { const c=chatMsgs(); c.scrollTop=c.scrollHeight; }
+function hora() { return new Date().toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}); }
+
+/* ────────────────────────────────────────
+   LEADS
+──────────────────────────────────────── */
+function addLead(name,message,phone,servicio,status="new") {
+  const l={id:Date.now().toString()+Math.random().toString(36).slice(2,5),name,message,phone,servicio,status,timestamp:new Date().toISOString()};
+  allLeads.unshift(l); todayLeads++; saveLeads(); refreshDashboard(); showLeadNotif(name,message); return l;
+}
+
+function simularLead() {
+  const n = NOMBRES_DEMO[Math.floor(Math.random()*NOMBRES_DEMO.length)];
+  const s = cfg.servicios[Math.floor(Math.random()*cfg.servicios.length)];
+  const msgs = [`Hola, me interesa ${s.toLowerCase()}`,`¿Cuánto cuesta ${s.toLowerCase()}?`,`Quiero información sobre ${s.toLowerCase()}`];
+  addLead(n, msgs[Math.floor(Math.random()*msgs.length)], "6"+Math.floor(Math.random()*90000000+10000000), s);
+}
+
+function scheduleAutoLead() {
+  setTimeout(() => { simularLead(); scheduleAutoLead(); }, 20000+Math.random()*15000);
+}
+
+function showLeadNotif(name,msg) {
+  document.getElementById("leadInTitle").textContent = "🔔 " + name;
+  document.getElementById("leadInSub").textContent   = (msg||"").slice(0,55)+"…";
+  const el=document.getElementById("leadIncoming"); el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),4500);
+}
+
+/* ────────────────────────────────────────
+   DASHBOARD
+──────────────────────────────────────── */
+function refreshDashboard() {
+  const total  = allLeads.length;
+  const closed = allLeads.filter(l=>l.status==="closed").length;
+  const newL   = allLeads.filter(l=>l.status==="new").length;
+  const pend   = allLeads.filter(l=>l.status==="pending").length;
+  const tasa   = total ? Math.round(closed/total*100) : 0;
+  const rev    = closed*350;
 
   document.getElementById("kpiLeads").textContent    = total;
   document.getElementById("kpiConv").textContent     = closed;
@@ -560,18 +1443,15 @@ function refreshDashboard(){
   document.getElementById("navLeadCount").textContent= newL;
   document.getElementById("topLeadNum").textContent  = todayLeads;
 
-  buildBarChart();
-  buildDonut(tasa, newL, closed, pending);
-  renderTable(allLeads);
-  renderFullLeadsTable();
-  updateCitasBadge();
+  buildBarChart(); buildDonut(tasa,newL,closed,pend);
+  renderDashTable(); updateCitasBadge();
 }
 
-function buildBarChart(){
+function buildBarChart() {
   const dias=["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"];
   const hoy=new Date(), counts=Array(7).fill(0);
   allLeads.forEach(l=>{
-    const d=new Date(l.timestamp), diff=Math.floor((hoy-d)/86400000);
+    const diff=Math.floor((hoy-new Date(l.timestamp))/86400000);
     if(diff>=0&&diff<7) counts[((hoy.getDay()+6)-diff+7)%7]++;
   });
   const sum=counts.reduce((a,b)=>a+b,0);
@@ -586,8 +1466,8 @@ function buildBarChart(){
   setTimeout(()=>document.querySelectorAll(".bar-fill").forEach(b=>b.style.width=b.dataset.pct+"%"),100);
 }
 
-function buildDonut(tasa,newL,closed,pending){
-  const total=allLeads.length||1, circ=289;
+function buildDonut(tasa,newL,closed,pend) {
+  const total=allLeads.length||1,circ=289;
   setTimeout(()=>{
     document.getElementById("donutNew").style.strokeDashoffset    = circ*(1-newL/total);
     document.getElementById("donutClosed").style.strokeDashoffset = circ*(1-closed/total);
@@ -595,379 +1475,199 @@ function buildDonut(tasa,newL,closed,pending){
   document.getElementById("donutPct").textContent  = tasa+"%";
   document.getElementById("dlNew").textContent     = newL;
   document.getElementById("dlClosed").textContent  = closed;
-  document.getElementById("dlPending").textContent = pending;
+  document.getElementById("dlPending").textContent = pend;
 }
 
-function renderTable(leads){
-  document.getElementById("tableSub").textContent=`${leads.length} leads en total`;
-  if(!leads.length){
-    document.getElementById("tableWrapper").innerHTML=`<div style="padding:40px;text-align:center;color:var(--gris-texto)">El bot está listo. Haz clic en <strong style="color:var(--verde)">+ Simular lead</strong> o chatea con el bot.</div>`;
-    return;
-  }
-  const rows=leads.slice(0,30).map(l=>{
+function buildTableHTML(leads) {
+  if(!leads.length) return `<div style="padding:40px;text-align:center;color:var(--gris-texto)">Sin leads.</div>`;
+  return `<table><thead><tr>
+    <th>Nombre</th><th>Mensaje</th><th>Teléfono</th><th>Servicio</th><th>Estado</th><th>Fecha</th><th></th>
+  </tr></thead><tbody>${leads.map(l=>{
     const d=new Date(l.timestamp).toLocaleDateString("es-ES",{day:"2-digit",month:"short"});
     const sl=l.status==="closed"?"Convertido":l.status==="pending"?"Pendiente":"Nuevo";
     return `<tr>
       <td class="td-name">${esc(l.name)}</td>
       <td class="td-msg">${esc(l.message)}</td>
-      <td class="td-phone">${esc(l.phone)||"—"}</td>
-      <td>${l.servicio?`<span class="td-service">${esc(l.servicio)}</span>`:"—"}</td>
+      <td style="font-size:.78rem;color:var(--gris-texto)">${esc(l.phone)||"—"}</td>
+      <td><span style="font-size:.72rem;padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.04);color:#c5cdd8;border:1px solid rgba(255,255,255,.06)">${esc(l.servicio)||"—"}</span></td>
       <td><span class="status-badge ${l.status||'new'}">${sl}</span></td>
-      <td class="td-date">${d}</td>
+      <td style="font-size:.75rem;color:var(--gris-texto)">${d}</td>
       <td>${l.status!=="closed"
         ?`<button class="act-btn convert" onclick="convertLead('${l.id}',this)">✓</button>`
-        :`<button class="act-btn del" onclick="delLead('${l.id}',this)">✕</button>`}
-      </td>
+        :`<button class="act-btn del" onclick="delLead('${l.id}',this)">✕</button>`}</td>
     </tr>`;
-  }).join("");
-  document.getElementById("tableWrapper").innerHTML=`<table><thead><tr>
-    <th>Nombre</th><th>Mensaje</th><th>Teléfono</th><th>Servicio</th><th>Estado</th><th>Fecha</th><th></th>
-  </tr></thead><tbody>${rows}</tbody></table>`;
+  }).join("")}</tbody></table>`;
 }
 
-function renderFullLeadsTable(){
-  const q=(document.getElementById("searchLeadsTab")?.value||"").toLowerCase();
-  const leads=allLeads.filter(l=>(l.name||"").toLowerCase().includes(q)||(l.message||"").toLowerCase().includes(q));
-  document.getElementById("leadsTabSub").textContent=`${allLeads.length} leads en total`;
-  if(!leads.length){
-    document.getElementById("tableWrapperFull").innerHTML=`<div style="padding:40px;text-align:center;color:var(--gris-texto)">Sin leads aún.</div>`;
+function renderDashTable() {
+  const q=(document.getElementById("searchDash")?.value||"").toLowerCase();
+  const f=allLeads.filter(l=>(l.name||"").toLowerCase().includes(q)||(l.message||"").toLowerCase().includes(q));
+  document.getElementById("tableSub").textContent=`${allLeads.length} leads`;
+  if(!allLeads.length){
+    document.getElementById("tableWrapper").innerHTML=`<div style="padding:40px;text-align:center;color:var(--gris-texto)">Simula un lead o chatea con el bot.</div>`;
     return;
   }
-  const rows=leads.map(l=>{
-    const d=new Date(l.timestamp).toLocaleDateString("es-ES",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
-    const sl=l.status==="closed"?"Convertido":l.status==="pending"?"Pendiente":"Nuevo";
-    return `<tr>
-      <td class="td-name">${esc(l.name)}</td>
-      <td class="td-msg">${esc(l.message)}</td>
-      <td class="td-phone">${esc(l.phone)||"—"}</td>
-      <td>${l.servicio?`<span class="td-service">${esc(l.servicio)}</span>`:"—"}</td>
-      <td><span class="status-badge ${l.status||'new'}">${sl}</span></td>
-      <td class="td-date">${d}</td>
-      <td>${l.status!=="closed"
-        ?`<button class="act-btn convert" onclick="convertLead('${l.id}',this)">✓ Convertir</button>`
-        :`<button class="act-btn del" onclick="delLead('${l.id}',this)">✕</button>`}
-      </td>
-    </tr>`;
-  }).join("");
-  document.getElementById("tableWrapperFull").innerHTML=`<table><thead><tr>
-    <th>Nombre</th><th>Mensaje</th><th>Teléfono</th><th>Servicio</th><th>Estado</th><th>Fecha</th><th></th>
-  </tr></thead><tbody>${rows}</tbody></table>`;
+  document.getElementById("tableWrapper").innerHTML=buildTableHTML(f.slice(0,30));
 }
 
-function filtrarLeads(){
-  const q=document.getElementById("searchInput").value.toLowerCase();
-  renderTable(allLeads.filter(l=>(l.name||"").toLowerCase().includes(q)||(l.message||"").toLowerCase().includes(q)));
-}
-function filtrarLeadsTab(){ renderFullLeadsTable(); }
-
-function convertLead(id,btn){
-  btn.disabled=true;
-  const l=allLeads.find(x=>x.id===id);
-  if(l){ l.status="closed"; saveLeads(); refreshDashboard(); showToast("Lead convertido ✓","¡Un cliente más!","🎉"); }
-}
-function delLead(id,btn){
-  if(!confirm("¿Eliminar este lead?")) return;
-  allLeads=allLeads.filter(x=>x.id!==id); saveLeads(); refreshDashboard(); showToast("Lead eliminado","","🗑");
+function renderLeadsTable() {
+  const q=(document.getElementById("searchLeads")?.value||"").toLowerCase();
+  const f=allLeads.filter(l=>(l.name||"").toLowerCase().includes(q)||(l.message||"").toLowerCase().includes(q));
+  document.getElementById("leadsTabSub").textContent=`${allLeads.length} en total`;
+  document.getElementById("tableWrapperFull").innerHTML=buildTableHTML(f);
 }
 
-// ─────────────────────────────────────────────
-//  SIMULAR LEADS (auto + manual)
-// ─────────────────────────────────────────────
-function addLead(name, message, phone, servicio, status="new"){
-  const lead={id:Date.now().toString()+Math.random().toString(36).slice(2,6),name,message,phone,servicio,status,timestamp:new Date().toISOString()};
-  allLeads.unshift(lead);
-  todayLeads++;
-  saveLeads();
-  refreshDashboard();
-  showLeadNotif(name, message);
-  return lead;
+function convertLead(id,btn) {
+  btn.disabled=true; const l=allLeads.find(x=>x.id===id);
+  if(l){l.status="closed";saveLeads();refreshDashboard();showToast("Lead convertido ✓","¡Un cliente más!","🎉");}
+}
+function delLead(id) {
+  if(!confirm("¿Eliminar?"))return;
+  allLeads=allLeads.filter(x=>x.id!==id);saveLeads();refreshDashboard();showToast("Eliminado","","🗑");
 }
 
-function simularNuevoLead(){
-  const n = NOMBRES_DEMO[Math.floor(Math.random()*NOMBRES_DEMO.length)];
-  const s = SERVICIOS_DEMO[Math.floor(Math.random()*SERVICIOS_DEMO.length)];
-  const m = MENSAJES_DEMO[Math.floor(Math.random()*MENSAJES_DEMO.length)];
-  const p = "6"+Math.floor(Math.random()*90000000+10000000);
-  addLead(n, m, p, s);
+/* ────────────────────────────────────────
+   CALENDARIOS
+──────────────────────────────────────── */
+function cambiarMes(d,key) {
+  calState[key].m += d;
+  if(calState[key].m>11){calState[key].m=0;calState[key].y++;}
+  else if(calState[key].m<0){calState[key].m=11;calState[key].y--;}
+  renderCal(key);
 }
 
-function scheduleAutoLead(){
-  const delay = 18000 + Math.random()*17000;
-  leadTimer = setTimeout(()=>{ simularNuevoLead(); scheduleAutoLead(); }, delay);
-}
-
-function showLeadNotif(name, msg){
-  document.getElementById("leadInTitle").textContent = "🔔 Nuevo lead: " + name;
-  document.getElementById("leadInSub").textContent   = msg.slice(0,50)+"…";
-  const el = document.getElementById("leadIncoming");
-  el.classList.add("show");
-  setTimeout(()=>el.classList.remove("show"), 4500);
-}
-
-// ─────────────────────────────────────────────
-//  BOT CHAT con Claude API
-// ─────────────────────────────────────────────
-function buildSystemPrompt(){
-  const today = new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-  const citasDelBot = citas.map(c=>`${c.fecha} ${c.hora} - ${c.paciente}`).join("; ") || "ninguna";
-  return `Eres el asistente virtual de ReActiva Clínica Dental. Hablas en español, eres simpático, profesional y conciso.
-
-FECHA HOY: ${today}
-CITAS YA RESERVADAS: ${citasDelBot}
-
-TU MISIÓN:
-1. Responder preguntas sobre servicios dentales (blanqueamiento, ortodoncia, implantes, revisiones, limpiezas, endodoncia, urgencias)
-2. Ayudar a reservar citas. Cuando el usuario quiera una cita:
-   - Pregunta qué servicio necesita
-   - Sugiere una fecha (mañana o pasado mañana)
-   - Propón UN horario concreto (ej: "¿Te viene bien a las 10:00?")
-   - Si ese horario está ocupado según las citas reservadas, di que está ocupado y propón el siguiente disponible
-   - Cuando confirmen, pide nombre y teléfono
-   - Al final confirma con: "¡Perfecto! Tu cita ha quedado reservada. Te esperamos el [FECHA] a las [HORA]. ¡Muchas gracias! 😊" y en la siguiente línea escribe exactamente: CITA_CONFIRMADA|[FECHA ISO]|[HORA]|[NOMBRE]|[TELEFONO]|[SERVICIO]
-3. Si preguntan precios: blanqueamiento 280€, ortodoncia desde 1200€, implante desde 900€, limpieza 60€, revisión gratis primera vez
-4. Sé breve: máximo 3-4 frases por respuesta
-
-REGLAS:
-- Nunca inventes citas ya reservadas salvo las que están en CITAS YA RESERVADAS
-- Si el horario está libre, ofrécelo con entusiasmo
-- Siempre que confirmes una cita, incluye la línea CITA_CONFIRMADA al final`;
-}
-
-async function enviarMensaje(){
-  const input = document.getElementById("chatInput");
-  const texto = input.value.trim();
-  if(!texto) return;
-  input.value="";
-  autoResizeInput();
-  clearQuickReplies();
-
-  addUserMsg(texto);
-  chatHistory.push({role:"user",content:texto});
-
-  document.getElementById("chatSendBtn").disabled=true;
-  const typingEl = addTyping();
-
-  try{
-    const resp = await fetch(ANTHROPIC_API,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:400,
-        system: buildSystemPrompt(),
-        messages: chatHistory.slice(-12)
-      })
-    });
-    const data = await resp.json();
-    typingEl.remove();
-    const fullText = data.content?.[0]?.text || "Lo siento, no pude procesar tu mensaje.";
-
-    // Detectar si hay confirmación de cita
-    if(fullText.includes("CITA_CONFIRMADA|")){
-      const lineas = fullText.split("\n");
-      let msgVisible = lineas.filter(l=>!l.startsWith("CITA_CONFIRMADA")).join("\n").trim();
-      addBotMsg(msgVisible);
-      chatHistory.push({role:"assistant",content:msgVisible});
-
-      const datosLine = lineas.find(l=>l.startsWith("CITA_CONFIRMADA"));
-      if(datosLine){
-        const partes = datosLine.split("|");
-        const [,fecha,hora,nombre,telefono,servicio] = partes;
-        // Registrar cita
-        const nuevaCita = {id:Date.now().toString(),fecha:fecha||getManana(),hora:hora||"10:00",paciente:nombre||"Paciente",telefono:telefono||"",servicio:servicio||"Consulta",notas:"Reservada por bot",creada:new Date().toISOString()};
-        citas.push(nuevaCita);
-        saveCitas();
-        // Registrar como lead convertido
-        if(nombre && nombre.length>2){
-          addLead(nombre, `Cita reservada - ${servicio}`, telefono, servicio, "closed");
-        }
-        renderCalendar();
-        renderCitasPanel();
-        updateCitasBadge();
-        showToast("📅 Cita reservada por bot",`${nombre||"Paciente"} · ${hora||""}`,"✓");
-      }
-    } else {
-      addBotMsg(fullText);
-      chatHistory.push({role:"assistant",content:fullText});
-    }
-  } catch(e){
-    typingEl.remove();
-    addBotMsg("Disculpa, hay un problema técnico momentáneo. Por favor llámanos al 900 123 456. 😊",["Reintentar"]);
-    chatHistory.push({role:"assistant",content:"Error técnico momentáneo."});
-  }
-  document.getElementById("chatSendBtn").disabled=false;
-  scrollChat();
-}
-
-function addUserMsg(texto){
-  const msgs = document.getElementById("chatMessages");
-  const div=document.createElement("div");
-  div.className="msg user";
-  div.innerHTML=`<div class="msg-bubble">${esc(texto)}</div><div class="msg-time">${horaActual()}</div>`;
-  msgs.appendChild(div);
-  scrollChat();
-}
-
-function addBotMsg(texto, quickReplies=[]){
-  const msgs = document.getElementById("chatMessages");
-  const div=document.createElement("div");
-  div.className="msg bot";
-  // Convertir saltos de línea
-  const htmlText = esc(texto).replace(/\n/g,"<br>");
-  div.innerHTML=`<div class="msg-bubble">${htmlText}</div><div class="msg-time">Bot · ${horaActual()}</div>`;
-  msgs.appendChild(div);
-  if(quickReplies.length) showQuickReplies(quickReplies);
-  scrollChat();
-}
-
-function addTyping(){
-  const msgs = document.getElementById("chatMessages");
-  const div=document.createElement("div");
-  div.className="typing-indicator";
-  div.innerHTML=`<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>`;
-  msgs.appendChild(div);
-  scrollChat();
-  return div;
-}
-
-function showQuickReplies(replies){
-  const c = document.getElementById("quickRepliesContainer");
-  c.innerHTML = `<div class="quick-replies">${replies.map(r=>`<button class="qr-btn" onclick="selectQuickReply('${esc(r)}')">${esc(r)}</button>`).join("")}</div>`;
-}
-function clearQuickReplies(){ document.getElementById("quickRepliesContainer").innerHTML=""; }
-function selectQuickReply(text){
-  document.getElementById("chatInput").value=text;
-  enviarMensaje();
-}
-
-function scrollChat(){ const c=document.getElementById("chatMessages"); c.scrollTop=c.scrollHeight; }
-function horaActual(){ return new Date().toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"}); }
-function autoResizeInput(){ const i=document.getElementById("chatInput"); i.style.height="auto"; }
-
-// ─────────────────────────────────────────────
-//  CALENDARIO
-// ─────────────────────────────────────────────
-function initCalendar(){
-  const n=new Date();
-  calYear=n.getFullYear(); calMonth=n.getMonth();
-  calSelected=n.toISOString().slice(0,10);
-  renderCalendar();
-}
-
-function cambiarMes(d){ calMonth+=d; if(calMonth>11){calMonth=0;calYear++;}else if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
-
-function renderCalendar(){
+function renderCal(key) {
+  const {y,m,sel}=calState[key];
   const meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-  document.getElementById("calTitle").textContent=`${meses[calMonth]} ${calYear}`;
+  const suffix=key==="bot"?"Bot":"Citas";
+  document.getElementById("calTitle"+suffix).textContent=`${meses[m]} ${y}`;
   const dias=["L","M","X","J","V","S","D"];
-  const primerDia=new Date(calYear,calMonth,1).getDay();
-  const offset=(primerDia===0)?6:primerDia-1;
-  const diasMes=new Date(calYear,calMonth+1,0).getDate();
+  const offset=(new Date(y,m,1).getDay()||7)-1;
+  const diasMes=new Date(y,m+1,0).getDate();
   const today=new Date().toISOString().slice(0,10);
-
-  let grid=dias.map(d=>`<div class="cal-weekday">${d}</div>`).join("");
-  // Celdas vacías
-  for(let i=0;i<offset;i++) grid+=`<div></div>`;
+  let g=dias.map(d=>`<div class="cal-weekday">${d}</div>`).join("");
+  for(let i=0;i<offset;i++) g+=`<div></div>`;
   for(let d=1;d<=diasMes;d++){
-    const isoDate=`${calYear}-${String(calMonth+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-    const hasCita=citas.some(c=>c.fecha===isoDate);
-    const isToday=isoDate===today;
-    const isSelected=isoDate===calSelected;
-    let cls="cal-day";
-    if(isToday) cls+=" today";
-    if(isSelected) cls+=" selected";
-    if(hasCita) cls+=" has-cita";
-    grid+=`<button class="${cls}" onclick="selectDay('${isoDate}')">${d}</button>`;
+    const iso=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const hc=citas.some(c=>c.fecha===iso);
+    let cls="cal-day"+(iso===today?" today":"")+(iso===sel?" selected":"")+(hc?" has-cita":"");
+    g+=`<button class="${cls}" onclick="selectDay('${iso}','${key}')">${d}</button>`;
   }
-  document.getElementById("calGrid").innerHTML=grid;
-  renderCalDetail();
+  document.getElementById("calGrid"+suffix).innerHTML=g;
+  renderCalDetail(key);
 }
 
-function selectDay(iso){ calSelected=iso; renderCalendar(); }
+function selectDay(iso,key) { calState[key].sel=iso; renderCal(key); }
 
-function renderCalDetail(){
-  if(!calSelected){ document.getElementById("calDetail").innerHTML=""; return; }
-  const citasDelDia=citas.filter(c=>c.fecha===calSelected);
-  const [y,m,d]=calSelected.split("-");
+function renderCalDetail(key) {
+  const {sel}=calState[key];
+  const suffix=key==="bot"?"Bot":"Citas";
+  const el=document.getElementById("calDetail"+suffix);
+  if(!sel||!el) return;
+  const [y,m,d]=sel.split("-");
   const meses=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
   const label=`${parseInt(d)} ${meses[parseInt(m,10)-1]} ${y}`;
-  const ALL_SLOTS=["9:00","9:30","10:00","10:30","11:00","11:30","12:00","13:00","16:00","16:30","17:00","17:30","18:00","18:30","19:00"];
-  const horasOcupadas=citasDelDia.map(c=>c.hora);
-  const slots=ALL_SLOTS.slice(0,6).map(h=>{
-    const cita=citasDelDia.find(c=>c.hora===h);
-    if(cita) return `<div class="cal-slot ocupado"><span class="cal-slot-time">${h}</span><span class="cal-slot-info">${esc(cita.paciente)}</span><button class="cal-slot-del" onclick="eliminarCitaCal('${cita.id}')">✕</button></div>`;
+  const dia=citas.filter(c=>c.fecha===sel);
+  const SLOTS=["9:00","10:00","11:00","12:00","16:00","17:00","18:00","19:00"];
+  const slots=SLOTS.slice(0,6).map(h=>{
+    const c=dia.find(x=>x.hora===h);
+    if(c) return `<div class="cal-slot ocupado"><span class="cal-slot-time">${h}</span><span class="cal-slot-info">${esc(c.paciente)} · ${esc(c.servicio||"")}</span><button class="cal-slot-del" onclick="delCita('${c.id}')">✕</button></div>`;
     return `<div class="cal-slot libre"><span class="cal-slot-time">${h}</span><span class="cal-slot-info">Libre</span></div>`;
   }).join("");
-  document.getElementById("calDetail").innerHTML=`<div class="cal-detail-title">${label}</div>${slots}${citasDelDia.length===0?`<div style="font-size:.72rem;color:var(--gris-texto);margin-top:6px">✓ Todos los slots libres</div>`:""}`;
+  el.innerHTML=`<div class="cal-detail-title">${label}</div>${slots}${!dia.length?`<div style="font-size:.72rem;color:var(--gris-texto);margin-top:6px">✓ Día libre</div>`:""}`;
 }
 
-function eliminarCitaCal(id){
-  citas=citas.filter(c=>c.id!==id); saveCitas(); renderCalendar(); renderCitasPanel(); updateCitasBadge();
-  showToast("Cita eliminada","","🗑");
-}
-
-// ─────────────────────────────────────────────
-//  CITAS PANEL
-// ─────────────────────────────────────────────
-function agregarCitaManual(){
+/* ────────────────────────────────────────
+   CITAS
+──────────────────────────────────────── */
+function agregarCita() {
   const fecha=document.getElementById("citaFecha").value;
   const hora=document.getElementById("citaHora").value;
-  const paciente=document.getElementById("citaPaciente").value.trim();
-  const telefono=document.getElementById("citaTelefono").value.trim();
-  if(!fecha||!hora||!paciente){ showToast("Faltan campos","Fecha, hora y paciente son obligatorios","⚠️"); return; }
-  if(citas.find(c=>c.fecha===fecha&&c.hora===hora)){ showToast("Slot ocupado",`El slot ${hora} del ${fecha} ya está reservado`,"⚠️"); return; }
-  citas.push({id:Date.now().toString(),fecha,hora,paciente,telefono,servicio:"Consulta",notas:"",creada:new Date().toISOString()});
-  saveCitas(); renderCitasPanel(); updateCitasBadge(); renderCalendar();
-  showToast("Cita añadida ✓",`${paciente} · ${hora}`,"📅");
+  const pac=document.getElementById("citaPaciente").value.trim();
+  const tel=document.getElementById("citaTelefono").value.trim();
+  const srv=document.getElementById("citaServicio").value||cfg.servicios[0];
+  if(!fecha||!hora||!pac){showToast("Faltan campos","Fecha, hora y paciente son obligatorios","⚠️");return;}
+  if(citas.find(c=>c.fecha===fecha&&c.hora===hora)){showToast("Slot ocupado",`${hora} el ${fecha} ya está reservado`,"⚠️");return;}
+  citas.push({id:Date.now().toString(),fecha,hora,paciente:pac,telefono:tel,servicio:srv,notas:"",creada:new Date().toISOString()});
+  saveCitas(); renderCitasPanel(); renderCal("bot"); renderCal("citas"); updateCitasBadge();
+  showToast("Cita añadida ✓",`${pac} · ${hora}`,"📅");
 }
 
-function renderCitasPanel(){
-  document.getElementById("citasSubtitle").textContent=`${citas.length} citas en total`;
-  if(!citas.length){ document.getElementById("citasList").innerHTML=`<div style="padding:30px;text-align:center;color:var(--gris-texto)">Sin citas aún.</div>`; return; }
-  const sorted=[...citas].sort((a,b)=>a.fecha<b.fecha?-1:a.fecha>b.fecha?1:a.hora<b.hora?-1:1);
-  document.getElementById("citasList").innerHTML=sorted.map(c=>`
-    <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--gris3);border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:8px;transition:all .2s">
-      <div style="background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:.78rem;font-weight:700;padding:6px 12px;border-radius:9px;white-space:nowrap">${c.hora}</div>
+function renderCitasPanel() {
+  document.getElementById("citasSubtitle").textContent=`${citas.length} citas`;
+  const el=document.getElementById("citasList");
+  if(!citas.length){el.innerHTML=`<div style="padding:30px;text-align:center;color:var(--gris-texto)">Sin citas aún. El bot las registrará automáticamente.</div>`;return;}
+  el.innerHTML=[...citas].sort((a,b)=>a.fecha<b.fecha?-1:a.fecha>b.fecha?1:a.hora<b.hora?-1:1).map(c=>`
+    <div class="cita-card">
+      <div class="cita-time-badge">${esc(c.hora)}</div>
       <div style="flex:1">
         <div style="font-size:.88rem;font-weight:700;margin-bottom:3px">${esc(c.paciente)}</div>
         <div style="font-size:.72rem;color:var(--gris-texto)">📅 ${formatFecha(c.fecha)} · 🦷 ${esc(c.servicio)}${c.telefono?` · 📞 ${esc(c.telefono)}`:""}</div>
       </div>
-      <button onclick="eliminarCitaCal('${c.id}')" style="padding:6px 12px;border-radius:8px;font-size:.72rem;font-weight:600;background:none;border:1px solid rgba(255,92,92,.2);color:var(--rojo);cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(255,92,92,.1)'" onmouseout="this.style.background='none'">✕</button>
+      <button onclick="delCita('${c.id}')" class="btn danger" style="padding:5px 10px;font-size:.7rem">✕</button>
     </div>`).join("");
 }
 
-function updateCitasBadge(){
-  const c=citas.length, b=document.getElementById("navCitasCount");
-  if(c>0){ b.textContent=c; b.style.display="inline"; } else b.style.display="none";
+function delCita(id) {
+  citas=citas.filter(c=>c.id!==id);saveCitas();renderCitasPanel();renderCal("bot");renderCal("citas");updateCitasBadge();
+  showToast("Cita eliminada","","🗑");
+}
+function updateCitasBadge() {
+  const b=document.getElementById("navCitasCount");
+  if(citas.length){b.textContent=citas.length;b.style.display="inline";}else b.style.display="none";
+}
+function populateServicioSelect() {
+  const el=document.getElementById("citaServicio");
+  if(!el)return;
+  const v=el.value;
+  el.innerHTML=`<option value="">Servicio…</option>`+cfg.servicios.map(s=>`<option${s===v?" selected":""}>${esc(s)}</option>`).join("");
 }
 
-// ─────────────────────────────────────────────
-//  UTILS
-// ─────────────────────────────────────────────
-function saveLeads(){ localStorage.setItem("ra_leads",JSON.stringify(allLeads)); }
-function saveCitas(){ localStorage.setItem("ra_citas",JSON.stringify(citas)); }
-function getManana(){ const d=new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); }
-function formatFecha(iso){ const [y,m,d]=iso.split("-"); const ms=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]; return `${d} ${ms[parseInt(m,10)-1]} ${y}`; }
-function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function exportCSV(){
+/* ────────────────────────────────────────
+   TABS
+──────────────────────────────────────── */
+function setTab(tab,el) {
+  document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById("sec-"+tab).classList.add("active");
+  const t={dashboard:"Dashboard",leads:"Leads",bot:"Bot Chat",citas:"Citas",configbot:"Configurar Bot",email:"Email automático",filosofia:"Nuestra filosofía",config:"Ajustes & Script"};
+  document.getElementById("pageTitle").textContent=t[tab]||tab;
+  if(tab==="leads")     renderLeadsTable();
+  if(tab==="citas")     {renderCitasPanel();renderCal("citas");}
+  if(tab==="configbot") {applyGlobalCfg();renderRespuestas();}
+  if(tab==="config")    applyGlobalCfg();
+}
+
+/* ────────────────────────────────────────
+   UTILS
+──────────────────────────────────────── */
+function saveCfg()    { localStorage.setItem("ra_cfg",JSON.stringify(cfg)); }
+function saveLeads()  { localStorage.setItem("ra_leads",JSON.stringify(allLeads)); }
+function saveCitas()  { localStorage.setItem("ra_citas",JSON.stringify(citas)); }
+function saveRespDB() { localStorage.setItem("ra_respuestas",JSON.stringify(respDB)); }
+function getManana()  { const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().slice(0,10); }
+function formatFecha(iso){ const[y,m,d]=iso.split("-");const ms=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];return`${d} ${ms[parseInt(m,10)-1]} ${y}`; }
+function esc(s){ return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function exportCSV() {
   const h=["Nombre","Teléfono","Servicio","Mensaje","Estado","Fecha"];
   const r=allLeads.map(l=>[l.name||"",l.phone||"",l.servicio||"",`"${(l.message||"").replace(/"/g,'""')}"`,l.status||"new",new Date(l.timestamp).toLocaleDateString("es-ES")]);
   const csv=[h,...r].map(x=>x.join(",")).join("\n");
-  const a=document.createElement("a"); a.href="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv); a.download=`leads_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  const a=document.createElement("a");a.href="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv);a.download=`leads_${new Date().toISOString().slice(0,10)}.csv`;a.click();
   showToast("CSV exportado",allLeads.length+" leads","↓");
 }
 
-let toastTimerMain;
-function showToast(title,sub,icon="✓"){
-  clearTimeout(toastTimerMain);
+function showToast(title,sub,icon="✓") {
+  clearTimeout(toastTimer);
   document.getElementById("toastTitle").textContent=title;
   document.getElementById("toastSub").textContent=sub;
   document.getElementById("toastIcon").textContent=icon;
   const bar=document.getElementById("toastBar");
   bar.style.animation="none";
-  requestAnimationFrame(()=>{ bar.style.animation="toastBar 3.2s linear forwards"; });
+  requestAnimationFrame(()=>{bar.style.animation="toastBar 3.2s linear forwards";});
   document.getElementById("toast").classList.add("show");
-  toastTimerMain=setTimeout(()=>document.getElementById("toast").classList.remove("show"),3400);
+  toastTimer=setTimeout(()=>document.getElementById("toast").classList.remove("show"),3400);
 }
 </script>
 </body>

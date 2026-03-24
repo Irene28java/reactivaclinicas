@@ -3,270 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ReActiva · Automatización para Clínicas</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>ReActiva · Automatización para Clínicas Dentales</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --negro:       #07090d;
   --blanco:      #f0ede8;
   --verde:       #00e676;
-  --verde-dim:   rgba(0,230,118,0.1);
-  --verde-borde: rgba(0,230,118,0.25);
+  --verde-dim:   rgba(0,230,118,0.08);
+  --verde-borde: rgba(0,230,118,0.22);
   --gris:        #0f1318;
   --gris2:       #141920;
   --gris3:       #1a2028;
   --gris-texto:  #6e7a8a;
   --azul:        #4ea8f0;
   --oro:         #d4a843;
-  --rojo:        #ff5c5c;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);overflow-x:hidden}
+body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);overflow-x:hidden;min-height:100vh}
 
-/* Grain overlay */
+/* grain */
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.35}
 
-/* Background orbs */
-.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(100px)}
-.orb-1{width:700px;height:700px;background:rgba(0,230,118,.04);top:-200px;left:-200px;animation:orbDrift 12s ease-in-out infinite alternate}
-.orb-2{width:500px;height:500px;background:rgba(78,168,240,.03);bottom:-150px;right:-150px;animation:orbDrift 15s ease-in-out infinite alternate-reverse}
-.orb-3{width:300px;height:300px;background:rgba(212,168,67,.025);top:40%;left:50%;animation:orbDrift 10s ease-in-out infinite alternate}
-@keyframes orbDrift{from{transform:translate(0,0)}to{transform:translate(30px,20px)}}
+/* orbs */
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(120px);opacity:0.6}
+.orb-1{width:800px;height:800px;background:radial-gradient(circle,rgba(0,230,118,0.06),transparent 70%);top:-300px;left:-200px;animation:drift 18s ease-in-out infinite alternate}
+.orb-2{width:600px;height:600px;background:radial-gradient(circle,rgba(78,168,240,0.04),transparent 70%);bottom:-200px;right:-200px;animation:drift 22s ease-in-out infinite alternate-reverse}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,30px) scale(1.05)}}
 
 /* ── NAV ── */
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:20px 56px;background:rgba(7,9,13,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.04)}
-.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-text{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:var(--blanco)}
-.nav-right{display:flex;align-items:center;gap:24px}
-.nav-link{color:var(--gris-texto);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .2s}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 64px;background:rgba(7,9,13,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.03)}
+.logo-wrap{display:flex;align-items:center;gap:11px;text-decoration:none}
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--blanco);letter-spacing:0.01em}
+.nav-right{display:flex;align-items:center;gap:28px}
+.nav-link{color:var(--gris-texto);text-decoration:none;font-size:0.8rem;font-weight:500;letter-spacing:0.04em;transition:color 0.2s}
 .nav-link:hover{color:var(--blanco)}
-.nav-cta{padding:9px 22px;background:var(--verde);color:var(--negro);border-radius:9px;font-size:.83rem;font-weight:700;text-decoration:none;transition:all .2s}
-.nav-cta:hover{background:#1fffa0;box-shadow:0 4px 20px rgba(0,230,118,.35)}
+.nav-cta{padding:9px 24px;background:var(--verde);color:var(--negro);border-radius:9px;font-size:0.8rem;font-weight:700;letter-spacing:0.03em;text-decoration:none;transition:all 0.25s}
+.nav-cta:hover{background:#1fffa0;box-shadow:0 4px 24px rgba(0,230,118,0.35);transform:translateY(-1px)}
 
-/* ── HERO + DEMO FUSED ── */
-.hero-wrap{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:90px 56px 0;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+/* ── HERO ── */
+.hero-section{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:100px 64px 0;display:grid;grid-template-columns:1fr 1.1fr;gap:72px;align-items:start}
 
-/* Left col */
-.hero-left{padding-top:12px}
-.hero-pill{display:inline-flex;align-items:center;gap:8px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:7px 16px;border-radius:100px;margin-bottom:28px}
-.pill-dot{width:6px;height:6px;border-radius:50%;background:var(--verde);animation:pillPulse 2s ease-in-out infinite}
-@keyframes pillPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hero-left{padding-top:8px}
 
-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,4vw,4rem);font-weight:700;line-height:1.06;letter-spacing:-.01em;margin-bottom:22px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.68rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:32px;animation:fadeUp 0.7s ease both}
+.eyebrow-dot{width:5px;height:5px;border-radius:50%;background:var(--verde);animation:blink 2.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,4.2vw,4.4rem);font-weight:700;line-height:1.04;letter-spacing:-0.02em;margin-bottom:24px;animation:fadeUp 0.7s 0.1s ease both}
 h1 em{font-style:italic;color:var(--verde)}
+h1 .serif-light{font-weight:400;font-style:italic;color:rgba(240,237,232,0.7)}
 
-.hero-desc{color:var(--gris-texto);font-size:.97rem;line-height:1.78;max-width:460px;margin-bottom:36px}
+.hero-desc{color:var(--gris-texto);font-size:0.95rem;line-height:1.82;max-width:420px;margin-bottom:40px;animation:fadeUp 0.7s 0.2s ease both}
 
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px}
-.btn{padding:14px 28px;border-radius:12px;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px}
-.btn.primary{background:var(--verde);color:var(--negro)}
-.btn.primary:hover{background:#1fffa0;box-shadow:0 8px 32px rgba(0,230,118,.35);transform:translateY(-2px)}
-.btn.ghost{background:transparent;color:var(--blanco);border:1px solid rgba(255,255,255,.12)}
-.btn.ghost:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.04)}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:52px;animation:fadeUp 0.7s 0.3s ease both}
+.btn-main{padding:14px 30px;background:var(--verde);color:var(--negro);border-radius:11px;font-family:'Syne',sans-serif;font-size:0.86rem;font-weight:700;text-decoration:none;border:none;cursor:pointer;transition:all 0.25s;display:inline-flex;align-items:center;gap:7px;letter-spacing:0.02em}
+.btn-main:hover{background:#1fffa0;box-shadow:0 8px 36px rgba(0,230,118,0.35);transform:translateY(-2px)}
+.btn-ghost{padding:14px 28px;background:transparent;color:var(--blanco);border:1px solid rgba(255,255,255,0.1);border-radius:11px;font-family:'Syne',sans-serif;font-size:0.86rem;font-weight:600;text-decoration:none;transition:all 0.25s;display:inline-flex;align-items:center;gap:7px}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.04)}
 
-/* Proof bar */
-.proof-bar{display:flex;gap:0;border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;background:rgba(255,255,255,.02)}
-.proof-item{flex:1;padding:16px 20px;text-align:center;border-right:1px solid rgba(255,255,255,.06)}
-.proof-item:last-child{border-right:none}
-.proof-num{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--verde);line-height:1;margin-bottom:4px}
-.proof-label{font-size:.68rem;color:var(--gris-texto);font-weight:500}
+/* Testimonial mini */
+.hero-social{display:flex;align-items:center;gap:14px;animation:fadeUp 0.7s 0.4s ease both}
+.hs-avatars{display:flex}
+.hs-av{width:30px;height:30px;border-radius:50%;border:2px solid var(--negro);background:var(--gris2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;margin-left:-7px;color:var(--verde);flex-shrink:0}
+.hs-av:first-child{margin-left:0}
+.hs-text{font-size:0.78rem;color:var(--gris-texto);line-height:1.55}
+.hs-text strong{color:var(--blanco)}
+.hs-stars{color:var(--oro);font-size:0.75rem;display:block;margin-bottom:2px}
 
-/* Right col — live dashboard preview */
-.hero-right{position:relative}
-.dashboard-frame{background:var(--gris2);border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);position:relative}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
-/* Fake browser bar */
-.frame-bar{background:#0b0e14;border-bottom:1px solid rgba(255,255,255,.05);padding:10px 16px;display:flex;align-items:center;gap:10px}
-.frame-dots{display:flex;gap:5px}
-.fdot{width:9px;height:9px;border-radius:50%}
-.fdot.r{background:#ff5f57}.fdot.y{background:#febc2e}.fdot.g{background:#28c840}
-.frame-url{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:5px;padding:3px 11px;font-size:.68rem;color:var(--gris-texto);max-width:220px}
-.frame-live{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:.65rem;color:var(--verde);font-weight:600}
-.frame-live-dot{width:5px;height:5px;border-radius:50%;background:var(--verde);animation:pillPulse 1.4s ease-in-out infinite}
+/* ── DASHBOARD FRAME ── */
+.hero-right{position:relative;animation:fadeUp 0.8s 0.25s ease both}
 
-/* Mock dash content */
-.mock-content{padding:16px}
-.mock-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.mock-kpi{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;position:relative;overflow:hidden}
-.mock-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px}
-.mk-v::before{background:var(--verde)}.mk-a::before{background:var(--azul)}.mk-o::before{background:var(--oro)}.mk-r::before{background:var(--rojo)}
-.mk-label{font-size:.58rem;color:var(--gris-texto);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-.mk-value{font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:700;line-height:1;margin-bottom:3px}
-.mk-delta{font-size:.58rem;color:var(--verde)}
-.mk-delta.neu{color:var(--gris-texto)}
+.dash-frame{background:var(--gris2);border:1px solid rgba(255,255,255,0.07);border-radius:20px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.02);position:relative}
 
-.mock-mid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.mock-panel{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:12px}
-.mp-title{font-size:.6rem;font-weight:700;color:var(--gris-texto);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.dash-bar{background:#0a0d12;border-bottom:1px solid rgba(255,255,255,0.04);padding:11px 18px;display:flex;align-items:center;gap:12px}
+.dash-dots{display:flex;gap:5px}
+.dd{width:8px;height:8px;border-radius:50%}
+.dd.r{background:#ff5f57}.dd.y{background:#febc2e}.dd.g{background:#28c840}
+.dash-url{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05);border-radius:5px;padding:3px 12px;font-size:0.64rem;color:var(--gris-texto);max-width:200px;font-family:monospace}
+.dash-live{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:0.62rem;color:var(--verde);font-weight:600;letter-spacing:0.06em}
+.dl-dot{width:5px;height:5px;border-radius:50%;background:var(--verde);animation:blink 1.4s ease-in-out infinite}
 
-/* Bars */
-.mock-bars{display:flex;align-items:flex-end;gap:4px;height:60px;margin-bottom:5px}
-.mock-bar{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--verde),rgba(0,230,118,.3));transition:height 1s cubic-bezier(.2,.8,.3,1)}
-.mock-bar-days{display:flex;gap:4px}
-.mock-bar-days span{flex:1;text-align:center;font-size:.52rem;color:var(--gris-texto)}
+.dash-body{padding:18px}
+
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}
+.kpi-card{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.05);border-radius:11px;padding:11px 13px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px}
+.kpi-card.k1::before{background:linear-gradient(90deg,var(--verde),transparent)}
+.kpi-card.k2::before{background:linear-gradient(90deg,var(--azul),transparent)}
+.kpi-card.k3::before{background:linear-gradient(90deg,var(--oro),transparent)}
+.kpi-card.k4::before{background:linear-gradient(90deg,#a78bfa,transparent)}
+.kpi-lbl{font-size:0.55rem;color:var(--gris-texto);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-val.green{color:var(--verde)}
+.kpi-val.blue{color:var(--azul)}
+.kpi-val.gold{color:var(--oro)}
+.kpi-val.lila{color:#a78bfa}
+.kpi-delta{font-size:0.55rem;color:var(--verde)}
+.kpi-delta.neu{color:var(--gris-texto)}
+
+/* Mid row */
+.mid-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.mini-panel{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:12px}
+.mp-label{font-size:0.57rem;font-weight:700;color:var(--gris-texto);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+
+/* Animated bars */
+.bars-area{display:flex;align-items:flex-end;gap:4px;height:52px;margin-bottom:5px}
+.bar{flex:1;border-radius:2px 2px 0 0;background:linear-gradient(180deg,var(--verde),rgba(0,230,118,0.25));transition:height 1.2s cubic-bezier(.2,.8,.3,1);height:2px}
+.bar-labels{display:flex;gap:4px}
+.bar-labels span{flex:1;text-align:center;font-size:0.49rem;color:var(--gris-texto)}
 
 /* Lead rows */
-.mock-lead{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.mock-lead:last-child{border-bottom:none}
-.ml-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.ml-name{font-size:.65rem;font-weight:600;flex:1}
-.ml-svc{font-size:.58rem;color:var(--gris-texto)}
-.ml-badge-mini{font-size:.54rem;padding:2px 6px;border-radius:100px;background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde);font-weight:700;white-space:nowrap}
+.lead-row{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.035)}
+.lead-row:last-child{border-bottom:none}
+.lr-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.lr-name{font-size:0.62rem;font-weight:600;flex:1}
+.lr-svc{font-size:0.55rem;color:var(--gris-texto)}
+.lr-badge{font-size:0.5rem;padding:2px 6px;border-radius:100px;background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde);font-weight:700;white-space:nowrap}
 
-/* Notification toast inside frame */
-.mock-toast{position:absolute;bottom:12px;right:12px;background:var(--gris);border:1px solid rgba(0,230,118,.3);border-radius:11px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 28px rgba(0,0,0,.5);max-width:300px;animation:toastUp .4s cubic-bezier(.2,.8,.3,1) both;z-index:10}
-@keyframes toastUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.mt-icon{font-size:1rem}
-.mt-body strong{display:block;font-size:.72rem;color:var(--verde);margin-bottom:1px}
-.mt-body span{font-size:.65rem;color:var(--gris-texto)}
-.mt-time{font-size:.6rem;color:var(--gris-texto);white-space:nowrap;margin-left:auto}
+/* In-frame notification */
+.frame-notif{position:absolute;bottom:14px;right:14px;background:#0d1117;border:1px solid rgba(0,230,118,0.25);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 32px rgba(0,0,0,0.6);max-width:280px;z-index:10;animation:notifPop 0.4s cubic-bezier(.2,.8,.3,1) both;transform:translateY(0)}
+@keyframes notifPop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fn-icon{font-size:1rem;flex-shrink:0}
+.fn-title{font-size:0.68rem;color:var(--verde);font-weight:700;margin-bottom:2px}
+.fn-sub{font-size:0.6rem;color:var(--gris-texto)}
+.fn-time{font-size:0.57rem;color:var(--gris-texto);margin-left:auto;white-space:nowrap}
 
-/* Floating chat preview */
-.chat-float{position:absolute;top:-24px;right:-28px;width:210px;background:var(--gris);border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.55);z-index:5;animation:floatIn .6s .3s cubic-bezier(.2,.8,.3,1) both}
-@keyframes floatIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
-.cf-header{background:#0b0e14;padding:9px 12px;display:flex;align-items:center;gap:7px;border-bottom:1px solid rgba(255,255,255,.05)}
-.cf-avatar{width:24px;height:24px;border-radius:50%;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--verde);font-weight:700}
-.cf-name{font-size:.68rem;font-weight:700}
-.cf-status{font-size:.57rem;color:var(--verde)}
-.cf-body{padding:9px 10px;display:flex;flex-direction:column;gap:6px;min-height:100px}
-.cf-msg{max-width:92%;font-size:.66rem;padding:6px 9px;border-radius:9px;line-height:1.5}
-.cf-msg.bot{background:rgba(255,255,255,.07);color:var(--blanco);align-self:flex-start;border-radius:2px 9px 9px 9px}
-.cf-msg.user{background:var(--verde);color:var(--negro);align-self:flex-end;border-radius:9px 2px 9px 9px;font-weight:600}
+/* Chat float */
+.chat-float{position:absolute;top:-22px;right:-26px;width:200px;background:#0d1117;border:1px solid rgba(255,255,255,0.08);border-radius:14px;overflow:hidden;box-shadow:0 20px 56px rgba(0,0,0,0.6);z-index:5;animation:floatIn 0.7s 0.4s cubic-bezier(.2,.8,.3,1) both}
+@keyframes floatIn{from{opacity:0;transform:translateY(18px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.cf-hdr{background:#080b0f;padding:9px 12px;display:flex;align-items:center;gap:7px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.cf-av{width:22px;height:22px;border-radius:50%;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:0.65rem;color:var(--verde);font-weight:800;flex-shrink:0}
+.cf-nm{font-size:0.65rem;font-weight:700}
+.cf-st{font-size:0.54rem;color:var(--verde)}
+.cf-msgs{padding:8px 10px;display:flex;flex-direction:column;gap:5px;min-height:96px}
+.cf-m{max-width:90%;font-size:0.63rem;padding:5px 9px;border-radius:9px;line-height:1.45}
+.cf-m.bot{background:rgba(255,255,255,0.06);color:var(--blanco);align-self:flex-start;border-radius:2px 9px 9px 9px}
+.cf-m.usr{background:var(--verde);color:var(--negro);align-self:flex-end;border-radius:9px 2px 9px 9px;font-weight:600}
 
-/* Below hero */
-.hero-bottom{position:relative;z-index:1;max-width:1160px;margin:0 auto;padding:40px 56px 80px}
+/* ── BELOW HERO ── */
+.below-hero{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:72px 64px 80px}
 
-/* Social proof strip */
-.proof-strip{display:flex;align-items:center;gap:10px;margin-bottom:60px;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.06)}
-.proof-avatars{display:flex}
-.proof-av{width:32px;height:32px;border-radius:50%;border:2px solid var(--negro);background:var(--gris2);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;margin-left:-8px;color:var(--verde)}
-.proof-av:first-child{margin-left:0}
-.proof-strip-text{font-size:.8rem;color:var(--gris-texto)}
-.proof-strip-text strong{color:var(--blanco)}
-.proof-stars{color:var(--oro);font-size:.8rem;margin-left:auto}
+/* Divider with text */
+.section-eyebrow{font-size:0.65rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--verde);opacity:0.7;margin-bottom:12px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,2.8vw,2.8rem);font-weight:700;line-height:1.12;margin-bottom:36px;max-width:560px}
+.section-title em{font-style:italic;color:var(--verde)}
+
+/* ── CHANNELS ── */
+.channels-wrap{margin-bottom:88px}
+.channels-head{display:flex;align-items:flex-start;justify-content:space-between;gap:32px;margin-bottom:36px;flex-wrap:wrap}
+.channels-desc{font-size:0.85rem;color:var(--gris-texto);line-height:1.75;max-width:300px;margin-top:8px}
+
+.ch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:14px}
+
+.ch-card{border-radius:18px;padding:28px 24px;border:1px solid rgba(255,255,255,0.06);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(.2,.8,.3,1);cursor:default}
+.ch-card:hover{transform:translateY(-5px)}
+.ch-card::before{content:'';position:absolute;inset:0;border-radius:18px;opacity:0;transition:opacity 0.3s}
+
+.ch-ig{background:linear-gradient(140deg,rgba(131,58,180,0.07),rgba(253,29,29,0.05),rgba(252,176,69,0.04));border-color:rgba(131,58,180,0.18)}
+.ch-ig:hover{border-color:rgba(131,58,180,0.35);box-shadow:0 20px 60px rgba(131,58,180,0.1)}
+.ch-fb{background:linear-gradient(140deg,rgba(0,120,255,0.07),rgba(0,120,255,0.03));border-color:rgba(0,120,255,0.18)}
+.ch-fb:hover{border-color:rgba(0,120,255,0.35);box-shadow:0 20px 60px rgba(0,120,255,0.1)}
+.ch-em{background:linear-gradient(140deg,rgba(0,230,118,0.07),rgba(0,230,118,0.03));border-color:var(--verde-borde)}
+.ch-em:hover{border-color:rgba(0,230,118,0.4);box-shadow:0 20px 60px rgba(0,230,118,0.1)}
+
+.ch-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.ch-icon.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);box-shadow:0 8px 20px rgba(131,58,180,0.3)}
+.ch-icon.fb{background:linear-gradient(135deg,#0078ff,#00c6ff);box-shadow:0 8px 20px rgba(0,120,255,0.3)}
+.ch-icon.em{background:linear-gradient(135deg,#00e676,#00b248);box-shadow:0 8px 20px rgba(0,230,118,0.3)}
+.ch-icon svg{width:22px;height:22px}
+
+.ch-live-badge{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:5px;font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--verde);background:var(--verde-dim);border:1px solid var(--verde-borde);padding:3px 8px;border-radius:100px}
+.clb-dot{width:4px;height:4px;border-radius:50%;background:var(--verde);animation:blink 1.6s ease-in-out infinite}
+
+.ch-name{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:8px}
+.ch-title{font-size:0.95rem;font-weight:700;line-height:1.3;margin-bottom:9px}
+.ch-desc{font-size:0.78rem;color:var(--gris-texto);line-height:1.68}
+
+.ch-strip{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:13px;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cs-left{display:flex;align-items:center;gap:10px}
+.cs-icons{display:flex;gap:7px}
+.cs-ico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.cs-ico.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
+.cs-ico.fb{background:linear-gradient(135deg,#0078ff,#00c6ff)}
+.cs-ico.em{background:linear-gradient(135deg,#00e676,#00b248)}
+.cs-ico svg{width:13px;height:13px}
+.cs-lbl{font-size:0.8rem;font-weight:600}
+.cs-sub{font-size:0.68rem;color:var(--gris-texto);margin-top:1px}
+.cs-tag{font-size:0.7rem;font-weight:700;color:var(--verde);background:var(--verde-dim);border:1px solid var(--verde-borde);padding:4px 13px;border-radius:100px}
 
 /* ── FEATURES ── */
-.features-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:80px}
-.feat{background:var(--gris2);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:28px 24px;transition:all .3s;position:relative;overflow:hidden}
-.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,230,118,.3),transparent);opacity:0;transition:opacity .3s}
-.feat:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.1)}
-.feat:hover::before{opacity:1}
-.feat-icon{width:46px;height:46px;border-radius:13px;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:1.25rem;margin-bottom:18px}
-.feat-title{font-size:.95rem;font-weight:700;margin-bottom:8px}
-.feat-desc{font-size:.82rem;color:var(--gris-texto);line-height:1.68}
-.feat-tag{display:inline-flex;align-items:center;gap:5px;margin-top:14px;font-size:.68rem;font-weight:700;color:var(--verde);letter-spacing:.06em;text-transform:uppercase}
+.features-wrap{margin-bottom:88px}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feat{background:var(--gris2);border:1px solid rgba(255,255,255,0.055);border-radius:18px;padding:26px 22px;transition:all 0.3s cubic-bezier(.2,.8,.3,1);position:relative;overflow:hidden}
+.feat::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,230,118,0.3),transparent);opacity:0;transition:opacity 0.3s}
+.feat:hover{transform:translateY(-4px);border-color:rgba(255,255,255,0.1)}
+.feat:hover::after{opacity:1}
+.feat-ico{width:44px;height:44px;border-radius:12px;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:16px}
+.feat-title{font-size:0.9rem;font-weight:700;margin-bottom:8px}
+.feat-desc{font-size:0.79rem;color:var(--gris-texto);line-height:1.7}
+.feat-cta{display:inline-flex;align-items:center;gap:5px;margin-top:14px;font-size:0.65rem;font-weight:700;color:var(--verde);letter-spacing:0.08em;text-transform:uppercase}
 
-/* ── HOW IT WORKS ── */
-.how-wrap{margin-bottom:80px}
-.section-label{font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--verde);margin-bottom:14px}
-.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3vw,2.7rem);font-weight:700;margin-bottom:40px;max-width:520px}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
-.steps::before{content:'';position:absolute;top:22px;left:calc(16.66% + 12px);right:calc(16.66% + 12px);height:1px;background:linear-gradient(90deg,var(--verde-borde),rgba(0,230,118,.08));z-index:0}
-.step{padding:0 20px;position:relative;z-index:1}
-.step-num{width:44px;height:44px;border-radius:50%;background:var(--gris2);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--verde);margin-bottom:16px}
-.step-title{font-size:.9rem;font-weight:700;margin-bottom:8px}
-.step-desc{font-size:.8rem;color:var(--gris-texto);line-height:1.65}
-
-
-/* ── CHANNELS SECTION ── */
-.channels-section{margin-bottom:80px;position:relative}
-.channels-headline{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:36px;flex-wrap:wrap}
-.channels-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,2.8vw,2.4rem);font-weight:700;line-height:1.15;max-width:440px}
-.channels-title em{font-style:italic;color:var(--verde)}
-.channels-sub{font-size:.83rem;color:var(--gris-texto);line-height:1.7;max-width:300px;flex-shrink:0}
-
-/* Main channel grid */
-.channels-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-
-/* Big channel card */
-.ch-card{border-radius:18px;padding:28px 26px;border:1px solid rgba(255,255,255,.07);position:relative;overflow:hidden;transition:transform .3s,border-color .3s;cursor:default}
-.ch-card:hover{transform:translateY(-4px)}
-.ch-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;border-radius:18px}
-.ch-card:hover::before{opacity:1}
-
-/* Instagram */
-.ch-ig{background:linear-gradient(135deg,rgba(131,58,180,.08),rgba(253,29,29,.06),rgba(252,176,69,.05))}
-.ch-ig{border-color:rgba(131,58,180,.2)}
-.ch-ig:hover{border-color:rgba(131,58,180,.4)}
-.ch-ig .ch-icon-wrap{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045);box-shadow:0 8px 24px rgba(131,58,180,.3)}
-
-/* Facebook Messenger */
-.ch-fb{background:linear-gradient(135deg,rgba(0,120,255,.07),rgba(0,120,255,.03))}
-.ch-fb{border-color:rgba(0,120,255,.2)}
-.ch-fb:hover{border-color:rgba(0,120,255,.4)}
-.ch-fb .ch-icon-wrap{background:linear-gradient(135deg,#0078ff,#00c6ff);box-shadow:0 8px 24px rgba(0,120,255,.3)}
-
-/* Email */
-.ch-email{background:linear-gradient(135deg,rgba(0,230,118,.07),rgba(0,230,118,.03))}
-.ch-email{border-color:var(--verde-borde)}
-.ch-email:hover{border-color:rgba(0,230,118,.5)}
-.ch-email .ch-icon-wrap{background:linear-gradient(135deg,#00e676,#00b248);box-shadow:0 8px 24px rgba(0,230,118,.3)}
-
-.ch-icon-wrap{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;flex-shrink:0}
-.ch-icon-wrap svg{width:24px;height:24px}
-
-.ch-name{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;opacity:.6}
-.ch-title{font-size:1rem;font-weight:700;margin-bottom:10px;line-height:1.3}
-.ch-desc{font-size:.8rem;color:var(--gris-texto);line-height:1.65}
-
-/* Live badge on each card */
-.ch-live{position:absolute;top:16px;right:16px;display:flex;align-items:center;gap:5px;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--verde);background:var(--verde-dim);border:1px solid var(--verde-borde);padding:3px 9px;border-radius:100px}
-.ch-live-dot{width:5px;height:5px;border-radius:50%;background:var(--verde);animation:pillPulse 1.6s ease-in-out infinite}
-
-/* Bottom strip: all channels connected */
-.channels-strip{margin-top:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.cs-left{display:flex;align-items:center;gap:12px}
-.cs-icons{display:flex;gap:8px}
-.cs-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center}
-.cs-icon.ig{background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045)}
-.cs-icon.fb{background:linear-gradient(135deg,#0078ff,#00c6ff)}
-.cs-icon.em{background:linear-gradient(135deg,#00e676,#00b248)}
-.cs-icon svg{width:14px;height:14px}
-.cs-text{font-size:.82rem;font-weight:600}
-.cs-sub{font-size:.72rem;color:var(--gris-texto);margin-top:1px}
-.cs-badge{font-size:.72rem;font-weight:700;color:var(--verde);background:var(--verde-dim);border:1px solid var(--verde-borde);padding:5px 14px;border-radius:100px}
-
-@media(max-width:760px){
-  .channels-grid{grid-template-columns:1fr}
-  .channels-headline{flex-direction:column;align-items:flex-start}
-}
+/* ── STEPS ── */
+.steps-wrap{margin-bottom:88px}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative}
+.steps-grid::before{content:'';position:absolute;top:20px;left:calc(16.5% + 14px);right:calc(16.5% + 14px);height:1px;background:linear-gradient(90deg,var(--verde-borde),rgba(0,230,118,0.06));z-index:0}
+.step-item{padding:0 18px;position:relative;z-index:1}
+.step-n{width:40px;height:40px;border-radius:50%;background:var(--gris2);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--verde);margin-bottom:16px}
+.step-title{font-size:0.88rem;font-weight:700;margin-bottom:8px}
+.step-desc{font-size:0.78rem;color:var(--gris-texto);line-height:1.65}
 
 /* ── CTA BANNER ── */
-.cta-banner{background:linear-gradient(120deg,rgba(0,230,118,.07) 0%,rgba(0,230,118,.03) 50%,rgba(78,168,240,.04) 100%);border:1px solid var(--verde-borde);border-radius:22px;padding:52px 56px;display:flex;align-items:center;justify-content:space-between;gap:40px;margin-bottom:80px;position:relative;overflow:hidden}
-.cta-banner::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,.06),transparent 70%);right:-120px;top:-120px;pointer-events:none}
-.cta-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.7rem,2.5vw,2.4rem);font-weight:700;line-height:1.15;margin-bottom:10px;max-width:460px}
+.cta-banner{background:linear-gradient(130deg,rgba(0,230,118,0.07) 0%,rgba(0,230,118,0.03) 60%,rgba(78,168,240,0.04) 100%);border:1px solid var(--verde-borde);border-radius:22px;padding:54px 60px;display:flex;align-items:center;justify-content:space-between;gap:48px;margin-bottom:0;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,0.05),transparent 70%);right:-140px;top:-140px;pointer-events:none}
+.cta-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,2.5vw,2.6rem);font-weight:700;line-height:1.12;margin-bottom:10px;max-width:480px}
 .cta-title em{font-style:italic;color:var(--verde)}
-.cta-sub{font-size:.85rem;color:var(--gris-texto);line-height:1.6}
+.cta-sub{font-size:0.84rem;color:var(--gris-texto);line-height:1.65}
 .cta-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex-shrink:0}
-.cta-note{font-size:.72rem;color:var(--gris-texto)}
+.cta-note{font-size:0.7rem;color:var(--gris-texto)}
 
 /* ── FOOTER ── */
-footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.05);padding:30px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
-.footer-copy{font-size:.76rem;color:var(--gris-texto)}
-.footer-links{display:flex;gap:22px}
-.footer-link{font-size:.76rem;color:var(--gris-texto);text-decoration:none;transition:color .2s}
+footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,0.04);padding:28px 64px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.footer-copy{font-size:0.72rem;color:var(--gris-texto)}
+.footer-links{display:flex;gap:20px}
+.footer-link{font-size:0.72rem;color:var(--gris-texto);text-decoration:none;transition:color 0.2s}
 .footer-link:hover{color:var(--blanco)}
 
 /* ── RESPONSIVE ── */
-@media(max-width:960px){
-  .hero-wrap{grid-template-columns:1fr;padding:60px 28px 0}
+@media(max-width:1040px){
+  .hero-section{grid-template-columns:1fr;padding:70px 36px 0}
   .hero-right{display:none}
-  nav{padding:18px 28px}
-  .features-wrap{grid-template-columns:1fr 1fr}
-  .steps{grid-template-columns:1fr}
-  .steps::before{display:none}
-  .step{padding:0;margin-bottom:28px}
-  .cta-banner{flex-direction:column;padding:36px 28px}
+  .below-hero{padding:60px 36px 70px}
+  nav{padding:16px 36px}
+  .ch-grid,.feat-grid{grid-template-columns:1fr 1fr}
+  .steps-grid{grid-template-columns:1fr}
+  .steps-grid::before{display:none}
+  .step-item{padding:0;margin-bottom:28px}
+  .cta-banner{flex-direction:column;padding:40px 32px}
   .cta-right{align-items:flex-start}
-  footer{padding:28px 28px}
-  .hero-bottom{padding:32px 28px 60px}
-  .proof-strip{display:none}
+  footer{padding:24px 36px}
 }
-@media(max-width:620px){
-  .features-wrap{grid-template-columns:1fr}
-  .mock-kpi-row{grid-template-columns:repeat(2,1fr)}
-  .mock-mid{grid-template-columns:1fr}
+@media(max-width:640px){
+  .ch-grid,.feat-grid{grid-template-columns:1fr}
+  .hero-section{padding:56px 24px 0}
+  .below-hero{padding:48px 24px 60px}
+  nav{padding:14px 24px}
+  footer{padding:20px 24px}
 }
 </style>
 </head>
@@ -274,252 +260,216 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.05);pa
 
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
-<div class="orb orb-3"></div>
 
 <!-- NAV -->
 <nav>
   <a href="#" class="logo-wrap">
-    <svg width="30" height="30" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/><path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/><polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg width="30" height="30" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.2" stroke-width="1.5"/><path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/><polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span class="logo-text"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
   </a>
   <div class="nav-right">
-    <a href="#features" class="nav-link">Funciones</a>
+    <a href="#funciones" class="nav-link">Funciones</a>
     <a href="precios.html" class="nav-link">Precios</a>
     <a href="dashboard.html" class="nav-link">Panel</a>
     <a href="precios.html" class="nav-cta">Empezar →</a>
   </div>
 </nav>
 
-<!-- ── HERO + DEMO FUSED ── -->
-<div class="hero-wrap">
-
-  <!-- Left -->
+<!-- HERO -->
+<div class="hero-section">
   <div class="hero-left">
-    <div class="hero-pill"><div class="pill-dot"></div> Automatización clínica · Activo 24/7</div>
-    <h1>Tu clínica siempre<br>abierta.<br><em>Sin perder un solo</em><br><em>paciente.</em></h1>
-    <p class="hero-desc">
-      ReActiva captura automáticamente cada consulta que llega — sea la hora que sea — y la convierte en un lead real con nombre, teléfono y servicio de interés. Tú solo tienes que llamar.
-    </p>
-    <div class="hero-btns">
-      <a href="precios.html" class="btn primary">Quiero esto para mi clínica →</a>
-      <a href="dashboard.html" class="btn ghost">Ver el panel</a>
+    <div class="hero-eyebrow"><div class="eyebrow-dot"></div> Automatización dental · Activo 24/7</div>
+    <h1>Tu clínica dental<br><em>siempre abierta.</em><br><span class="serif-light">Sin perder un solo paciente.</span></h1>
+    <p class="hero-desc">ReActiva captura automáticamente cada consulta que llega — sea la hora que sea — y la convierte en un lead real con nombre, teléfono y tratamiento de interés. Tú solo tienes que llamar.</p>
+    <div class="hero-actions">
+      <a href="precios.html" class="btn-main">Quiero esto para mi clínica →</a>
+      <a href="dashboard.html" class="btn-ghost">Ver el panel</a>
     </div>
-    <div class="proof-bar">
-      <div class="proof-item"><div class="proof-num">+94%</div><div class="proof-label">Leads capturados</div></div>
-      <div class="proof-item"><div class="proof-num">24/7</div><div class="proof-label">Bot activo</div></div>
-      <div class="proof-item"><div class="proof-num">&lt;10s</div><div class="proof-label">Aviso al equipo</div></div>
-      <div class="proof-item"><div class="proof-num">×3</div><div class="proof-label">Más conversiones</div></div>
+    <div class="hero-social">
+      <div class="hs-avatars">
+        <div class="hs-av">M</div>
+        <div class="hs-av">J</div>
+        <div class="hs-av">A</div>
+        <div class="hs-av">+</div>
+      </div>
+      <div class="hs-text">
+        <span class="hs-stars">★★★★★</span>
+        <strong>Clínicas dentales</strong> que ya no pierden ni un lead
+      </div>
     </div>
   </div>
 
-  <!-- Right — live dashboard frame -->
   <div class="hero-right">
-    <!-- Floating chat -->
+    <!-- Chat flotante -->
     <div class="chat-float">
-      <div class="cf-header">
-        <div class="cf-avatar">✦</div>
-        <div>
-          <div class="cf-name">Asistente ReActiva</div>
-          <div class="cf-status">● En línea</div>
-        </div>
+      <div class="cf-hdr">
+        <div class="cf-av">✦</div>
+        <div><div class="cf-nm">Asistente ReActiva</div><div class="cf-st">● En línea ahora</div></div>
       </div>
-      <div class="cf-body" id="cfBody"></div>
+      <div class="cf-msgs" id="chatMsgs"></div>
     </div>
 
-    <div class="dashboard-frame">
-      <div class="frame-bar">
-        <div class="frame-dots"><span class="fdot r"></span><span class="fdot y"></span><span class="fdot g"></span></div>
-        <div class="frame-url">reactiva.app/dashboard</div>
-        <div class="frame-live"><span class="frame-live-dot"></span> En vivo</div>
+    <!-- Dashboard frame -->
+    <div class="dash-frame">
+      <div class="dash-bar">
+        <div class="dash-dots"><span class="dd r"></span><span class="dd y"></span><span class="dd g"></span></div>
+        <div class="dash-url">reactiva.app/panel</div>
+        <div class="dash-live"><span class="dl-dot"></span> En vivo</div>
       </div>
-      <div class="mock-content">
-        <!-- KPIs -->
-        <div class="mock-kpi-row">
-          <div class="mock-kpi mk-v"><div class="mk-label">Leads totales</div><div class="mk-value" id="mkLeads">0</div><div class="mk-delta">▲ hoy</div></div>
-          <div class="mock-kpi mk-a"><div class="mk-label">Convertidos</div><div class="mk-value" id="mkConv">0</div><div class="mk-delta">semana</div></div>
-          <div class="mock-kpi mk-o"><div class="mk-label">Conversión</div><div class="mk-value" id="mkTasa">0%</div><div class="mk-delta neu">del total</div></div>
-          <div class="mock-kpi mk-r"><div class="mk-label">Ingresos est.</div><div class="mk-value" id="mkRev">0€</div><div class="mk-delta">▲ mes</div></div>
+      <div class="dash-body">
+        <div class="kpi-row">
+          <div class="kpi-card k1"><div class="kpi-lbl">Leads totales</div><div class="kpi-val green" id="kLeads">0</div><div class="kpi-delta">▲ esta semana</div></div>
+          <div class="kpi-card k2"><div class="kpi-lbl">Convertidos</div><div class="kpi-val blue" id="kConv">0</div><div class="kpi-delta">pacientes</div></div>
+          <div class="kpi-card k3"><div class="kpi-lbl">Conversión</div><div class="kpi-val gold" id="kTasa">0%</div><div class="kpi-delta neu">del total</div></div>
+          <div class="kpi-card k4"><div class="kpi-lbl">Ingresos est.</div><div class="kpi-val lila" id="kRev">0€</div><div class="kpi-delta">▲ mes</div></div>
         </div>
-        <!-- Charts -->
-        <div class="mock-mid">
-          <div class="mock-panel">
-            <div class="mp-title">Actividad semanal</div>
-            <div class="mock-bars" id="mkBars"></div>
-            <div class="mock-bar-days"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+        <div class="mid-row">
+          <div class="mini-panel">
+            <div class="mp-label">Actividad semanal</div>
+            <div class="bars-area" id="barsArea"></div>
+            <div class="bar-labels"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
           </div>
-          <div class="mock-panel">
-            <div class="mp-title">Últimos leads</div>
-            <div id="mkLeadList"></div>
+          <div class="mini-panel">
+            <div class="mp-label">Últimos leads</div>
+            <div id="leadRows"></div>
           </div>
         </div>
       </div>
-      <!-- Notification inside frame -->
-      <div class="mock-toast" id="mkToast" style="display:none">
-        <div class="mt-icon">◎</div>
-        <div class="mt-body">
-          <strong>Nuevo lead capturado</strong>
-          <span id="mkToastText">—</span>
-        </div>
-        <div class="mt-time">ahora</div>
+      <div class="frame-notif" id="frameNotif" style="display:none">
+        <div class="fn-icon">◎</div>
+        <div><div class="fn-title">Nuevo lead capturado</div><div class="fn-sub" id="notifSub">—</div></div>
+        <div class="fn-time">ahora</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── HERO BOTTOM ── -->
-<div class="hero-bottom">
+<!-- BELOW HERO -->
+<div class="below-hero">
 
-  <!-- Social proof strip -->
-  <div class="proof-strip">
-    <div class="proof-avatars">
-      <div class="proof-av">C</div>
-      <div class="proof-av">F</div>
-      <div class="proof-av">M</div>
-      <div class="proof-av">P</div>
-      <div class="proof-av">+</div>
-    </div>
-    <div class="proof-strip-text"><strong>+120 clínicas</strong> ya automatizan su captación con ReActiva</div>
-    <div class="proof-stars">★★★★★ <span style="color:var(--gris-texto);font-size:.75rem">4.9/5</span></div>
-  </div>
-
-  <!-- Features -->
-  <!-- ── CHANNELS SECTION ── -->
-  <div class="channels-section">
-    <div class="channels-headline">
+  <!-- CHANNELS -->
+  <div class="channels-wrap" id="funciones">
+    <div class="channels-head">
       <div>
-        <div class="section-label">Dónde captamos</div>
-        <div class="channels-title">Tus pacientes están<br>en todas partes.<br><em>Nosotros también.</em></div>
+        <div class="section-eyebrow">Dónde captamos</div>
+        <div class="section-title" style="margin-bottom:0">Tus pacientes están<br>en todas partes.<br><em>Nosotros también.</em></div>
       </div>
-      <div class="channels-sub">No importa dónde te encuentren — Instagram, Messenger o email — ReActiva captura cada conversación y la convierte en un lead real en tu panel.</div>
+      <p class="channels-desc">No importa dónde te encuentren — Instagram, Messenger o email — ReActiva captura cada conversación y la convierte en un lead real en tu panel.</p>
     </div>
 
-    <div class="channels-grid">
-
-      <!-- Instagram -->
+    <div class="ch-grid">
       <div class="ch-card ch-ig">
-        <div class="ch-live"><div class="ch-live-dot"></div> Activo</div>
-        <div class="ch-icon-wrap">
-          <svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-        </div>
+        <div class="ch-live-badge"><div class="clb-dot"></div> Activo</div>
+        <div class="ch-icon ig"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
         <div class="ch-name">Instagram</div>
         <div class="ch-title">DMs que no se escapan</div>
-        <div class="ch-desc">Cada mensaje directo en tu perfil de Instagram es respondido al instante y registrado como lead en tu panel. Sin dejar a nadie en visto.</div>
+        <div class="ch-desc">Cada mensaje directo en tu perfil es respondido al instante y registrado como lead en tu panel. Sin dejar a nadie en visto.</div>
       </div>
-
-      <!-- Facebook Messenger -->
       <div class="ch-card ch-fb">
-        <div class="ch-live"><div class="ch-live-dot"></div> Activo</div>
-        <div class="ch-icon-wrap">
-          <svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg>
-        </div>
+        <div class="ch-live-badge"><div class="clb-dot"></div> Activo</div>
+        <div class="ch-icon fb"><svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg></div>
         <div class="ch-name">Facebook Messenger</div>
         <div class="ch-title">Tu página siempre responde</div>
-        <div class="ch-desc">El bot gestiona los mensajes de tu página de Facebook 24/7. Los interesados reciben respuesta inmediata y tú recibes sus datos.</div>
+        <div class="ch-desc">El bot gestiona los mensajes de tu página de Facebook 24/7. Los interesados reciben respuesta y tú recibes sus datos.</div>
       </div>
-
-      <!-- Email -->
-      <div class="ch-card ch-email">
-        <div class="ch-live"><div class="ch-live-dot"></div> Activo</div>
-        <div class="ch-icon-wrap">
-          <svg viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        </div>
+      <div class="ch-card ch-em">
+        <div class="ch-live-badge"><div class="clb-dot"></div> Activo</div>
+        <div class="ch-icon em"><svg viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
         <div class="ch-name">Email</div>
         <div class="ch-title">Cada consulta, capturada</div>
-        <div class="ch-desc">Los emails de interés se procesan automáticamente. ReActiva extrae los datos clave y los añade a tu panel sin que tengas que revisar la bandeja.</div>
+        <div class="ch-desc">Los emails de interés se procesan automáticamente. ReActiva extrae los datos y los añade a tu panel sin revisar la bandeja.</div>
       </div>
-
     </div>
 
-    <!-- Bottom strip -->
-    <div class="channels-strip">
+    <div class="ch-strip" style="margin-top:14px">
       <div class="cs-left">
         <div class="cs-icons">
-          <div class="cs-icon ig"><svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
-          <div class="cs-icon fb"><svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg></div>
-          <div class="cs-icon em"><svg viewBox="0 0 24 24" fill="white" width="14" height="14"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
+          <div class="cs-ico ig"><svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+          <div class="cs-ico fb"><svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.975 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z"/></svg></div>
+          <div class="cs-ico em"><svg viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></div>
         </div>
-        <div>
-          <div class="cs-text">Todos los canales, un solo panel</div>
-          <div class="cs-sub">Instagram · Facebook Messenger · Email · Web chat</div>
-        </div>
+        <div><div class="cs-lbl">Todos los canales, un solo panel</div><div class="cs-sub">Instagram · Facebook Messenger · Email · Web chat</div></div>
       </div>
-      <div class="cs-badge">✦ Omnicanal incluido</div>
+      <div class="cs-tag">✦ Omnicanal incluido en Premium</div>
     </div>
   </div>
 
-  <div class="section-label" id="features">Por qué ReActiva</div>
-  <div class="section-title">Todo lo que necesita tu clínica.<br>Nada de lo que no.</div>
+  <!-- FEATURES -->
   <div class="features-wrap">
-    <div class="feat">
-      <div class="feat-icon">◎</div>
-      <div class="feat-title">Captación automática</div>
-      <div class="feat-desc">El bot recoge nombre, teléfono y servicio de cada visita. Sin formularios, sin fricción. Solo una conversación natural que convierte.</div>
-      <div class="feat-tag">→ Funciona solo</div>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">⚡</div>
-      <div class="feat-title">Aviso en tiempo real</div>
-      <div class="feat-desc">En cuanto entra un lead, tu equipo recibe una notificación. El primer centro en llamar convierte hasta 5 veces más. Tú llegas primero.</div>
-      <div class="feat-tag">→ En menos de 10 segundos</div>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">▦</div>
-      <div class="feat-title">Panel de control</div>
-      <div class="feat-desc">Dashboard en tiempo real con leads, conversiones, ingresos estimados y agenda de citas. Todo en un solo lugar, sin complicaciones.</div>
-      <div class="feat-tag">→ Sin curva de aprendizaje</div>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">◷</div>
-      <div class="feat-title">Agenda integrada</div>
-      <div class="feat-desc">Gestiona citas directamente desde el panel. Slots libres y ocupados, confirmaciones automáticas y recordatorios. Tu recepcionista digital.</div>
-      <div class="feat-tag">→ Siempre organizado</div>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">✦</div>
-      <div class="feat-title">Universal y adaptable</div>
-      <div class="feat-desc">Fisioterapia, estética, odontología, podología, psicología. ReActiva se adapta al lenguaje y servicios de cualquier tipo de clínica.</div>
-      <div class="feat-tag">→ Tu especialidad, tu bot</div>
-    </div>
-    <div class="feat">
-      <div class="feat-icon">↓</div>
-      <div class="feat-title">Exporta tus datos</div>
-      <div class="feat-desc">Descarga todos tus leads en CSV con un clic. Intégralos en tu CRM, en Excel o en tu software de gestión. Sin bloqueos, sin dependencias.</div>
-      <div class="feat-tag">→ Tus datos, siempre</div>
+    <div class="section-eyebrow">Por qué ReActiva</div>
+    <div class="section-title">Todo lo que necesita<br>tu clínica dental.</div>
+    <div class="feat-grid">
+      <div class="feat">
+        <div class="feat-ico">◎</div>
+        <div class="feat-title">Captación automática</div>
+        <div class="feat-desc">El bot recoge nombre, teléfono y tratamiento de cada visita. Sin formularios, sin fricción. Una conversación natural que convierte.</div>
+        <div class="feat-cta">→ Funciona solo</div>
+      </div>
+      <div class="feat">
+        <div class="feat-ico">⚡</div>
+        <div class="feat-title">Aviso en tiempo real</div>
+        <div class="feat-desc">En cuanto entra un lead, tu equipo recibe una notificación inmediata. El primer centro en llamar convierte hasta 5 veces más.</div>
+        <div class="feat-cta">→ En menos de 10 segundos</div>
+      </div>
+      <div class="feat">
+        <div class="feat-ico">▦</div>
+        <div class="feat-title">Panel de control</div>
+        <div class="feat-desc">Dashboard en tiempo real con leads, conversiones y agenda de citas. Todo en un solo lugar, sin complicaciones ni curva de aprendizaje.</div>
+        <div class="feat-cta">→ Sin curva de aprendizaje</div>
+      </div>
+      <div class="feat">
+        <div class="feat-ico">◷</div>
+        <div class="feat-title">Agenda integrada</div>
+        <div class="feat-desc">Gestiona citas directamente desde el panel. Slots libres y ocupados, confirmaciones automáticas y recordatorios por email 24h antes.</div>
+        <div class="feat-cta">→ Tu recepcionista digital</div>
+      </div>
+      <div class="feat">
+        <div class="feat-ico">🦷</div>
+        <div class="feat-title">Especializado en dental</div>
+        <div class="feat-desc">El bot conoce los tratamientos: blanqueamiento, ortodoncia, implantes, urgencias. Responde con precisión clínica y tono humano.</div>
+        <div class="feat-cta">→ Configurado para tu clínica</div>
+      </div>
+      <div class="feat">
+        <div class="feat-ico">↓</div>
+        <div class="feat-title">Exporta tus datos</div>
+        <div class="feat-desc">Descarga todos tus leads en CSV con un clic. Intégralos en tu CRM, Excel o software de gestión. Sin bloqueos ni dependencias.</div>
+        <div class="feat-cta">→ Tus datos, siempre tuyos</div>
+      </div>
     </div>
   </div>
 
-  <!-- How it works -->
-  <div class="how-wrap">
-    <div class="section-label">Cómo funciona</div>
-    <div class="section-title">En marcha en menos de 24 horas</div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
+  <!-- HOW IT WORKS -->
+  <div class="steps-wrap">
+    <div class="section-eyebrow">Cómo funciona</div>
+    <div class="section-title">En marcha en menos<br>de 24 horas.</div>
+    <div class="steps-grid">
+      <div class="step-item">
+        <div class="step-n">1</div>
         <div class="step-title">Instalamos el bot en tu web</div>
-        <div class="step-desc">Solo necesitamos acceso a tu web. Nosotros configuramos el asistente con tus servicios, horarios y estilo de comunicación.</div>
+        <div class="step-desc">Solo necesitamos acceso a tu web. Configuramos el asistente con tus tratamientos, horarios y estilo de comunicación.</div>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
+      <div class="step-item">
+        <div class="step-n">2</div>
         <div class="step-title">El bot capta y cualifica</div>
         <div class="step-desc">Cada visita que interactúa queda registrada con sus datos. El bot pregunta, responde y convierte sin que intervengas.</div>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
+      <div class="step-item">
+        <div class="step-n">3</div>
         <div class="step-title">Tú llamas y conviertes</div>
-        <div class="step-desc">Recibes el aviso, abres el panel y tienes toda la información del lead lista. Solo queda marcar el número y cerrar la cita.</div>
+        <div class="step-desc">Recibes el aviso, abres el panel y tienes la información del lead lista. Solo queda marcar el número y cerrar la cita.</div>
       </div>
     </div>
   </div>
 
-  <!-- CTA Banner -->
+  <!-- CTA -->
   <div class="cta-banner">
     <div>
       <div class="cta-title">Tu próximo paciente<br>ya está <em>buscándote.</em><br>¿Le vas a dejar ir?</div>
       <div class="cta-sub">Sin permanencia. Sin conocimientos técnicos. Instalación en 24h.</div>
     </div>
     <div class="cta-right">
-      <a href="precios.html" class="btn primary" style="font-size:.92rem;padding:16px 32px">Ver planes y precios →</a>
-      <span class="cta-note">Desde 49€/mes · Cancela cuando quieras</span>
+      <a href="precios.html" class="btn-main" style="font-size:0.9rem;padding:16px 34px">Ver planes y precios →</a>
+      <span class="cta-note">Desde 149€/mes · Cancela cuando quieras</span>
     </div>
   </div>
 
@@ -531,120 +481,124 @@ footer{position:relative;z-index:1;border-top:1px solid rgba(255,255,255,.05);pa
     <svg width="24" height="24" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/></svg>
     <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
   </a>
-  <span class="footer-copy" style="color:#f97316">2025 ReActiva · Automatización Premium para Clínicas</span>
-
+  <span class="footer-copy">© 2025 ReActiva · Automatización para Clínicas Dentales</span>
+  <div class="footer-links">
+    <a href="precios.html" class="footer-link">Precios</a>
+    <a href="dashboard.html" class="footer-link">Panel</a>
+    <a href="login.html" class="footer-link">Acceder</a>
+  </div>
 </footer>
 
 <script>
-// ── Demo data ──
-const demoLeads = [
-  { name:"Sara Martínez",  service:"Revisión general",  color:"#00e676" },
-  { name:"Carlos Ruiz",    service:"Ortodoncia",         color:"#4ea8f0" },
-  { name:"Marta Iglesias", service:"Tratamiento facial", color:"#d4a843" },
-  { name:"Pedro Sanz",     service:"Podología",          color:"#00e676" },
-  { name:"Laura Díaz",     service:"Fisioterapia",       color:"#4ea8f0" },
-  { name:"Javier Mora",    service:"Consulta estética",  color:"#d4a843" },
+/* ── DEMO DATA ── */
+const LEADS_DEMO = [
+  { name:"Sara Martínez",  svc:"Blanqueamiento dental",   color:"#00e676" },
+  { name:"Carlos Ruiz",    svc:"Ortodoncia Invisalign",   color:"#4ea8f0" },
+  { name:"Marta Iglesias", svc:"Implante dental",         color:"#d4a843" },
+  { name:"Pedro Sanz",     svc:"Revisión gratuita",       color:"#00e676" },
+  { name:"Laura Díaz",     svc:"Carillas de porcelana",   color:"#a78bfa" },
+  { name:"Javier Mora",    svc:"Urgencia dental",         color:"#f87171" },
 ];
 
-const chatScript = [
-  { role:"bot",  text:"¡Hola! 👋 ¿En qué puedo ayudarte?" },
-  { role:"user", text:"Me interesa el tratamiento facial" },
-  { role:"bot",  text:"¡Perfecto! ¿Me dices tu nombre?" },
-  { role:"user", text:"Marta" },
-  { role:"bot",  text:"¡Hola Marta! ¿Nos dejas un teléfono?" },
-  { role:"user", text:"622 100 200" },
-  { role:"bot",  text:"¡Genial! Te llamamos hoy. ¡Hasta pronto! ✨" },
+const CHAT_SCRIPT = [
+  { role:"bot",  text:"¡Hola! 👋 Soy el asistente de tu clínica dental. ¿En qué puedo ayudarte?" },
+  { role:"usr",  text:"Me interesa el blanqueamiento" },
+  { role:"bot",  text:"¡Perfecto! Tenemos blanqueamiento LED desde 180€. ¿Me dices tu nombre?" },
+  { role:"usr",  text:"Sara" },
+  { role:"bot",  text:"¡Hola Sara! ¿Cuál es tu teléfono para gestionar la cita? 😊" },
+  { role:"usr",  text:"622 100 200" },
+  { role:"bot",  text:"¡Listo! Te llamamos hoy. También recibirás un recordatorio 24h antes. ✨" },
 ];
 
-const barHeights = [25, 60, 42, 90, 68, 35, 78];
+const BAR_DATA = [18, 42, 31, 78, 55, 22, 64];
+
 let leadCount = 0, convCount = 0;
 
-// ── Init bars ──
+/* ── INIT BARS ── */
 function initBars() {
-  const c = document.getElementById("mkBars");
-  if (!c) return;
-  const max = Math.max(...barHeights);
-  barHeights.forEach(v => {
-    const bar = document.createElement("div");
-    bar.className = "mock-bar";
-    bar.style.height = "2px";
-    bar.style.flex = "1";
-    c.appendChild(bar);
-    setTimeout(() => { bar.style.height = Math.round(v / max * 58) + "px"; }, 500);
+  const area = document.getElementById("barsArea");
+  if (!area) return;
+  const max = Math.max(...BAR_DATA);
+  BAR_DATA.forEach(v => {
+    const b = document.createElement("div");
+    b.className = "bar";
+    b.style.flex = "1";
+    area.appendChild(b);
+    setTimeout(() => { b.style.height = Math.round(v / max * 50) + "px"; }, 600);
   });
 }
 
-// ── Add lead ──
-function addLead(lead) {
-  const list = document.getElementById("mkLeadList");
-  if (!list) return;
-  const row = document.createElement("div");
-  row.className = "mock-lead";
-  row.innerHTML = `<div class="ml-dot" style="background:${lead.color}"></div><div class="ml-name">${lead.name}</div><div class="ml-svc">${lead.service}</div><div class="ml-badge-mini">Nuevo</div>`;
-  list.prepend(row);
-  if (list.children.length > 3) list.removeChild(list.lastChild);
-  leadCount++;
-  convCount = Math.round(leadCount * 0.65);
-  animNum("mkLeads", leadCount);
-  animNum("mkConv", convCount);
-  document.getElementById("mkTasa").textContent = Math.round(convCount / leadCount * 100) + "%";
-  document.getElementById("mkRev").textContent = (convCount * 180) + "€";
-}
-
-// ── Toast ──
-function showToast(lead) {
-  const t = document.getElementById("mkToast");
-  if (!t) return;
-  document.getElementById("mkToastText").textContent = `${lead.name} · ${lead.service}`;
-  t.style.display = "flex";
-  setTimeout(() => { t.style.display = "none"; }, 3200);
-}
-
-// ── Animated number ──
-function animNum(id, val) {
+/* ── ANIMATED NUMBER ── */
+function animNum(id, target) {
   const el = document.getElementById(id);
   if (!el) return;
   let cur = parseInt(el.textContent) || 0;
-  const step = () => { if (cur < val) { cur++; el.textContent = cur; requestAnimationFrame(step); } };
+  const step = () => { if (cur < target) { cur++; el.textContent = cur; requestAnimationFrame(step); } };
   requestAnimationFrame(step);
 }
 
-// ── Chat demo ──
-function runChat() {
-  const body = document.getElementById("cfBody");
-  if (!body) return;
-  body.innerHTML = "";
-  let i = 0;
-  const next = () => {
-    if (i >= chatScript.length) { setTimeout(runChat, 4000); return; }
-    const m = chatScript[i];
-    const div = document.createElement("div");
-    div.className = `cf-msg ${m.role}`;
-    div.textContent = m.text;
-    body.appendChild(div);
-    body.scrollTop = body.scrollHeight;
-    i++;
-    setTimeout(next, m.role === "bot" ? 1800 : 1300);
-  };
-  setTimeout(next, 700);
+/* ── ADD LEAD ── */
+function addLead(lead) {
+  const rows = document.getElementById("leadRows");
+  if (!rows) return;
+  const row = document.createElement("div");
+  row.className = "lead-row";
+  row.innerHTML = `<div class="lr-dot" style="background:${lead.color}"></div><div class="lr-name">${lead.name}</div><div class="lr-svc">${lead.svc}</div><div class="lr-badge">Nuevo</div>`;
+  rows.prepend(row);
+  if (rows.children.length > 3) rows.removeChild(rows.lastChild);
+
+  leadCount++;
+  convCount = Math.round(leadCount * 0.63);
+  animNum("kLeads", leadCount);
+  animNum("kConv", convCount);
+  document.getElementById("kTasa").textContent = Math.round(convCount / leadCount * 100) + "%";
+  document.getElementById("kRev").textContent = (convCount * 220).toLocaleString("es-ES") + "€";
+
+  // Notif inside frame
+  const notif = document.getElementById("frameNotif");
+  const sub   = document.getElementById("notifSub");
+  if (notif && sub) {
+    sub.textContent = `${lead.name} · ${lead.svc}`;
+    notif.style.display = "flex";
+    setTimeout(() => { notif.style.display = "none"; }, 3500);
+  }
 }
 
-// ── Lead cycle ──
-function runLeads() {
-  let idx = 0;
-  const cycle = () => {
-    addLead(demoLeads[idx % demoLeads.length]);
-    showToast(demoLeads[idx % demoLeads.length]);
-    idx++;
-    setTimeout(cycle, 3600);
+/* ── CHAT DEMO ── */
+function runChat() {
+  const msgs = document.getElementById("chatMsgs");
+  if (!msgs) return;
+  msgs.innerHTML = "";
+  let i = 0;
+  const next = () => {
+    if (i >= CHAT_SCRIPT.length) { setTimeout(runChat, 5000); return; }
+    const m = CHAT_SCRIPT[i];
+    const d = document.createElement("div");
+    d.className = `cf-m ${m.role}`;
+    d.textContent = m.text;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+    i++;
+    setTimeout(next, m.role === "bot" ? 2000 : 1400);
   };
-  setTimeout(cycle, 2000);
+  setTimeout(next, 800);
+}
+
+/* ── LEAD CYCLE ── */
+function startLeadCycle() {
+  let idx = 0;
+  const next = () => {
+    addLead(LEADS_DEMO[idx % LEADS_DEMO.length]);
+    idx++;
+    setTimeout(next, 3800 + Math.random() * 1200);
+  };
+  setTimeout(next, 2000);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   initBars();
   runChat();
-  runLeads();
+  startLeadCycle();
 });
 </script>
 </body>
