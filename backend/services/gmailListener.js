@@ -1,3 +1,4 @@
+//backend>services>gmailListener.js
 const Imap = require("imap-simple");
 const { simpleParser } = require("mailparser");
 const webhook = require("../routes/webhook"); // asegúrate que tengas procesarMensaje allí

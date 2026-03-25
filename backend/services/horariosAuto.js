@@ -1,3 +1,4 @@
+//backend>services>horariosAuto.js
 const cron = require("node-cron")
 const { generarHorariosDia } = require("./horariosGenerator")
 

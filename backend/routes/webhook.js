@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const fetch = require("node-fetch"); // para responder a FB/IG
-const { procesarMensaje } = require("./bot"); // tu motor del bot
-const db = require("../database"); // tu DB si necesitas logs
+const fetch = require("node-fetch"); 
+const { procesarMensaje } = require("./bot");
+const db = require("../database"); 
 
-const VERIFY_TOKEN = "reactiva_verify_2024"; // mismo que usarás en FB App
+const VERIFY_TOKEN = "reactiva_verify_2024";
 
 // ─────────────────── VERIFICACIÓN ───────────────────
 router.get("/", (req, res) => {
@@ -24,51 +24,54 @@ router.get("/", (req, res) => {
 router.post("/", async (req, res) => {
   const body = req.body;
 
-  // Validación de evento de Messenger/IG
   if (body.object === "page") {
-    body.entry.forEach(async (entry) => {
-      const messagingEvents = entry.messaging || entry.changes || [];
+    // responder rápido a FB
+    res.status(200).send("EVENT_RECEIVED");
 
-      for (const event of messagingEvents) {
-        let senderId, messageText, canal;
+    for (const entry of body.entry) {
+      let events = entry.messaging || [];
 
-        // Messenger
-        if (event.message) {
-          senderId = event.sender.id;
-          messageText = event.message.text;
-          canal = "facebook";
-        }
-        // Instagram
-        else if (event.field === "messages") {
-          senderId = event.value.sender_id;
-          messageText = event.value.text;
-          canal = "instagram";
-        }
-
-        if (messageText && senderId) {
-          // Llamar a tu bot
-          procesarMensaje(
-            messageText,
-            { leadId: null, clinicId: 1, canal },
-            async (respuesta) => {
-              try {
-                // Responder usando Graph API
-                const PAGE_TOKEN = process.env.PAGE_TOKEN; // tu token de página
-                const url = `https://graph.facebook.com/v17.0/${senderId}/messages?access_token=${PAGE_TOKEN}`;
-                await fetch(url, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ messaging_type: "RESPONSE", recipient: { id: senderId }, message: { text: respuesta.texto } }),
-                });
-              } catch (e) {
-                console.error("Error enviando mensaje a FB/IG", e);
-              }
-            }
-          );
+      // Instagram Messenger
+      if (entry.changes) {
+        for (const change of entry.changes) {
+          if (change.field === "messages" && change.value) {
+            events.push({
+              sender: { id: change.value.sender_id },
+              message: { text: change.value.text },
+              canal: "instagram"
+            });
+          }
         }
       }
-    });
-    res.status(200).send("EVENT_RECEIVED");
+
+      for (const event of events) {
+        const senderId = event.sender?.id;
+        const messageText = event.message?.text;
+        const canal = event.canal || "facebook";
+
+        if (!senderId || !messageText) continue;
+
+        // procesar el mensaje en background
+        procesarMensaje(messageText, { leadId: null, clinicId: 1, canal }, async (respuesta) => {
+          try {
+            const PAGE_TOKEN = process.env.PAGE_TOKEN;
+            if (!PAGE_TOKEN) return console.warn("⚠️ PAGE_TOKEN no definido");
+            const url = `https://graph.facebook.com/v25.0/${senderId}/messages?access_token=${PAGE_TOKEN}`;
+            await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                messaging_type: "RESPONSE", 
+                recipient: { id: senderId }, 
+                message: { text: respuesta.texto } 
+              }),
+            });
+          } catch (err) {
+            console.error("Error enviando mensaje FB/IG:", err);
+          }
+        });
+      }
+    }
   } else {
     res.sendStatus(404);
   }

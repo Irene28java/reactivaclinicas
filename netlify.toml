@@ -1,6 +1,5 @@
 [build]
   publish = "frontend"
-  command = "reactivaclinicas"
 
 # Redirección del backend
 [[redirects]]
