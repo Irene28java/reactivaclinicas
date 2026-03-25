@@ -1,49 +1,43 @@
-// services/recordatorios.js
-const db = require("../database");
+const { crearRecordatorio } = require('../recordatorios.js'); // tu archivo existente
 
-function iniciarRecordatorios(app) {
-  const HORA_MS = 60 * 60 * 1000;
+async function crearCita({ clinic_id, lead_id, fecha, hora, nombre, telefono, canal }) {
+  return new Promise((resolve, reject) => {
+    db.get(
+      `SELECT id FROM citas WHERE fecha=? AND hora=? AND clinic_id=?`,
+      [fecha, hora, clinic_id],
+      async (err, row) => {
+        if (err) return reject(err);
+        if (row) return reject(new Error("Slot ocupado"));
 
-  async function enviarRecordatorios() {
-    const mañana = new Date();
-    mañana.setDate(mañana.getDate() + 1);
-    const fecha = mañana.toISOString().split("T")[0];
+        db.run(
+          `INSERT INTO citas 
+            (clinic_id, lead_id, canal, name, phone, servicio, fecha, hora, status) 
+          VALUES (?,?,?,?,?,?,?,?,?)`,
+          [clinic_id, lead_id, canal || 'bot', nombre || 'Paciente', telefono || '', 'Revisión dental', fecha, hora, 'confirmada'],
+          async function (err) {
+            if (err) return reject(err);
+            const citaId = this.lastID;
 
-    db.all(`
-      SELECT c.*, u.clinic_name, u.email AS clinic_email
-      FROM citas c
-      LEFT JOIN users u ON u.id = c.clinic_id
-      WHERE c.fecha=? AND c.status='confirmada'
-    `, [fecha], (err, citas) => {
-      if (err) return console.error("❌ Error al obtener citas:", err);
-      if (!citas || citas.length === 0) return;
+            // 🔹 Crear recordatorio automático 24h antes
+            try {
+              const citaDate = new Date(`${fecha}T${hora}:00`);
+              const reminderDate = new Date(citaDate.getTime() - 24 * 60 * 60 * 1000); // 24h antes
 
-      const sendEmail = app.get("sendEmail");
+              await crearRecordatorio({
+                leadId: lead_id,
+                citaId,
+                fecha: reminderDate.toISOString().slice(0,10),
+                hora: reminderDate.toTimeString().slice(0,5),
+                mensaje: `Hola ${nombre || 'Paciente'}, recuerda tu cita el ${fecha} a las ${hora}.`
+              });
+            } catch(e) {
+              console.error("Error creando recordatorio:", e);
+            }
 
-      citas.forEach(c => {
-        if (sendEmail && c.email) { // aquí usamos el email del paciente
-          const subject = `Recordatorio cita ${c.clinic_name}`;
-          const text = `
-Hola ${c.name},
-
-Te recordamos tu cita programada para mañana:
-
-📅 Fecha: ${c.fecha}
-⏰ Hora: ${c.hora}
-🏥 Clínica: ${c.clinic_name}
-
-Si necesitas cancelar o reprogramar, por favor contáctanos.
-          `;
-          sendEmail(c.email, text, subject);
-          console.log(`🔔 Recordatorio enviado a ${c.name} | ${c.fecha} ${c.hora}`);
-        }
-      });
-    });
-  }
-
-  // Ejecutar cada hora
-  setInterval(enviarRecordatorios, HORA_MS);
-  setTimeout(enviarRecordatorios, 8_000); // primera vez 8s después de iniciar
+            resolve({ id: citaId });
+          }
+        );
+      }
+    );
+  });
 }
-
-module.exports = { iniciarRecordatorios };

@@ -60,12 +60,30 @@ app.use(cors({
     },
     credentials: true
 }));
+app.get("/api/leads", async (req, res) => {
+  const leads = await db.getLeads();
+  res.json(leads);
+});
+
+app.get("/api/messages/:leadId", async (req, res) => {
+  const msgs = await db.getMessages(req.params.leadId);
+  res.json(msgs);
+});
+
+app.get("/api/citas", async (req, res) => {
+  const citas = await db.getCitas();
+  res.json(citas);
+});
 
 // ─────────────────────────────────────────────
 // SOCKET.IO
 // ─────────────────────────────────────────────
 const io = new Server(server, { cors: { origin: allowedOrigins.includes("*") ? "*" : allowedOrigins } });
 
+// 🔥 DEBAJO DE const io = new Server(...)
+global.io = io;
+
+// 🔥 CAMBIO DE join_clinic → joinClinic
 io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
     if (!token) return next();
@@ -78,7 +96,12 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
     console.log("🔌 Cliente conectado:", socket.id);
-    socket.on("join_clinic", clinicId => socket.join("clinic_" + clinicId));
+
+    // 👈 Aquí es donde se cambió el evento
+    socket.on("joinClinic", clinicId => {
+        socket.join("clinic_" + clinicId);
+    });
+
     socket.on("disconnect", () => console.log("🔌 Cliente desconectado:", socket.id));
 });
 
@@ -163,16 +186,16 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/pagos", pagosRouter);
 app.use("/webhook", webhookRoutes);
 
-app.post("/api/chat", (req,res)=>{
-    const { message, sessionId, canal, clinicId } = req.body;
-    if(!message||!sessionId) return res.status(400).json({ error:"Faltan datos" });
-    const clinicaId = parseInt(clinicId)||1;
-    db.get(`SELECT id, clinic_name, tipo_clinica FROM users WHERE id=?`,[clinicaId],(err,user)=>{
-        const clinica = { clinicId: user?user.id:clinicaId, tipo:user?user.tipo_clinica:"dental", nombre:user?user.clinic_name:"Clínica" };
-        procesarMensaje(message,{ leadId:sessionId, clinicId:clinica.clinicId, canal: canal||"web" }, reply=>res.json({ reply }));
-    });
-});
+app.post("/api/chat", async (req,res)=>{
+  const { message, sessionId, clinicId } = req.body;
 
+  const respuesta = await procesarMensaje(message, {
+    leadId: sessionId,
+    clinicId
+  });
+
+  res.json({ reply: respuesta });
+});
 // ─────────────────────────────────────────────
 // HEALTHCHECK
 // ─────────────────────────────────────────────
