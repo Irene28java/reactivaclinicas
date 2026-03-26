@@ -1,3 +1,4 @@
+//bax
 async function reservarCita(data) {
   return new Promise((resolve, reject) => {
 

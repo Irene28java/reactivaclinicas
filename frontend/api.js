@@ -11,7 +11,7 @@
   /* ─────────────────────────────────────────────
      CONFIGURACIÓN — cambia solo la URL base
   ───────────────────────────────────────────── */
-  const API_BASE = window.REACTIVA_API_URL || "https://TU-APP.up.railway.app";
+  const API_BASE = "";
 
   /* ─────────────────────────────────────────────
      TOKEN JWT — se guarda en localStorage
