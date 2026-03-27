@@ -1,180 +1,905 @@
-<!-- PANEL.HTML COMPLETO -->
-<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReActiva · Panel de Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--negro:#07090d;--blanco:#f0ede8;--verde:#00e676;--verde-dim:rgba(0,230,118,0.08);--verde-borde:rgba(0,230,118,0.22);--gris:#0f1318;--gris2:#141920;--gris3:#1a2028;--gris4:#1f2733;--gris-texto:#6e7a8a;--azul:#4ea8f0;--oro:#d4a843;--rojo:#ff4d6a;--side-w:220px}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);display:flex}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.25}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--side-w);flex-shrink:0;background:#0a0d12;border-right:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;height:100vh;position:relative;z-index:10}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:9px;text-decoration:none}
+.sb-logo-text{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700}
+.sb-clinic{padding:10px 18px 16px;border-bottom:1px solid rgba(255,255,255,.04)}
+.sb-clinic-name{font-size:.78rem;font-weight:700;color:var(--blanco)}
+.sb-clinic-sub{font-size:.65rem;color:var(--verde);margin-top:2px;display:flex;align-items:center;gap:4px}
+.sb-clinic-sub::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--verde);animation:blink 2s ease-in-out infinite}
+.sb-nav{flex:1;padding:12px 10px;overflow-y:auto}
+.sb-section{font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gris-texto);padding:8px 8px 4px;margin-top:4px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:all .18s;color:var(--gris-texto);font-size:.8rem;font-weight:500;text-decoration:none;border:none;background:none;width:100%;text-align:left}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--blanco)}
+.sb-item.active{background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde)}
+.sb-item-ico{width:16px;text-align:center;flex-shrink:0;font-size:.9rem}
+.sb-badge{margin-left:auto;background:var(--verde);color:var(--negro);font-size:.58rem;font-weight:800;padding:2px 6px;border-radius:100px;min-width:18px;text-align:center}
+.sb-bottom{padding:14px 10px;border-top:1px solid rgba(255,255,255,.04)}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:background .18s}
+.sb-user:hover{background:rgba(255,255,255,.04)}
+.sb-av{width:30px;height:30px;border-radius:50%;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--verde);flex-shrink:0}
+.sb-uname{font-size:.76rem;font-weight:600}
+.sb-urole{font-size:.62rem;color:var(--gris-texto)}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:#080b0f;border-bottom:1px solid rgba(255,255,255,.04);flex-shrink:0}
+.topbar-title{font-size:.9rem;font-weight:700;color:var(--blanco)}
+.topbar-sub{font-size:.7rem;color:var(--gris-texto);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:.68rem;font-weight:700;color:var(--verde);background:var(--verde-dim);border:1px solid var(--verde-borde);padding:5px 12px;border-radius:100px}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--verde);animation:blink 1.4s ease-in-out infinite}
+.topbar-btn{padding:7px 16px;border-radius:8px;font-family:'Syne',sans-serif;font-size:.76rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--blanco);transition:all .2s;text-decoration:none}
+.topbar-btn:hover{border-color:rgba(255,255,255,.22);background:rgba(255,255,255,.04)}
+.topbar-btn.primary{background:var(--verde);color:var(--negro);border-color:var(--verde)}
+.topbar-btn.primary:hover{background:#1fffa0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── CONTENT AREA ── */
+.content{flex:1;overflow-y:auto;padding:24px 28px}
+
+/* ── VIEWS ── */
+.view{display:none}.view.active{display:block}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--gris2);border:1px solid rgba(255,255,255,.055);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;transition:border-color .25s}
+.kpi:hover{border-color:rgba(255,255,255,.1)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi.k1::before{background:linear-gradient(90deg,var(--verde),transparent)}
+.kpi.k2::before{background:linear-gradient(90deg,var(--azul),transparent)}
+.kpi.k3::before{background:linear-gradient(90deg,var(--oro),transparent)}
+.kpi.k4::before{background:linear-gradient(90deg,#a78bfa,transparent)}
+.kpi-lbl{font-size:.65rem;color:var(--gris-texto);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;line-height:1;margin-bottom:4px}
+.kpi-val.c1{color:var(--verde)}.kpi-val.c2{color:var(--azul)}.kpi-val.c3{color:var(--oro)}.kpi-val.c4{color:#a78bfa}
+.kpi-delta{font-size:.66rem;display:flex;align-items:center;gap:4px}
+.kpi-delta.up{color:var(--verde)}.kpi-delta.neu{color:var(--gris-texto)}
+
+/* ── GRID 2 COL ── */
+.grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.panel{background:var(--gris2);border:1px solid rgba(255,255,255,.055);border-radius:14px;padding:18px}
+.panel-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.panel-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gris-texto)}
+.panel-action{font-size:.7rem;color:var(--verde);cursor:pointer;background:none;border:none;font-family:'Syne',sans-serif;font-weight:600;padding:0}
+
+/* ── BARS CHART ── */
+.bars-wrap{display:flex;align-items:flex-end;gap:5px;height:72px;margin-bottom:6px}
+.bar-col{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--verde),rgba(0,230,118,.2));transition:height 1s cubic-bezier(.2,.8,.3,1);min-height:3px;cursor:pointer;position:relative}
+.bar-col:hover::after{content:attr(data-val);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:.6rem;background:var(--gris4);color:var(--blanco);padding:2px 6px;border-radius:4px;white-space:nowrap}
+.bar-col.inactive{background:rgba(255,255,255,.06)}
+.bar-col.today{background:linear-gradient(180deg,#1fffa0,rgba(0,230,118,.35))}
+.bars-lbls{display:flex;gap:5px}.bars-lbls span{flex:1;text-align:center;font-size:.58rem;color:var(--gris-texto)}
+
+/* ── LEADS TABLE ── */
+.leads-table{width:100%;border-collapse:collapse}
+.leads-table th{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gris-texto);padding:8px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.05)}
+.leads-table td{padding:11px 12px;font-size:.8rem;border-bottom:1px solid rgba(255,255,255,.03)}
+.leads-table tr:last-child td{border-bottom:none}
+.leads-table tr:hover td{background:rgba(255,255,255,.02)}
+.lead-name{font-weight:600;color:var(--blanco)}
+.lead-svc{color:var(--gris-texto);font-size:.74rem}
+.lead-phone{color:var(--blanco);font-size:.76rem;font-family:monospace}
+.lead-canal{font-size:.64rem;padding:2px 8px;border-radius:100px;font-weight:700}
+.canal-web{background:rgba(0,230,118,.08);color:var(--verde);border:1px solid var(--verde-borde)}
+.canal-ig{background:rgba(131,58,180,.1);color:#c084fc;border:1px solid rgba(131,58,180,.25)}
+.canal-fb{background:rgba(0,120,255,.1);color:#60a5fa;border:1px solid rgba(0,120,255,.2)}
+.canal-em{background:rgba(212,168,67,.1);color:var(--oro);border:1px solid rgba(212,168,67,.2)}
+.lead-status{font-size:.66rem;padding:3px 9px;border-radius:100px;font-weight:700;white-space:nowrap}
+.st-nuevo{background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde)}
+.st-contactado{background:rgba(78,168,240,.1);color:var(--azul);border:1px solid rgba(78,168,240,.2)}
+.st-convertido{background:rgba(212,168,67,.1);color:var(--oro);border:1px solid rgba(212,168,67,.25)}
+.st-perdido{background:rgba(255,77,106,.1);color:var(--rojo);border:1px solid rgba(255,77,106,.2)}
+.lead-time{font-size:.68rem;color:var(--gris-texto)}
+.action-btn{font-size:.68rem;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--blanco);cursor:pointer;transition:all .18s;font-family:'Syne',sans-serif}
+.action-btn:hover{border-color:var(--verde);color:var(--verde)}
+.action-btn.call{background:var(--verde);color:var(--negro);border-color:var(--verde)}
+.action-btn.call:hover{background:#1fffa0}
+
+/* ── RECENT LIST (sidebar) ── */
+.recent-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.recent-item:last-child{border-bottom:none}
+.ri-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ri-name{font-size:.76rem;font-weight:600;flex:1}
+.ri-svc{font-size:.66rem;color:var(--gris-texto)}
+.ri-badge{font-size:.58rem;padding:2px 6px;border-radius:100px;background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde);white-space:nowrap}
+.ri-time{font-size:.62rem;color:var(--gris-texto);white-space:nowrap}
+
+/* ── CHAT PANEL ── */
+.chat-area{display:flex;flex-direction:column;height:400px}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#080b0f;border-radius:10px;margin-bottom:10px;border:1px solid rgba(255,255,255,.04)}
+.msg-bubble{max-width:80%;padding:8px 12px;border-radius:10px;font-size:.8rem;line-height:1.5}
+.msg-bubble.bot{background:rgba(255,255,255,.06);color:var(--blanco);align-self:flex-start;border-radius:2px 10px 10px 10px}
+.msg-bubble.user{background:var(--verde);color:var(--negro);align-self:flex-end;border-radius:10px 2px 10px 10px;font-weight:600}
+.chat-input-row{display:flex;gap:8px}
+.chat-inp{flex:1;padding:10px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.83rem;outline:none}
+.chat-inp:focus{border-color:var(--verde)}
+.chat-send{padding:10px 16px;background:var(--verde);color:var(--negro);border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s}
+.chat-send:hover{background:#1fffa0}
+
+/* ── AGENDA ── */
+.agenda-grid{display:grid;gap:8px}
+.cita{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto;gap:0 12px;align-items:center;transition:border-color .2s}
+.cita:hover{border-color:rgba(255,255,255,.1)}
+.cita-time{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--verde);line-height:1;text-align:center;width:42px}
+.cita-time small{font-family:'Syne',sans-serif;font-size:.6rem;color:var(--gris-texto);display:block;text-align:center;font-weight:400}
+.cita-name{font-size:.82rem;font-weight:700}
+.cita-svc{font-size:.7rem;color:var(--gris-texto);margin-top:2px}
+.cita-action{display:flex;gap:6px}
+.cita-btn{font-size:.64rem;padding:3px 9px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--gris-texto);cursor:pointer;transition:all .18s;font-family:'Syne',sans-serif}
+.cita-btn:hover{color:var(--blanco);border-color:rgba(255,255,255,.22)}
+.cita-btn.confirm{background:var(--verde-dim);color:var(--verde);border-color:var(--verde-borde)}
+
+/* ── SETTINGS VIEW ── */
+.settings-form{max-width:560px}
+.sf-section{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:12px;margin-top:24px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sf-section:first-child{margin-top:0}
+.sf-field{margin-bottom:14px}
+.sf-field label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:7px}
+.sf-field input,.sf-field textarea,.sf-field select{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s}
+.sf-field input:focus,.sf-field textarea:focus,.sf-field select:focus{border-color:var(--verde)}
+.sf-field textarea{resize:vertical;min-height:80px}
+.sf-field select option{background:#141920}
+.sf-toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.sf-toggle:last-child{border-bottom:none}
+.sf-toggle-info{display:flex;flex-direction:column;gap:2px}
+.sf-toggle-name{font-size:.82rem;font-weight:600}
+.sf-toggle-desc{font-size:.7rem;color:var(--gris-texto)}
+.toggle-sw{width:38px;height:21px;border-radius:100px;background:rgba(255,255,255,.1);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle-sw.on{background:var(--verde)}
+.toggle-sw::after{content:'';position:absolute;width:15px;height:15px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .2s}
+.toggle-sw.on::after{left:20px}
+.sf-save{padding:12px 28px;background:var(--verde);color:var(--negro);border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .22s;margin-top:20px}
+.sf-save:hover{background:#1fffa0;box-shadow:0 6px 24px rgba(0,230,118,.35)}
+
+/* ── METRICS MINI ── */
+.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.metric-mini{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px 14px;text-align:center}
+.mm-val{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--verde);line-height:1}
+.mm-lbl{font-size:.62rem;color:var(--gris-texto);margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── NOTIFICATION ── */
+.notif{position:fixed;bottom:24px;right:24px;background:#0d1117;border:1px solid rgba(0,230,118,.28);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.6);max-width:320px;z-index:100;transform:translateY(20px);opacity:0;transition:all .35s cubic-bezier(.2,.8,.3,1)}
+.notif.show{transform:translateY(0);opacity:1}
+.notif-ico{font-size:1.2rem;flex-shrink:0}
+.notif-title{font-size:.74rem;color:var(--verde);font-weight:700;margin-bottom:2px}
+.notif-sub{font-size:.66rem;color:var(--gris-texto)}
+
+/* ── SEARCH / FILTER ── */
+.filters-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-inp{padding:8px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.8rem;outline:none;flex:1;min-width:180px}
+.filter-inp:focus{border-color:var(--verde)}
+.filter-select{padding:8px 14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:.8rem;outline:none;cursor:pointer}
+.filter-select option{background:#141920}
+.filter-select:focus{border-color:var(--verde)}
+.btn-export{padding:8px 16px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);border-radius:9px;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-export:hover{background:var(--verde);color:var(--negro)}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--gris-texto)}
+.empty-ico{font-size:2.5rem;margin-bottom:12px}
+.empty-title{font-size:.9rem;font-weight:700;color:var(--blanco);margin-bottom:6px}
+.empty-desc{font-size:.78rem;line-height:1.6}
+
+/* ── STATS DONUT ── */
+.donut-wrap{display:flex;align-items:center;gap:20px;padding:4px 0}
+.donut-svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1}
+.dl-item{display:flex;align-items:center;gap:8px;font-size:.75rem}
+.dl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dl-val{margin-left:auto;font-weight:700;font-family:'Cormorant Garamond',serif;font-size:.95rem}
+
+/* ── SCROLL ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:100px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.2)}
+
+@media(max-width:900px){
+  .sidebar{position:fixed;left:-220px;top:0;z-index:50;transition:left .28s;height:100%}
+  .sidebar.open{left:0}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif">
+  <div class="notif-ico">◎</div>
+  <div><div class="notif-title">Nuevo lead capturado</div><div class="notif-sub" id="notif-sub">—</div></div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <svg width="26" height="26" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.2" stroke-width="1.5"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/></svg>
+    <span class="sb-logo-text"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
+  </a>
+  <div class="sb-clinic">
+    <div class="sb-clinic-name" id="sbClinicName">Clínica Demo</div>
+    <div class="sb-clinic-sub">Bot activo ahora</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-section">Principal</div>
+    <button class="sb-item active" onclick="showView('dashboard',this)"><span class="sb-item-ico">▦</span> Dashboard</button>
+    <button class="sb-item" onclick="showView('leads',this)"><span class="sb-item-ico">◎</span> Leads <span class="sb-badge" id="sbNewCount">0</span></button>
+    <button class="sb-item" onclick="showView('agenda',this)"><span class="sb-item-ico">◷</span> Agenda</button>
+    <div class="sb-section">Bot</div>
+    <button class="sb-item" onclick="showView('chat',this)"><span class="sb-item-ico">✦</span> Chat en vivo</button>
+    <button class="sb-item" onclick="showView('metricas',this)"><span class="sb-item-ico">▲</span> Métricas</button>
+    <div class="sb-section">Cuenta</div>
+    <button class="sb-item" onclick="showView('config',this)"><span class="sb-item-ico">⚙</span> Configuración</button>
+    <a href="index.html" class="sb-item"><span class="sb-item-ico">←</span> Volver al inicio</a>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="sb-av" id="sbAvatar">C</div>
+      <div><div class="sb-uname" id="sbUserName">Mi Clínica</div><div class="sb-urole">Administrador</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-sub" id="topbarSub">Resumen en tiempo real</div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge"><div class="live-dot"></div>En vivo</div>
+      <button class="topbar-btn" onclick="exportCSV()">↓ Exportar CSV</button>
+      <a href="precios.html" class="topbar-btn primary">Actualizar plan</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD VIEW ── -->
+    <div class="view active" id="view-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi k1"><div class="kpi-lbl">Leads totales</div><div class="kpi-val c1" id="kTotal">0</div><div class="kpi-delta up" id="kTotalDelta">▲ esta semana</div></div>
+        <div class="kpi k2"><div class="kpi-lbl">Convertidos</div><div class="kpi-val c2" id="kConv">0</div><div class="kpi-delta up">▲ pacientes nuevos</div></div>
+        <div class="kpi k3"><div class="kpi-lbl">Conversión</div><div class="kpi-val c3" id="kTasa">0%</div><div class="kpi-delta neu">del total</div></div>
+        <div class="kpi k4"><div class="kpi-lbl">Ingresos est.</div><div class="kpi-val c4" id="kRev">0€</div><div class="kpi-delta up">▲ este mes</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Actividad semanal</span><button class="panel-action" onclick="showView('metricas',null)">Ver más →</button></div>
+          <div class="bars-wrap" id="barsWrap"></div>
+          <div class="bars-lbls"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Últimos leads</span><button class="panel-action" onclick="showView('leads',null)">Ver todos →</button></div>
+          <div id="recentLeads"></div>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Canal de origen</span></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="12"/>
+              <circle id="donut1" cx="40" cy="40" r="30" fill="none" stroke="#00e676" stroke-width="12" stroke-dasharray="0 188" stroke-linecap="round" transform="rotate(-90 40 40)" style="transition:stroke-dasharray 1s .3s"/>
+              <circle id="donut2" cx="40" cy="40" r="30" fill="none" stroke="#4ea8f0" stroke-width="12" stroke-dasharray="0 188" stroke-linecap="round" transform="rotate(-90 40 40)" stroke-dashoffset="0" style="transition:stroke-dasharray 1s .45s"/>
+              <circle id="donut3" cx="40" cy="40" r="30" fill="none" stroke="#d4a843" stroke-width="12" stroke-dasharray="0 188" stroke-linecap="round" transform="rotate(-90 40 40)" style="transition:stroke-dasharray 1s .6s"/>
+            </svg>
+            <div class="donut-legend">
+              <div class="dl-item"><div class="dl-dot" style="background:#00e676"></div>Web<div class="dl-val" id="dlWeb">—</div></div>
+              <div class="dl-item"><div class="dl-dot" style="background:#4ea8f0"></div>Instagram<div class="dl-val" id="dlIg">—</div></div>
+              <div class="dl-item"><div class="dl-dot" style="background:#d4a843"></div>Email<div class="dl-val" id="dlEm">—</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Tratamientos</span></div>
+          <div id="topTreatments" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Próximas citas</span><button class="panel-action" onclick="showView('agenda',null)">Ver agenda →</button></div>
+          <div id="nextCitas"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LEADS VIEW ── -->
+    <div class="view" id="view-leads">
+      <div class="filters-row">
+        <input class="filter-inp" id="searchInput" placeholder="🔍  Buscar por nombre, teléfono o tratamiento..." oninput="renderLeadsTable()">
+        <select class="filter-select" id="filterStatus" onchange="renderLeadsTable()">
+          <option value="">Todos los estados</option>
+          <option value="Nuevo">Nuevo</option>
+          <option value="Contactado">Contactado</option>
+          <option value="Convertido">Convertido</option>
+          <option value="Perdido">Perdido</option>
+        </select>
+        <select class="filter-select" id="filterCanal" onchange="renderLeadsTable()">
+          <option value="">Todos los canales</option>
+          <option value="web">Web</option>
+          <option value="instagram">Instagram</option>
+          <option value="email">Email</option>
+        </select>
+        <button class="btn-export" onclick="exportCSV()">↓ Exportar CSV</button>
+      </div>
+      <div class="panel" style="padding:0;overflow:hidden">
+        <div style="overflow-x:auto">
+          <table class="leads-table" id="leadsTable">
+            <thead><tr>
+              <th>Nombre</th><th>Teléfono</th><th>Tratamiento</th><th>Canal</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="leadsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AGENDA VIEW ── -->
+    <div class="view" id="view-agenda">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700" id="agendaDate"></div>
+        <button class="btn-export" onclick="addCita()">+ Nueva cita</button>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Citas de hoy</span></div>
+          <div class="agenda-grid" id="agendaHoy"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Próximos 3 días</span></div>
+          <div class="agenda-grid" id="agendaProximas"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHAT VIEW ── -->
+    <div class="view" id="view-chat">
+      <div class="grid-2">
+        <div class="panel" style="display:flex;flex-direction:column">
+          <div class="panel-hd"><span class="panel-title">Chat del asistente</span><div class="live-badge" style="font-size:.64rem"><div class="live-dot"></div>Bot activo</div></div>
+          <div class="chat-area">
+            <div class="chat-msgs" id="chatMsgs"></div>
+            <div class="chat-input-row">
+              <input class="chat-inp" id="chatInput" placeholder="Escribe un mensaje para probar el bot..." onkeydown="if(event.key==='Enter')sendChat()">
+              <button class="chat-send" onclick="sendChat()">Enviar →</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="panel" style="margin-bottom:14px">
+            <div class="panel-hd"><span class="panel-title">Estado del bot</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div class="sf-toggle"><div class="sf-toggle-info"><div class="sf-toggle-name">Bot activado</div><div class="sf-toggle-desc">Responde automáticamente</div></div><div class="toggle-sw on" id="toggleBot" onclick="toggleSwitch(this)"></div></div>
+              <div class="sf-toggle"><div class="sf-toggle-info"><div class="sf-toggle-name">Notificaciones push</div><div class="sf-toggle-desc">Aviso al capturar lead</div></div><div class="toggle-sw on" onclick="toggleSwitch(this)"></div></div>
+              <div class="sf-toggle"><div class="sf-toggle-info"><div class="sf-toggle-name">Modo fuera de horario</div><div class="sf-toggle-desc">Mensaje especial de noche</div></div><div class="toggle-sw" onclick="toggleSwitch(this)"></div></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-hd"><span class="panel-title">Respuestas rápidas</span></div>
+            <div id="quickRepliesList" style="display:flex;flex-direction:column;gap:6px;font-size:.76rem;color:var(--gris-texto)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MÉTRICAS VIEW ── -->
+    <div class="view" id="view-metricas">
+      <div class="metrics-row">
+        <div class="metric-mini"><div class="mm-val" id="mTotalLeads">0</div><div class="mm-lbl">Leads totales</div></div>
+        <div class="metric-mini"><div class="mm-val" id="mConvRate">0%</div><div class="mm-lbl">Tasa conversión</div></div>
+        <div class="metric-mini"><div class="mm-val" id="mAvgRev">0€</div><div class="mm-lbl">Ingreso promedio</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Leads últimas 4 semanas</span></div>
+          <div class="bars-wrap" id="barsWrap4w" style="height:90px"></div>
+          <div class="bars-lbls" id="bars4wLbl"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Distribución por estado</span></div>
+          <div id="statusDist" style="display:flex;flex-direction:column;gap:10px;padding:4px 0"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONFIG VIEW ── -->
+    <div class="view" id="view-config">
+      <div class="settings-form">
+        <div class="sf-section">Datos de la clínica</div>
+        <div class="sf-field"><label>Nombre de la clínica</label><input type="text" id="cfgClinica" placeholder="Clínica Ejemplo"></div>
+        <div class="sf-field"><label>Teléfono</label><input type="tel" id="cfgTel" placeholder="+34 600 000 000"></div>
+        <div class="sf-field"><label>Email de contacto</label><input type="email" id="cfgEmail" placeholder="info@miclínica.com"></div>
+
+        <div class="sf-section">Configuración del bot</div>
+        <div class="sf-field"><label>Nombre del asistente</label><input type="text" id="cfgBotName" placeholder="Asistente de Mi Clínica"></div>
+        <div class="sf-field"><label>Mensaje de bienvenida</label><textarea id="cfgWelcome" placeholder="¡Hola! Soy el asistente de tu clínica dental. ¿En qué puedo ayudarte?"></textarea></div>
+        <div class="sf-field"><label>Tratamientos activos</label><input type="text" id="cfgTratamientos" placeholder="Blanqueamiento, Ortodoncia, Implantes, Urgencias..."></div>
+
+        <div class="sf-section">Notificaciones</div>
+        <div style="padding:4px 0">
+          <div class="sf-toggle"><div class="sf-toggle-info"><div class="sf-toggle-name">Email al capturar lead</div><div class="sf-toggle-desc">Recibe un email por cada nuevo lead</div></div><div class="toggle-sw on" onclick="toggleSwitch(this)"></div></div>
+          <div class="sf-toggle"><div class="sf-toggle-info"><div class="sf-toggle-name">Recordatorio de cita (24h antes)</div><div class="sf-toggle-desc">Email automático al paciente</div></div><div class="toggle-sw on" onclick="toggleSwitch(this)"></div></div>
+          <div class="sf-toggle"><div class="sf-toggle-info"><div class="sf-toggle-name">Resumen diario</div><div class="sf-toggle-desc">Estadísticas del día a las 20:00</div></div><div class="toggle-sw" onclick="toggleSwitch(this)"></div></div>
+        </div>
+
+        <button class="sf-save" onclick="saveConfig()">Guardar cambios</button>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
 
 <script>
-/* ================= CONFIG ================= */
-const API_URL = "http://localhost:5000/api"; // Cambia en producción
-const CLINIC_ID = 1; // ID de la clínica actual
+/* ═══════════════════════════════
+   DEMO DATA & STATE
+═══════════════════════════════ */
+const CANALES = ["web","web","web","instagram","instagram","email"];
+const SVCS = ["Blanqueamiento dental","Ortodoncia Invisalign","Implante dental","Revisión gratuita","Carillas de porcelana","Urgencia dental","Limpieza dental","Empaste"];
+const NOMBRES = ["Sara Martínez","Carlos Ruiz","Marta Iglesias","Pedro Sanz","Laura Díaz","Javier Mora","Ana García","Roberto López","Elena Vidal","Pablo Serrano","Carmen Ortiz","Tomás Herrero"];
+const STATUSES = ["Nuevo","Nuevo","Contactado","Convertido","Perdido"];
 
-/* ================= SOCKET ================= */
-const socket = io("http://localhost:5000");
+function randItem(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pad(n){ return String(n).padStart(2,"0"); }
+function now(){ return new Date(); }
 
-// Unirse a la "sala" de la clínica
-socket.emit("joinClinic", CLINIC_ID);
+// Generar leads demo en localStorage
+function initLeads(){
+  let leads = JSON.parse(localStorage.getItem("ra_leads")||"[]");
+  if(leads.length < 8){
+    leads = [];
+    for(let i=0;i<18;i++){
+      const d = new Date(); d.setDate(d.getDate()-Math.floor(Math.random()*14));
+      leads.push({
+        id: Date.now()+i,
+        nombre: randItem(NOMBRES),
+        telefono: "6"+Math.floor(10000000+Math.random()*89999999),
+        servicio: randItem(SVCS),
+        canal: randItem(CANALES),
+        estado: i<4?"Nuevo":randItem(STATUSES),
+        fecha: d.toISOString(),
+        notas: ""
+      });
+    }
+    localStorage.setItem("ra_leads", JSON.stringify(leads));
+  }
+  return leads;
+}
 
-let currentLeadId = null;
+let leads = initLeads();
 
-socket.on("nuevo_mensaje", (msg) => {
-  console.log("LIVE:", msg);
+function saveLeads(){ localStorage.setItem("ra_leads",JSON.stringify(leads)); }
 
-  if (currentLeadId === msg.leadId) {
-    addLiveMessage(msg);
+// Config
+let cfg = JSON.parse(localStorage.getItem("ra_cfg")||"{}");
+cfg = Object.assign({clinica:"Clínica Demo",bot:"Asistente ReActiva",tel:"",email:"",welcome:"¡Hola! Soy el asistente dental. ¿En qué puedo ayudarte?",tratamientos:"Blanqueamiento, Ortodoncia, Implantes, Urgencias"},cfg);
+
+// Citas demo
+let citas = JSON.parse(localStorage.getItem("ra_citas")||"[]");
+if(!citas.length){
+  const h = now();
+  citas = [
+    {id:1,hora:"09:30",nombre:"Sara Martínez",servicio:"Blanqueamiento",dia:0},
+    {id:2,hora:"11:00",nombre:"Carlos Ruiz",servicio:"Revisión",dia:0},
+    {id:3,hora:"16:30",nombre:"Marta Iglesias",servicio:"Ortodoncia",dia:0},
+    {id:4,hora:"10:00",nombre:"Pedro Sanz",servicio:"Implante",dia:1},
+    {id:5,hora:"12:00",nombre:"Laura Díaz",servicio:"Carillas",dia:2},
+  ];
+  localStorage.setItem("ra_citas",JSON.stringify(citas));
+}
+
+// Chat respuestas
+const BOT_RESPUESTAS = {
+  "blanqueamiento":"Tenemos blanqueamiento LED desde 180€, con resultados visibles en 1 sesión. ¿Te interesa saber más?",
+  "ortodoncia":"Ofrecemos ortodoncia tradicional y Invisalign. Precio desde 1.200€. ¿Quieres una valoración gratuita?",
+  "implante":"Los implantes dentales incluyen corona desde 850€. Son permanentes y se ven como dientes naturales. ¿Lo hablamos?",
+  "revisión":"Tenemos revisiones gratuitas para nuevos pacientes. ¿Te apunto para esta semana?",
+  "urgencia":"Atendemos urgencias el mismo día. Llámanos al "+cfg.tel+" o dime tu nombre y te contactamos.",
+  "precio":"¿Sobre qué tratamiento quieres información de precios? Tenemos blanqueamiento, ortodoncia, implantes...",
+  "cita":"Perfecto, te agendo. ¿Tu nombre y teléfono? Te llamamos para confirmar el horario.",
+  "hola":"¡Hola! Bienvenido a "+cfg.clinica+". ¿En qué puedo ayudarte hoy?",
+  "gracias":"¡De nada! Estoy aquí para lo que necesites 😊",
+};
+
+function getBotReply(txt){
+  const t = txt.toLowerCase();
+  for(const [k,v] of Object.entries(BOT_RESPUESTAS)){
+    if(t.includes(k)) return v;
+  }
+  return "Entendido. Cuéntame más sobre lo que necesitas, estaré encantado de ayudarte.";
+}
+
+/* ═══════════════════════════════
+   VIEWS
+═══════════════════════════════ */
+function showView(name, btn){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));
+  document.getElementById("view-"+name).classList.add("active");
+  if(btn) btn.classList.add("active");
+  const titles = {dashboard:["Dashboard","Resumen en tiempo real"],leads:["Leads","Todos tus contactos capturados"],agenda:["Agenda","Citas programadas"],chat:["Chat en vivo","Asistente virtual activo"],metricas:["Métricas","Análisis de rendimiento"],config:["Configuración","Ajustes de tu cuenta y bot"]};
+  const t = titles[name]||[name,""];
+  document.getElementById("topbarTitle").textContent = t[0];
+  document.getElementById("topbarSub").textContent = t[1];
+  if(name==="leads") renderLeadsTable();
+  if(name==="agenda") renderAgenda();
+  if(name==="metricas") renderMetricas();
+  if(name==="chat") initChatView();
+  if(name==="config") loadConfig();
+  if(name==="leads"){ const badge=document.getElementById("sbNewCount"); badge.textContent="0"; badge.style.display="none"; }
+}
+
+/* ═══════════════════════════════
+   DASHBOARD
+═══════════════════════════════ */
+function renderDashboard(){
+  const total = leads.length;
+  const conv = leads.filter(l=>l.estado==="Convertido").length;
+  const tasa = total ? Math.round(conv/total*100) : 0;
+  const rev = conv * 220;
+  animNum("kTotal", total);
+  animNum("kConv", conv);
+  document.getElementById("kTasa").textContent = tasa+"%";
+  document.getElementById("kRev").textContent = rev.toLocaleString("es-ES")+"€";
+  document.getElementById("mTotalLeads").textContent = total;
+  document.getElementById("mConvRate").textContent = tasa+"%";
+  document.getElementById("mAvgRev").textContent = (total ? Math.round(rev/Math.max(conv,1)) : 0)+"€";
+
+  // Bars semanal
+  const bw = document.getElementById("barsWrap");
+  if(bw&&!bw.dataset.done){
+    bw.dataset.done=1;
+    const data=[8,14,11,23,18,7,19];
+    const max=Math.max(...data);
+    const days=["L","M","X","J","V","S","D"];
+    const today=new Date().getDay();
+    const todayIdx=today===0?6:today-1;
+    bw.innerHTML="";
+    data.forEach((v,i)=>{
+      const b=document.createElement("div");
+      b.className="bar-col"+(i===todayIdx?" today":"");
+      b.dataset.val=v+" leads";
+      b.style.flex="1";
+      bw.appendChild(b);
+      setTimeout(()=>{ b.style.height=Math.round(v/max*68)+"px"; },300+i*60);
+    });
   }
 
-  loadLeads(); // refresca leads en tiempo real
-});
-
-/* ================= API ================= */
-async function api(path, method="GET", body=null){
-  const res = await fetch(API_URL + path, {
-    method,
-    headers: {"Content-Type":"application/json"},
-    body: body ? JSON.stringify(body) : null
-  });
-  return res.json();
-}
-
-/* ================= ESTADO ================= */
-let cfg = null;
-let respDB = [];
-let citas = [];
-let allLeads = [];
-
-/* ================= INIT ================= */
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadAll();
-  applyGlobalCfg();
-  renderRespuestas();
-  initChat();
-});
-
-async function loadAll(){
-  try {
-    cfg = await api("/bot/config");
-    respDB = await api("/bot/respuestas");
-    citas = await api("/citas");
-    allLeads = await api("/leads");
-  } catch(e){
-    console.warn("Modo local activado");
-    cfg = JSON.parse(localStorage.getItem("ra_cfg")||"null") || {bot:"Bot",clinica:"Clínica"};
-    respDB = JSON.parse(localStorage.getItem("ra_respuestas")||"[]");
-    citas = JSON.parse(localStorage.getItem("ra_citas")||"[]");
-    allLeads = JSON.parse(localStorage.getItem("ra_leads")||"[]");
+  // Recent leads
+  const rl=document.getElementById("recentLeads");
+  if(rl){
+    const recent=[...leads].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).slice(0,4);
+    rl.innerHTML=recent.map(l=>`
+      <div class="recent-item">
+        <div class="ri-dot" style="background:${l.canal==='web'?'#00e676':l.canal==='instagram'?'#c084fc':'#d4a843'}"></div>
+        <div><div class="ri-name">${l.nombre}</div><div class="ri-svc">${l.servicio}</div></div>
+        <div class="ri-time">${timeAgo(l.fecha)}</div>
+        <div class="ri-badge">${l.estado}</div>
+      </div>
+    `).join("");
   }
-}
 
-/* ================= CONFIG ================= */
-async function guardarCfg(){
-  try { await api("/bot/config","PUT",cfg); }
-  catch{ localStorage.setItem("ra_cfg", JSON.stringify(cfg)); }
-}
+  // Donut canales
+  const web=leads.filter(l=>l.canal==="web").length;
+  const ig=leads.filter(l=>l.canal==="instagram").length;
+  const em=leads.filter(l=>l.canal==="email").length;
+  const circ=188;
+  const wSlice=total?Math.round(web/total*circ):0;
+  const iSlice=total?Math.round(ig/total*circ):0;
+  const eSlice=total?Math.round(em/total*circ):0;
+  const d1=document.getElementById("donut1");
+  const d2=document.getElementById("donut2");
+  const d3=document.getElementById("donut3");
+  if(d1){
+    setTimeout(()=>{
+      d1.setAttribute("stroke-dasharray",`${wSlice} ${circ-wSlice}`);
+      const offset1 = 0;
+      d2.setAttribute("stroke-dashoffset",`${-wSlice}`);
+      d2.setAttribute("stroke-dasharray",`${iSlice} ${circ-iSlice}`);
+      d3.setAttribute("stroke-dashoffset",`${-(wSlice+iSlice)}`);
+      d3.setAttribute("stroke-dasharray",`${eSlice} ${circ-eSlice}`);
+    },400);
+  }
+  document.getElementById("dlWeb").textContent=web;
+  document.getElementById("dlIg").textContent=ig;
+  document.getElementById("dlEm").textContent=em;
 
-/* ================= RESPUESTAS ================= */
-async function addRespuesta(trigger,respuesta,categoria){
-  const data = {trigger,respuesta,categoria};
-  try { await api("/bot/respuestas","POST",data); }
-  catch{ respDB.push({...data,id:Date.now()}); localStorage.setItem("ra_respuestas",JSON.stringify(respDB)); }
-  renderRespuestas();
-}
-
-function renderRespuestas(){
-  const list = document.getElementById("respuestasList");
-  if(!list) return;
-  list.innerHTML = respDB.map(r=>`
-    <div class="resp-card">
-      <div><b>Trigger:</b> ${r.trigger}</div>
-      <div><b>Respuesta:</b> ${r.respuesta}</div>
+  // Top tratamientos
+  const svcCount={};
+  leads.forEach(l=>{ svcCount[l.servicio]=(svcCount[l.servicio]||0)+1; });
+  const sorted=Object.entries(svcCount).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const maxV=sorted[0]?.[1]||1;
+  const tt=document.getElementById("topTreatments");
+  if(tt) tt.innerHTML=sorted.map(([s,c])=>`
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:3px"><span>${s}</span><span style="color:var(--verde);font-weight:700">${c}</span></div>
+      <div style="height:4px;background:rgba(255,255,255,.06);border-radius:4px"><div style="height:4px;background:var(--verde);border-radius:4px;width:${Math.round(c/maxV*100)}%;transition:width 1s .3s"></div></div>
     </div>
+  `).join("");
+
+  // Próximas citas
+  const nc=document.getElementById("nextCitas");
+  if(nc) nc.innerHTML=citas.slice(0,3).map(c=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:var(--verde);min-width:40px">${c.hora}</div>
+      <div><div style="font-size:.78rem;font-weight:600">${c.nombre}</div><div style="font-size:.68rem;color:var(--gris-texto)">${c.servicio}</div></div>
+    </div>
+  `).join("");
+
+  // Sidebar clinic name
+  document.getElementById("sbClinicName").textContent = cfg.clinica||"Mi Clínica";
+  document.getElementById("sbUserName").textContent = cfg.clinica||"Mi Clínica";
+  document.getElementById("sbAvatar").textContent = (cfg.clinica||"C")[0].toUpperCase();
+}
+
+/* ═══════════════════════════════
+   LEADS TABLE
+═══════════════════════════════ */
+function renderLeadsTable(){
+  const search=(document.getElementById("searchInput")?.value||"").toLowerCase();
+  const filterSt=document.getElementById("filterStatus")?.value||"";
+  const filterCn=document.getElementById("filterCanal")?.value||"";
+  let filtered=[...leads].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  if(search) filtered=filtered.filter(l=>l.nombre.toLowerCase().includes(search)||l.telefono.includes(search)||l.servicio.toLowerCase().includes(search));
+  if(filterSt) filtered=filtered.filter(l=>l.estado===filterSt);
+  if(filterCn) filtered=filtered.filter(l=>l.canal===filterCn);
+  const tbody=document.getElementById("leadsBody");
+  if(!tbody) return;
+  if(!filtered.length){ tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-ico">◎</div><div class="empty-title">Sin leads</div><div class="empty-desc">No hay leads que coincidan con los filtros.</div></div></td></tr>`; return; }
+  tbody.innerHTML=filtered.map(l=>`
+    <tr>
+      <td><div class="lead-name">${l.nombre}</div></td>
+      <td><div class="lead-phone">${l.telefono}</div></td>
+      <td><div class="lead-svc">${l.servicio}</div></td>
+      <td><span class="lead-canal canal-${l.canal}">${l.canal}</span></td>
+      <td>
+        <select class="lead-status st-${l.estado.toLowerCase()}" onchange="changeStatus(${l.id},this.value)" style="background:transparent;border:none;font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;color:inherit;cursor:pointer;outline:none;padding:3px 6px;border-radius:100px">
+          ${["Nuevo","Contactado","Convertido","Perdido"].map(s=>`<option value="${s}" ${s===l.estado?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </td>
+      <td><div class="lead-time">${formatDate(l.fecha)}</div></td>
+      <td style="display:flex;gap:5px">
+        <button class="action-btn call" onclick="callLead('${l.telefono}','${l.nombre}')">📞 Llamar</button>
+        <button class="action-btn" onclick="deleteLead(${l.id})">✕</button>
+      </td>
+    </tr>
   `).join("");
 }
 
-/* ================= CHAT ================= */
-async function enviarMensaje(){
-  const input = document.getElementById("chatInput");
-  const texto = input.value;
-  input.value="";
+function changeStatus(id, estado){
+  const lead=leads.find(l=>l.id===id);
+  if(lead){ lead.estado=estado; saveLeads(); renderDashboard(); renderLeadsTable(); }
+}
+function deleteLead(id){
+  if(!confirm("¿Eliminar este lead?")) return;
+  leads=leads.filter(l=>l.id!==id); saveLeads(); renderLeadsTable(); renderDashboard();
+}
+function callLead(tel,nombre){
+  showNotif(`Llamando a ${nombre}...`,"📞");
+}
 
-  addUserMsg(texto);
+/* ═══════════════════════════════
+   AGENDA
+═══════════════════════════════ */
+function renderAgenda(){
+  const d=new Date();
+  document.getElementById("agendaDate").textContent=d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+  const hoy=citas.filter(c=>c.dia===0);
+  const prox=citas.filter(c=>c.dia>0);
+  const renderCita=(c)=>`
+    <div class="cita">
+      <div class="cita-time">${c.hora}<small>${["Hoy","Mañana","Pasado"][c.dia]||"+"}</small></div>
+      <div><div class="cita-name">${c.nombre}</div><div class="cita-svc">${c.servicio}</div></div>
+      <div class="cita-action">
+        <button class="cita-btn confirm" onclick="confirmCita(${c.id})">✓</button>
+        <button class="cita-btn" onclick="deleteCita(${c.id})">✕</button>
+      </div>
+    </div>
+  `;
+  document.getElementById("agendaHoy").innerHTML=hoy.length?hoy.map(renderCita).join(""):"<div style='color:var(--gris-texto);font-size:.8rem;padding:8px 0'>Sin citas para hoy.</div>";
+  document.getElementById("agendaProximas").innerHTML=prox.length?prox.map(renderCita).join(""):"<div style='color:var(--gris-texto);font-size:.8rem;padding:8px 0'>Sin citas próximas.</div>";
+}
 
-  let respuesta;
-  try {
-    respuesta = await api("/bot/mensaje","POST",{
-      texto: texto,
-      lead_id: currentLeadId,
-      canal: "web"
+function confirmCita(id){ showNotif("Cita confirmada","✓"); }
+function deleteCita(id){ citas=citas.filter(c=>c.id!==id); localStorage.setItem("ra_citas",JSON.stringify(citas)); renderAgenda(); }
+function addCita(){
+  const nombre=prompt("Nombre del paciente:");
+  if(!nombre) return;
+  const hora=prompt("Hora (ej: 10:30):");
+  if(!hora) return;
+  const servicio=prompt("Servicio:");
+  if(!servicio) return;
+  citas.push({id:Date.now(),hora,nombre,servicio,dia:0});
+  localStorage.setItem("ra_citas",JSON.stringify(citas));
+  renderAgenda();
+  showNotif(`Cita añadida: ${nombre}`,  "📅");
+}
+
+/* ═══════════════════════════════
+   CHAT
+═══════════════════════════════ */
+let chatInited=false;
+function initChatView(){
+  const msgs=document.getElementById("chatMsgs");
+  if(!msgs||chatInited) return;
+  chatInited=true;
+  addBotMsg(cfg.welcome||"¡Hola! Soy el asistente dental. ¿En qué puedo ayudarte?");
+  // Quick replies
+  const qrl=document.getElementById("quickRepliesList");
+  if(qrl){
+    const respList=Object.entries(BOT_RESPUESTAS).slice(0,5);
+    qrl.innerHTML=respList.map(([k,v])=>`
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:8px 10px;cursor:pointer;transition:border-color .18s" onclick="testReply('${k}')" onmouseover="this.style.borderColor='rgba(0,230,118,.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,.06)'">
+        <div style="font-size:.72rem;font-weight:700;color:var(--verde);text-transform:capitalize;margin-bottom:2px">"${k}"</div>
+        <div style="font-size:.7rem;color:var(--gris-texto)">${v.substring(0,60)}...</div>
+      </div>
+    `).join("");
+  }
+}
+function addBotMsg(t){ const d=document.createElement("div"); d.className="msg-bubble bot"; d.textContent=t; document.getElementById("chatMsgs").appendChild(d); scrollChat(); }
+function addUserMsg(t){ const d=document.createElement("div"); d.className="msg-bubble user"; d.textContent=t; document.getElementById("chatMsgs").appendChild(d); scrollChat(); }
+function scrollChat(){ const c=document.getElementById("chatMsgs"); if(c) c.scrollTop=c.scrollHeight; }
+function testReply(k){ document.getElementById("chatInput").value=k; sendChat(); }
+function sendChat(){
+  const inp=document.getElementById("chatInput");
+  const txt=inp.value.trim(); if(!txt) return;
+  inp.value=""; addUserMsg(txt);
+  setTimeout(()=>addBotMsg(getBotReply(txt)), 600+Math.random()*400);
+}
+
+/* ═══════════════════════════════
+   MÉTRICAS
+═══════════════════════════════ */
+function renderMetricas(){
+  const total=leads.length;
+  const conv=leads.filter(l=>l.estado==="Convertido").length;
+  document.getElementById("mTotalLeads").textContent=total;
+  document.getElementById("mConvRate").textContent=(total?Math.round(conv/total*100):0)+"%";
+  document.getElementById("mAvgRev").textContent=(conv?Math.round(conv*220/Math.max(conv,1)):0)+"€";
+  // Bars 4 weeks
+  const bw=document.getElementById("barsWrap4w");
+  const bl=document.getElementById("bars4wLbl");
+  if(bw){
+    const data=[6,9,13,8,11,16,14,19,12,15,18,11,17,22,14,23,19,21,16,18,24,20,22,18,21,25,19,23,26,22];
+    const last28=data.slice(-28);
+    const weeks=[0,7,14,21].map(start=>last28.slice(start,start+7).reduce((a,b)=>a+b,0));
+    const maxW=Math.max(...weeks);
+    bw.innerHTML=""; bl.innerHTML="";
+    weeks.forEach((v,i)=>{
+      const b=document.createElement("div"); b.className="bar-col"; b.dataset.val=v+" leads"; b.style.flex="1"; bw.appendChild(b);
+      setTimeout(()=>{ b.style.height=Math.round(v/maxW*86)+"px"; },300+i*80);
+      const s=document.createElement("span"); s.textContent="Sem "+(i+1); bl.appendChild(s);
     });
-  } catch{
-    respuesta = getLocalResponse(texto);
   }
-
-  addBotMsg(respuesta.texto || respuesta.reply?.texto, respuesta.quickReplies || []);
-}
-
-function getLocalResponse(texto){
-  const match = respDB.find(r=> texto.toLowerCase().includes(r.trigger));
-  if(match) return {texto: match.respuesta};
-  return {texto: "No entendí, ¿puedes repetir?"};
-}
-
-/* ================= CITAS ================= */
-async function registrarCita(cita){
-  try { await api("/citas","POST",cita); }
-  catch{ citas.push(cita); localStorage.setItem("ra_citas",JSON.stringify(citas)); }
-}
-
-/* ================= LEADS ================= */
-async function addLead(lead){
-  try { await api("/leads","POST",lead); }
-  catch{ allLeads.push(lead); localStorage.setItem("ra_leads",JSON.stringify(allLeads)); }
-}
-
-async function loadLeads(){
-  allLeads = await api("/leads");
-  console.log("Leads:", allLeads);
-}
-
-/* ================= UI CHAT ================= */
-function addUserMsg(t){
-  const d=document.createElement("div");
-  d.className="msg user";
-  d.innerHTML=`<div class="msg-bubble">${t}</div>`;
-  document.getElementById("chatMessages").appendChild(d);
-}
-
-function addBotMsg(t, quickReplies=[]){
-  const d=document.createElement("div");
-  d.className="msg bot";
-  d.innerHTML=`<div class="msg-bubble">${t}</div>`;
-  document.getElementById("chatMessages").appendChild(d);
-
-  if(quickReplies.length){
-    const qrDiv = document.createElement("div");
-    qrDiv.className="quickReplies";
-    qrDiv.innerHTML = quickReplies.map(q=>`<button onclick="enviarMensajeConTexto('${q}')">${q}</button>`).join(" ");
-    document.getElementById("chatMessages").appendChild(qrDiv);
+  // Estado dist
+  const sd=document.getElementById("statusDist");
+  if(sd){
+    const counts={}; leads.forEach(l=>{ counts[l.estado]=(counts[l.estado]||0)+1; });
+    const colors={Nuevo:"var(--verde)",Contactado:"var(--azul)",Convertido:"var(--oro)",Perdido:"var(--rojo)"};
+    sd.innerHTML=Object.entries(counts).map(([s,c])=>`
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:4px"><span>${s}</span><span style="color:${colors[s]||'var(--gris-texto)'};font-weight:700">${c} (${Math.round(c/total*100)}%)</span></div>
+        <div style="height:6px;background:rgba(255,255,255,.06);border-radius:6px"><div style="height:6px;background:${colors[s]||'rgba(255,255,255,.2)'};border-radius:6px;width:${Math.round(c/total*100)}%;transition:width 1s .3s"></div></div>
+      </div>
+    `).join("");
   }
 }
 
-function addLiveMessage(msg){
-  const chat = document.getElementById("chatMessages");
-  const div = document.createElement("div");
-  div.className = "msg " + (msg.from === "user" ? "user" : "bot");
-  div.innerHTML = `<div class="msg-bubble">${msg.text}</div>`;
-  chat.appendChild(div);
+/* ═══════════════════════════════
+   CONFIG
+═══════════════════════════════ */
+function loadConfig(){
+  document.getElementById("cfgClinica").value=cfg.clinica||"";
+  document.getElementById("cfgTel").value=cfg.tel||"";
+  document.getElementById("cfgEmail").value=cfg.email||"";
+  document.getElementById("cfgBotName").value=cfg.bot||"";
+  document.getElementById("cfgWelcome").value=cfg.welcome||"";
+  document.getElementById("cfgTratamientos").value=cfg.tratamientos||"";
+}
+function saveConfig(){
+  cfg.clinica=document.getElementById("cfgClinica").value;
+  cfg.tel=document.getElementById("cfgTel").value;
+  cfg.email=document.getElementById("cfgEmail").value;
+  cfg.bot=document.getElementById("cfgBotName").value;
+  cfg.welcome=document.getElementById("cfgWelcome").value;
+  cfg.tratamientos=document.getElementById("cfgTratamientos").value;
+  localStorage.setItem("ra_cfg",JSON.stringify(cfg));
+  document.getElementById("sbClinicName").textContent=cfg.clinica||"Mi Clínica";
+  document.getElementById("sbUserName").textContent=cfg.clinica||"Mi Clínica";
+  document.getElementById("sbAvatar").textContent=(cfg.clinica||"C")[0].toUpperCase();
+  showNotif("Configuración guardada ✓","⚙");
 }
 
-function enviarMensajeConTexto(t){
-  document.getElementById("chatInput").value = t;
-  enviarMensaje();
+/* ═══════════════════════════════
+   HELPERS
+═══════════════════════════════ */
+function animNum(id, target){
+  const el=document.getElementById(id); if(!el) return;
+  const cur=parseInt(el.textContent)||0; if(cur===target) return;
+  const step=Math.ceil(Math.abs(target-cur)/18);
+  let c=cur;
+  const tick=()=>{ if(c<target){ c=Math.min(c+step,target); el.textContent=c; requestAnimationFrame(tick); } };
+  requestAnimationFrame(tick);
+}
+function timeAgo(iso){
+  const diff=(Date.now()-new Date(iso))/1000;
+  if(diff<60) return "Ahora";
+  if(diff<3600) return Math.floor(diff/60)+"m";
+  if(diff<86400) return Math.floor(diff/3600)+"h";
+  return Math.floor(diff/86400)+"d";
+}
+function formatDate(iso){
+  const d=new Date(iso);
+  return d.toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"})+" "+pad(d.getHours())+":"+pad(d.getMinutes());
+}
+function showNotif(msg, ico="◎"){
+  const n=document.getElementById("notif");
+  document.getElementById("notif-sub").textContent=msg;
+  n.querySelector(".notif-ico").textContent=ico;
+  n.classList.add("show");
+  clearTimeout(n._t);
+  n._t=setTimeout(()=>n.classList.remove("show"),3200);
+}
+function toggleSwitch(el){ el.classList.toggle("on"); }
+function exportCSV(){
+  const headers=["Nombre","Teléfono","Servicio","Canal","Estado","Fecha"];
+  const rows=leads.map(l=>[l.nombre,l.telefono,l.servicio,l.canal,l.estado,formatDate(l.fecha)]);
+  const csv=[headers,...rows].map(r=>r.join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+  a.download="reactiva_leads_"+new Date().toISOString().slice(0,10)+".csv";
+  a.click();
+  showNotif("CSV exportado correctamente","↓");
 }
 
-function initChat(){
-  addBotMsg(`Hola, soy ${cfg.bot || "Bot"} de ${cfg.clinica || "Clínica"}`);
+/* ═══════════════════════════════
+   LIVE LEADS SIMULATION
+═══════════════════════════════ */
+function simulateLead(){
+  const nombre=randItem(NOMBRES);
+  const servicio=randItem(SVCS);
+  const canal=randItem(CANALES);
+  const lead={id:Date.now(),nombre,telefono:"6"+Math.floor(10000000+Math.random()*89999999),servicio,canal,estado:"Nuevo",fecha:new Date().toISOString(),notas:""};
+  leads.unshift(lead);
+  saveLeads();
+  showNotif(`${nombre} · ${servicio}`,"◎");
+  // Update badge
+  const badge=document.getElementById("sbNewCount");
+  const cur=parseInt(badge.textContent||"0");
+  badge.textContent=cur+1;
+  badge.style.display="flex";
+  renderDashboard();
 }
 
-/* ================= APLICAR CONFIG ================= */
-function applyGlobalCfg(){
-  if(!cfg) return;
-  document.getElementById("clinicaName")?.innerText = cfg.clinica || "Clínica";
-}
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
+document.addEventListener("DOMContentLoaded",()=>{
+  renderDashboard();
+  renderLeadsTable();
+  // Simulate live leads
+  let delay=4000;
+  function nextLead(){
+    simulateLead();
+    delay=4000+Math.random()*5000;
+    setTimeout(nextLead,delay);
+  }
+  setTimeout(nextLead,delay);
+});
 </script>
+</body>
+</html>
