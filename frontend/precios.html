@@ -5,621 +5,635 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReActiva Clínicas — Planes</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
 <style>
 :root {
-  --negro:       #07090d;
-  --blanco:      #f0ede8;
-  --verde:       #00e676;
-  --verde-dim:   rgba(0,230,118,0.1);
-  --verde-borde: rgba(0,230,118,0.28);
-  --gris:        #111418;
-  --gris2:       #141921;
-  --gris3:       #1a2028;
-  --gris-texto:  #7a8494;
-  --oro:         #d4a843;
-  --oro-dim:     rgba(212,168,67,0.1);
-  --error:       #ff4d6a;
+  --bg:#07090d; --s2:#141921; --text:#f0ede8; --mut:#7a8494; --sub:#bcc3cc;
+  --g:#00e676; --gdim:rgba(0,230,118,.1); --gbrd:rgba(0,230,118,.28);
+  --r:#ff4d6a; --rdim:rgba(255,77,106,.1);
+  --gold:#d4a843; --rad:20px;
 }
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);min-height:100vh;overflow-x:hidden}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:.4}
-.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px)}
-.orb-1{width:500px;height:500px;background:rgba(0,230,118,0.055);top:-100px;left:-100px}
-.orb-2{width:400px;height:400px;background:rgba(212,168,67,0.04);bottom:-80px;right:-80px}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box }
+html { scroll-behavior:smooth }
+body { font-family:'Syne',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden }
+
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:999; opacity:.4;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+.orb { position:fixed; border-radius:50%; pointer-events:none; filter:blur(80px) }
+.orb-1 { width:400px; height:400px; background:rgba(0,230,118,.055); top:-100px; left:-80px }
+.orb-2 { width:320px; height:320px; background:rgba(212,168,67,.04); bottom:-60px; right:-60px }
+
+/* BANNER */
+.banner {
+  position:relative; z-index:10;
+  background:linear-gradient(90deg,var(--rdim),rgba(212,168,67,.08),var(--rdim));
+  border-bottom:1px solid rgba(255,77,106,.22);
+  padding:12px 16px; display:flex; align-items:center; justify-content:center;
+  gap:14px; flex-wrap:wrap; text-align:center;
+}
+.banner-text { font-size:.8rem; font-weight:600 }
+.banner-text span { color:var(--gold) }
+.timer { display:flex; align-items:center; gap:6px }
+.t-unit { display:flex; flex-direction:column; align-items:center }
+.t-num {
+  font-family:'Cormorant Garamond',serif; font-size:1.5rem; font-weight:700;
+  color:var(--r); background:var(--rdim); border:1px solid rgba(255,77,106,.2);
+  border-radius:8px; padding:3px 9px; min-width:40px; text-align:center; line-height:1;
+}
+.t-lbl { font-size:.5rem; color:var(--mut); text-transform:uppercase; letter-spacing:.08em; margin-top:3px }
+.t-sep { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--r); opacity:.5; padding-bottom:12px }
+.banner-tag { font-size:.65rem; font-weight:700; background:var(--rdim); border:1px solid rgba(255,77,106,.3); color:var(--r); padding:4px 10px; border-radius:100px; animation:blink 2s ease-in-out infinite }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.55} }
 
 /* NAV */
-nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:20px 56px;background:rgba(7,9,13,0.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.04)}
-.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
-.logo-text{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:var(--blanco);letter-spacing:0.01em;line-height:1}
-.nav-link{color:var(--gris-texto);text-decoration:none;font-size:0.82rem;font-weight:500;letter-spacing:0.05em;transition:color 0.2s}
-.nav-link:hover{color:var(--blanco)}
+nav {
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 24px; background:rgba(7,9,13,.9);
+  -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.logo { display:flex; align-items:center; gap:8px; text-decoration:none }
+.logo-text { font-family:'Cormorant Garamond',serif; font-size:1.35rem; font-weight:700; color:var(--text) }
+.nav-back { color:var(--mut); text-decoration:none; font-size:.8rem; font-weight:500; letter-spacing:.04em; transition:color .2s }
+.nav-back:hover { color:var(--text) }
 
-/* HERO */
-.hero{position:relative;z-index:1;text-align:center;padding:100px 24px 64px}
-.pill{display:inline-flex;align-items:center;gap:8px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.73rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;padding:7px 18px;border-radius:100px;margin-bottom:32px;animation:fadeDown 0.6s ease both}
-.pill::before{content:'';width:6px;height:6px;background:var(--verde);border-radius:50%;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.7)}}
-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,6vw,5rem);font-weight:700;line-height:1.05;margin-bottom:22px;max-width:760px;margin-left:auto;margin-right:auto;animation:fadeDown 0.7s 0.1s ease both}
-h1 em{font-style:italic;color:var(--verde)}
-.hero-sub{color:var(--gris-texto);font-size:1rem;max-width:480px;margin:0 auto;line-height:1.75;animation:fadeDown 0.7s 0.2s ease both}
-@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+/* HEADER */
+.page-header { position:relative; z-index:1; text-align:center; padding:60px 20px 40px }
+.pill { font-size:.62rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--g); opacity:.7; margin-bottom:10px }
+h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,5vw,3.2rem); font-weight:700; line-height:1.08; margin-bottom:10px }
+h1 em { font-style:italic; color:var(--g) }
+.header-sub { font-size:.87rem; color:var(--mut); line-height:1.7; max-width:420px; margin:0 auto 28px }
 
-/* TRUST STRIP */
-.trust-strip{position:relative;z-index:1;display:flex;justify-content:center;flex-wrap:wrap;gap:28px;padding:40px 24px 72px;animation:fadeDown 0.7s 0.3s ease both}
-.trust-item{display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--gris-texto);font-weight:500}
-.trust-dot{width:16px;height:16px;border-radius:50%;background:var(--verde-dim);border:1px solid var(--verde-borde);display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--verde)}
+/* TABS */
+.tab-sw { display:inline-flex; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:100px; padding:4px; gap:4px }
+.tab-btn {
+  padding:9px 22px; border-radius:100px; border:none;
+  font-family:'Syne',sans-serif; font-size:.8rem; font-weight:600;
+  cursor:pointer; transition:all .22s; color:var(--mut); background:transparent; position:relative;
+}
+.tab-btn.on { background:var(--g); color:var(--bg) }
+.tab-btn .hot { position:absolute; top:-8px; right:-4px; font-size:.52rem; font-weight:700; background:var(--r); color:#fff; padding:2px 6px; border-radius:100px; white-space:nowrap }
+
+/* PANELS */
+.panels { position:relative; z-index:1; padding:0 16px 80px; max-width:1000px; margin:0 auto }
+.panel { display:none }
+.panel.on { display:block }
+
+/* OFFER BAND */
+.offer-band {
+  background:linear-gradient(130deg,var(--rdim),rgba(212,168,67,.05));
+  border:1px solid rgba(255,77,106,.22); border-radius:14px;
+  padding:14px 18px; margin-bottom:24px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+}
+.ob-info strong { font-size:.87rem; font-weight:700; display:block; margin-bottom:2px }
+.ob-info small { font-size:.73rem; color:var(--mut) }
+.ob-timer {
+  display:flex; gap:4px; align-items:center;
+  background:var(--rdim); border:1px solid rgba(255,77,106,.2);
+  border-radius:8px; padding:5px 12px;
+  font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:700; color:var(--r);
+}
+.ob-timer small { font-size:.58rem; color:var(--mut); font-family:'Syne',sans-serif; font-weight:400 }
+
+/* GRID */
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:18px }
+@media(max-width:640px) { .grid { grid-template-columns:1fr } .social-inner { flex-direction:column; text-align:center } .ss-div { display:none } }
 
 /* CARDS */
-.pricing-grid{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:0 24px 100px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.price-card{background:var(--gris2);border:1px solid rgba(255,255,255,0.055);border-radius:24px;padding:40px 36px;position:relative;overflow:hidden;transition:transform 0.35s cubic-bezier(.2,.8,.3,1),border-color 0.3s,box-shadow 0.35s;animation:fadeUp 0.7s 0.4s ease both}
-.price-card:hover{transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,0.4)}
-.price-card::before{content:'';position:absolute;inset:0;border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,0.025) 0%,transparent 60%);pointer-events:none}
-.price-card.featured{border-color:var(--verde);background:linear-gradient(160deg,#0d1f14 0%,var(--gris2) 55%);animation-delay:0.5s}
-.price-card.featured:hover{box-shadow:0 24px 60px rgba(0,230,118,0.15)}
-.price-card.featured::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--verde),transparent)}
-.top-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--verde);color:var(--negro);font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 20px;border-radius:0 0 12px 12px;white-space:nowrap}
-.plan-label{font-size:0.72rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:20px;display:flex;align-items:center;gap:8px}
-.price-card.featured .plan-label{color:var(--verde)}
-.plan-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
-.price-number{display:flex;align-items:baseline;gap:4px;margin-bottom:6px}
-.price-currency{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--gris-texto);margin-bottom:8px}
-.price-amount{font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:700;line-height:1}
-.price-period{font-size:0.85rem;color:var(--gris-texto);margin-bottom:4px}
-.price-note{font-size:0.78rem;color:var(--gris-texto);line-height:1.6;margin-bottom:28px;padding:12px 14px;background:rgba(255,255,255,0.03);border-radius:10px;border-left:2px solid var(--verde-borde)}
-.price-note strong{color:var(--verde)}
-.sep{height:1px;background:rgba(255,255,255,0.06);margin-bottom:28px}
-.feature-list{list-style:none;margin-bottom:36px}
-.feature-list li{display:flex;align-items:flex-start;gap:12px;font-size:0.87rem;color:#bcc3cc;margin-bottom:13px;line-height:1.5}
-.fi{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem;margin-top:1px}
-.fi.yes{background:var(--verde-dim);color:var(--verde);border:1px solid var(--verde-borde)}
-.fi.no{background:rgba(255,255,255,0.04);color:#3a404a;border:1px solid rgba(255,255,255,0.06)}
-.feature-list li.dim{color:var(--gris-texto)}
-.btn-card{display:block;width:100%;padding:16px 20px;border-radius:14px;font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:600;letter-spacing:0.04em;cursor:pointer;border:none;text-align:center;text-decoration:none;transition:all 0.25s cubic-bezier(.2,.8,.3,1)}
-.btn-card.primary{background:var(--verde);color:var(--negro)}
-.btn-card.primary:hover{background:#1fffa0;box-shadow:0 10px 40px rgba(0,230,118,0.4);transform:translateY(-2px)}
-.btn-card.ghost{background:transparent;color:var(--blanco);border:1px solid rgba(255,255,255,0.12)}
-.btn-card.ghost:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.04)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card {
+  background:var(--s2); border:1px solid rgba(255,255,255,.055); border-radius:var(--rad);
+  padding:34px 28px; position:relative; overflow:hidden;
+  transition:transform .35s cubic-bezier(.2,.8,.3,1), box-shadow .35s;
+}
+.card:hover { transform:translateY(-5px); box-shadow:0 20px 50px rgba(0,0,0,.4) }
+.card::before { content:''; position:absolute; inset:0; border-radius:var(--rad); background:linear-gradient(135deg,rgba(255,255,255,.025),transparent 60%); pointer-events:none }
+.card::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--g),transparent) }
+.card.green { border-color:var(--g); background:linear-gradient(160deg,#0d1f14,var(--s2) 55%) }
+.card.green:hover { box-shadow:0 20px 50px rgba(0,230,118,.14) }
+.card.red { border-color:rgba(255,77,106,.3); background:linear-gradient(160deg,rgba(255,77,106,.05),var(--s2) 55%) }
+.card.red::after { background:linear-gradient(90deg,transparent,var(--r),transparent) }
+.card.red:hover { box-shadow:0 20px 50px rgba(255,77,106,.12) }
+.badge { position:absolute; top:-1px; left:50%; transform:translateX(-50%); font-size:.65rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:4px 18px; border-radius:0 0 10px 10px; white-space:nowrap }
+.badge.g { background:var(--g); color:var(--bg) }
+.plan-name { font-size:.7rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--mut); margin-bottom:18px; display:flex; align-items:center; gap:8px }
+.plan-name::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.06) }
+.card.green .plan-name { color:var(--g) }
+.card.red .plan-name { color:var(--r) }
+.price-row { display:flex; align-items:baseline; gap:3px; margin-bottom:3px }
+.cur { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; color:var(--mut) }
+.amount { font-family:'Cormorant Garamond',serif; font-size:3.6rem; font-weight:700; line-height:1 }
+.amount.red { color:var(--r) }
+.old-price { text-decoration:line-through; opacity:.32; font-size:1.1rem; font-family:'Cormorant Garamond',serif; font-weight:700; margin-right:4px }
+.period { font-size:.82rem; color:var(--mut); margin-bottom:4px }
+.save-tag { display:inline-block; margin-bottom:6px; font-size:.7rem; font-weight:700; color:var(--r); background:var(--rdim); border:1px solid rgba(255,77,106,.25); padding:2px 9px; border-radius:100px }
+.note { font-size:.77rem; color:var(--mut); line-height:1.6; margin-bottom:22px; padding:10px 12px; background:rgba(255,255,255,.03); border-radius:9px; border-left:2px solid var(--gbrd) }
+.note strong { color:var(--g) }
+.note.r { border-left-color:rgba(255,77,106,.4) }
+.note.r strong { color:var(--r) }
+.sep { height:1px; background:rgba(255,255,255,.06); margin-bottom:22px }
+.features { list-style:none; margin-bottom:30px }
+.features li { display:flex; align-items:flex-start; gap:10px; font-size:.84rem; color:var(--sub); margin-bottom:11px; line-height:1.5 }
+.features li.dim { color:var(--mut) }
+.fi { width:17px; height:17px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.58rem; margin-top:1px }
+.fi.y { background:var(--gdim); color:var(--g); border:1px solid var(--gbrd) }
+.fi.n { background:rgba(255,255,255,.04); color:#3a404a; border:1px solid rgba(255,255,255,.06) }
 
-/* SOCIAL PROOF */
-.social-bar{position:relative;z-index:1;max-width:780px;margin:0 auto 80px;padding:0 24px}
-.social-inner{background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.06);border-radius:18px;padding:28px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-.social-stat{text-align:center}
-.social-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--verde);line-height:1}
-.social-label{font-size:0.72rem;color:var(--gris-texto);margin-top:4px;letter-spacing:0.06em}
-.social-divider{width:1px;height:40px;background:rgba(255,255,255,0.06);flex-shrink:0}
-.social-quote{font-size:0.85rem;color:#bcc3cc;line-height:1.65;max-width:340px;font-style:italic}
-.social-quote strong{color:var(--blanco);font-style:normal}
+/* BUTTONS */
+.btn { display:block; width:100%; padding:15px 20px; border-radius:13px; font-family:'Syne',sans-serif; font-size:.86rem; font-weight:600; letter-spacing:.04em; cursor:pointer; border:none; text-align:center; text-decoration:none; transition:all .25s cubic-bezier(.2,.8,.3,1) }
+.btn.primary { background:var(--g); color:var(--bg) }
+.btn.primary:hover { background:#1fffa0; box-shadow:0 10px 36px rgba(0,230,118,.38); transform:translateY(-2px) }
+.btn.danger { background:var(--r); color:#fff }
+.btn.danger:hover { background:#ff7090; box-shadow:0 10px 36px rgba(255,77,106,.33); transform:translateY(-2px) }
+.btn.ghost { background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.12) }
+.btn.ghost:hover { border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.04) }
+
+/* TRUST */
+.trust { position:relative; z-index:1; display:flex; justify-content:center; flex-wrap:wrap; gap:18px; padding:20px 16px 40px }
+.ti { display:flex; align-items:center; gap:7px; font-size:.78rem; color:var(--mut); font-weight:500 }
+.td { width:15px; height:15px; border-radius:50%; background:var(--gdim); border:1px solid var(--gbrd); display:flex; align-items:center; justify-content:center; font-size:.55rem; color:var(--g); flex-shrink:0 }
+
+/* SOCIAL */
+.social { position:relative; z-index:1; max-width:740px; margin:0 auto 50px; padding:0 16px }
+.social-inner { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.06); border-radius:18px; padding:24px 28px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap }
+.ss { text-align:center }
+.ss-num { font-family:'Cormorant Garamond',serif; font-size:1.9rem; font-weight:700; color:var(--g); line-height:1 }
+.ss-lbl { font-size:.7rem; color:var(--mut); margin-top:3px; letter-spacing:.06em }
+.ss-div { width:1px; height:36px; background:rgba(255,255,255,.06); flex-shrink:0 }
+.ss-quote { font-size:.83rem; color:var(--sub); line-height:1.65; max-width:300px; font-style:italic }
+.ss-quote strong { color:var(--text); font-style:normal }
 
 /* FAQ */
-.faq{position:relative;z-index:1;max-width:640px;margin:0 auto 100px;padding:0 24px}
-.faq-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;text-align:center;margin-bottom:48px}
-.faq-item{border-bottom:1px solid rgba(255,255,255,0.06);padding:20px 0;cursor:pointer}
-.faq-q{display:flex;justify-content:space-between;align-items:center;font-size:0.9rem;font-weight:600;color:var(--blanco);gap:16px}
-.faq-arrow{width:24px;height:24px;border-radius:50%;flex-shrink:0;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.7rem;display:flex;align-items:center;justify-content:center;transition:transform 0.3s}
-.faq-item.open .faq-arrow{transform:rotate(180deg)}
-.faq-a{display:none;color:var(--gris-texto);font-size:0.85rem;line-height:1.75;padding-top:14px}
-.faq-item.open .faq-a{display:block}
+.faq { position:relative; z-index:1; max-width:600px; margin:0 auto 80px; padding:0 16px }
+.faq-title { font-family:'Cormorant Garamond',serif; font-size:1.9rem; font-weight:700; text-align:center; margin-bottom:40px }
+.faq-item { border-bottom:1px solid rgba(255,255,255,.06); padding:18px 0; cursor:pointer }
+.faq-q { display:flex; justify-content:space-between; align-items:center; font-size:.87rem; font-weight:600; gap:14px }
+.faq-arr { width:22px; height:22px; border-radius:50%; flex-shrink:0; background:var(--gdim); border:1px solid var(--gbrd); color:var(--g); font-size:.65rem; display:flex; align-items:center; justify-content:center; transition:transform .3s }
+.faq-item.open .faq-arr { transform:rotate(180deg) }
+.faq-a { display:none; color:var(--mut); font-size:.83rem; line-height:1.75; padding-top:12px }
+.faq-item.open .faq-a { display:block }
 
 /* TOAST */
-.toast{position:fixed;top:24px;right:24px;z-index:9999;display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:12px;font-size:0.85rem;font-weight:600;max-width:320px;pointer-events:none;transform:translateY(-12px) translateX(20px);opacity:0;transition:all 0.35s cubic-bezier(.2,.8,.3,1)}
-.toast.show{transform:translateY(0) translateX(0);opacity:1}
-.toast.success{background:#0d2218;border:1px solid var(--verde-borde);color:var(--verde)}
-.toast.error{background:#200d12;border:1px solid rgba(255,77,106,0.3);color:var(--error)}
+.toast { position:fixed; top:20px; right:16px; z-index:9999; display:flex; align-items:center; gap:8px; padding:12px 16px; border-radius:11px; font-size:.83rem; font-weight:600; max-width:300px; pointer-events:none; transform:translateY(-10px) translateX(10px); opacity:0; transition:all .3s cubic-bezier(.2,.8,.3,1) }
+.toast.show { transform:none; opacity:1 }
+.toast.ok { background:#0d2218; border:1px solid var(--gbrd); color:var(--g) }
+.toast.err { background:#200d12; border:1px solid rgba(255,77,106,.3); color:var(--r) }
 
 /* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(14px);z-index:200;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.active{display:flex}
-.modal{background:#0e1318;border:1px solid rgba(255,255,255,0.09);border-radius:24px;padding:44px;max-width:440px;width:100%;position:relative;animation:slideUp 0.3s cubic-bezier(.2,.8,.3,1);max-height:90vh;overflow-y:auto}
-@keyframes slideUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-.modal-close{position:absolute;top:18px;right:20px;background:rgba(255,255,255,0.06);border:none;color:var(--gris-texto);width:30px;height:30px;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
-.modal-close:hover{background:rgba(255,255,255,0.1);color:var(--blanco)}
-.modal-plan-badge{display:inline-flex;align-items:center;gap:6px;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:8px;margin-bottom:18px}
-.modal h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;margin-bottom:8px;line-height:1.1}
-.modal-sub{color:var(--gris-texto);font-size:0.85rem;margin-bottom:28px;line-height:1.65}
-.modal-price-recap{display:flex;align-items:center;justify-content:space-between;background:rgba(0,230,118,0.05);border:1px solid var(--verde-borde);border-radius:12px;padding:14px 18px;margin-bottom:24px}
-.modal-price-recap-label{font-size:0.82rem;color:var(--gris-texto)}
-.modal-price-recap-amount{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--verde)}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:7px}
-.field input{width:100%;padding:13px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:12px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:0.9rem;outline:none;transition:border-color 0.2s,background 0.2s}
-.field input:focus{border-color:var(--verde);background:rgba(0,230,118,0.04)}
-.field input.error-state{border-color:var(--error);background:rgba(255,77,106,0.05)}
-.err{color:var(--error);font-size:0.8rem;margin-bottom:12px;display:none;padding:10px 14px;background:rgba(255,77,106,0.08);border:1px solid rgba(255,77,106,0.2);border-radius:8px}
-.btn-submit{width:100%;padding:15px;margin-top:8px;background:var(--verde);color:var(--negro);border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
-.btn-submit:hover:not(:disabled){background:#1fffa0;box-shadow:0 8px 28px rgba(0,230,118,0.35)}
-.btn-submit:disabled{opacity:0.6;cursor:not-allowed}
-.btn-spinner{display:none;width:18px;height:18px;border:2.5px solid rgba(0,0,0,0.2);border-top-color:var(--negro);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn-submit.loading .btn-spinner{display:block}
-.btn-submit.loading .btn-label{opacity:0.7}
-.secure-note{display:flex;align-items:center;justify-content:center;gap:6px;font-size:0.73rem;color:var(--gris-texto);margin-top:12px}
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.82); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); z-index:200; align-items:center; justify-content:center; padding:16px }
+.overlay.on { display:flex }
+.modal { background:#0e1318; border:1px solid rgba(255,255,255,.09); border-radius:var(--rad); padding:36px 28px; max-width:420px; width:100%; position:relative; animation:mup .3s cubic-bezier(.2,.8,.3,1); max-height:90vh; overflow-y:auto }
+@keyframes mup { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+.modal-x { position:absolute; top:16px; right:18px; background:rgba(255,255,255,.06); border:none; color:var(--mut); width:28px; height:28px; border-radius:50%; font-size:.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s }
+.modal-x:hover { background:rgba(255,255,255,.1); color:var(--text) }
+.m-badge { display:inline-flex; align-items:center; gap:5px; background:var(--gdim); border:1px solid var(--gbrd); color:var(--g); font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:4px 10px; border-radius:7px; margin-bottom:14px }
+.modal h2 { font-family:'Cormorant Garamond',serif; font-size:1.7rem; font-weight:700; margin-bottom:7px; line-height:1.1 }
+.m-sub { color:var(--mut); font-size:.83rem; margin-bottom:22px; line-height:1.65 }
+.recap { display:flex; align-items:center; justify-content:space-between; background:rgba(0,230,118,.05); border:1px solid var(--gbrd); border-radius:11px; padding:12px 16px; margin-bottom:20px }
+.recap-lbl { font-size:.8rem; color:var(--mut) }
+.recap-amt { font-family:'Cormorant Garamond',serif; font-size:1.55rem; font-weight:700; color:var(--g) }
+.steps { display:flex; align-items:center; gap:7px; margin-bottom:20px }
+.step { display:flex; align-items:center; gap:5px; font-size:.73rem; font-weight:600; color:var(--mut) }
+.step.on { color:var(--g) }
+.step-n { width:20px; height:20px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:.62rem; flex-shrink:0 }
+.step.on .step-n { background:var(--gdim); border-color:var(--g) }
+.step-line { flex:1; height:1px; background:rgba(255,255,255,.06) }
+.field { margin-bottom:12px }
+.field label { display:block; font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--mut); margin-bottom:6px }
+.field input { width:100%; padding:12px 14px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); border-radius:11px; color:var(--text); font-family:'Syne',sans-serif; font-size:.88rem; outline:none; transition:border-color .2s, background .2s; -webkit-appearance:none; appearance:none }
+.field input:focus { border-color:var(--g); background:rgba(0,230,118,.04) }
+.field input.bad { border-color:var(--r); background:var(--rdim) }
+.errmsg { color:var(--r); font-size:.78rem; margin-bottom:10px; display:none; padding:9px 12px; background:var(--rdim); border:1px solid rgba(255,77,106,.2); border-radius:8px }
+.submit-btn { width:100%; padding:14px; margin-top:6px; background:var(--g); color:var(--bg); border:none; border-radius:11px; font-family:'Syne',sans-serif; font-size:.88rem; font-weight:700; cursor:pointer; transition:all .25s; display:flex; align-items:center; justify-content:center; gap:9px }
+.submit-btn:hover:not(:disabled) { background:#1fffa0; box-shadow:0 8px 28px rgba(0,230,118,.33) }
+.submit-btn:disabled { opacity:.6; cursor:not-allowed }
+.spinner { display:none; width:16px; height:16px; border:2.5px solid rgba(0,0,0,.2); border-top-color:var(--bg); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0 }
+@keyframes spin { to{transform:rotate(360deg)} }
+.submit-btn.loading .spinner { display:block }
+.submit-btn.loading .btn-lbl { opacity:.7 }
+.secure { display:flex; align-items:center; justify-content:center; gap:5px; font-size:.72rem; color:var(--mut); margin-top:10px }
+.pp-box { margin-top:18px; padding:18px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:13px }
+.pp-box-lbl { font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--mut); margin-bottom:12px; display:flex; align-items:center; gap:7px }
+.pp-box-lbl::before, .pp-box-lbl::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.06) }
+#ppContainer { min-height:44px }
+.success { display:none; text-align:center; padding:12px 0 }
+.success-ico { width:66px; height:66px; border-radius:50%; background:var(--gdim); border:2px solid var(--gbrd); color:var(--g); font-size:1.9rem; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; animation:pop .4s cubic-bezier(.2,.8,.3,1) }
+@keyframes pop { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
+.success h2 { font-family:'Cormorant Garamond',serif; font-size:1.8rem; margin-bottom:10px }
+.success p { color:var(--mut); font-size:.85rem; line-height:1.8 }
+.success strong { color:var(--g) }
+.success-btn { display:inline-block; margin-top:20px; padding:12px 26px; background:var(--g); color:var(--bg); border-radius:9px; font-family:'Syne',sans-serif; font-size:.86rem; font-weight:700; text-decoration:none; cursor:pointer; border:none; transition:all .25s }
+.success-btn:hover { background:#1fffa0; transform:translateY(-2px) }
 
-/* PAYPAL WRAPPER — oculta el fondo amarillo, integra con nuestro diseño */
-.paypal-wrapper{margin-top:20px;padding:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px}
-.paypal-wrapper-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.paypal-wrapper-label::before{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
-.paypal-wrapper-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
-#paypalContainer{min-height:45px}
-
-/* DIVIDER */
-.o-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--gris-texto);font-size:0.75rem}
-.o-divider::before,.o-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.06)}
-
-/* SUCCESS */
-.success-screen{display:none;text-align:center;padding:16px 0}
-.success-icon{width:72px;height:72px;border-radius:50%;background:var(--verde-dim);border:2px solid var(--verde-borde);color:var(--verde);font-size:2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;animation:successPop 0.4s cubic-bezier(.2,.8,.3,1)}
-@keyframes successPop{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
-.success-screen h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;margin-bottom:12px}
-.success-screen p{color:var(--gris-texto);font-size:0.87rem;line-height:1.8}
-.success-screen strong{color:var(--verde)}
-.success-btn{display:inline-block;margin-top:24px;padding:13px 28px;background:var(--verde);color:var(--negro);border-radius:10px;font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700;text-decoration:none;transition:all 0.25s;cursor:pointer;border:none}
-.success-btn:hover{background:#1fffa0;transform:translateY(-2px)}
-
-/* STEP INDICATOR */
-.step-indicator{display:flex;align-items:center;gap:8px;margin-bottom:24px}
-.step{display:flex;align-items:center;gap:6px;font-size:0.75rem;font-weight:600;color:var(--gris-texto)}
-.step.active{color:var(--verde)}
-.step.done{color:var(--gris-texto)}
-.step-num{width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:0.65rem;flex-shrink:0}
-.step.active .step-num{background:var(--verde-dim);border-color:var(--verde)}
-.step.done .step-num{background:rgba(255,255,255,0.04)}
-.step-line{flex:1;height:1px;background:rgba(255,255,255,0.06)}
-
-@media(max-width:680px){
-  .pricing-grid{grid-template-columns:1fr}
-  nav{padding:18px 20px}
-  h1{font-size:2.4rem}
-  .modal{padding:32px 24px}
-  .social-inner{flex-direction:column;text-align:center}
-  .social-divider{display:none}
-}
+footer { position:relative; z-index:1; border-top:1px solid rgba(255,255,255,.04); padding:22px 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px }
+.fc { font-size:.68rem; color:var(--mut) }
+.fl { display:flex; gap:16px }
+.fl a { font-size:.68rem; color:var(--mut); text-decoration:none; transition:color .2s }
+.fl a:hover { color:var(--text) }
 </style>
 </head>
 <body>
 
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
-
 <div class="toast" id="toast"><span id="toastMsg"></span></div>
+
+<!-- BANNER -->
+<div class="banner">
+  <div class="timer">
+    <div class="t-unit"><div class="t-num" id="cd-d">07</div><div class="t-lbl">días</div></div>
+    <div class="t-sep">:</div>
+    <div class="t-unit"><div class="t-num" id="cd-h">00</div><div class="t-lbl">horas</div></div>
+    <div class="t-sep">:</div>
+    <div class="t-unit"><div class="t-num" id="cd-m">00</div><div class="t-lbl">min</div></div>
+    <div class="t-sep">:</div>
+    <div class="t-unit"><div class="t-num" id="cd-s">00</div><div class="t-lbl">seg</div></div>
+  </div>
+  <div class="banner-text">Oferta trimestral — <span>ahorra hasta 222€</span> pagando 3 meses</div>
+  <div class="banner-tag">🔥 Tiempo limitado</div>
+</div>
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="logo-wrap">
-    <svg width="36" height="36" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/><path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/><path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/><polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <a href="index.html" class="logo">
+    <svg width="32" height="32" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/><path d="M10 32C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M10 32C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/><polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span class="logo-text"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
   </a>
-  <a href="index.html" class="nav-link">← Volver al inicio</a>
+  <a href="index.html" class="nav-back">← Volver</a>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="pill">Sin permanencia · Precio único anual</div>
-  <h1>El bot que convierte visitas<br>en <em>pacientes reales</em></h1>
-  <p class="hero-sub">Una sola inversión al año. Sin complicaciones. Sin letra pequeña. El bot trabaja mientras tú atiendes.</p>
-</section>
-
-<!-- TRUST STRIP -->
-<div class="trust-strip">
-  <div class="trust-item"><div class="trust-dot">✓</div> Instalación en 24 horas</div>
-  <div class="trust-item"><div class="trust-dot">✓</div> Soporte técnico incluido</div>
-  <div class="trust-item"><div class="trust-dot">✓</div> Sin permanencia</div>
-  <div class="trust-item"><div class="trust-dot">✓</div> Pago seguro con PayPal</div>
+<!-- HEADER -->
+<div class="page-header">
+  <div class="pill">Planes y precios</div>
+  <h1>Sin sorpresas.<br><em>Sin permanencia.</em></h1>
+  <p class="header-sub">Elige cómo pagar. El bot trabaja igual en todos los planes.</p>
+  <div class="tab-sw">
+    <button class="tab-btn on" onclick="switchTab('mensual',this)">Mensual</button>
+    <button class="tab-btn" onclick="switchTab('trimestral',this)">Trimestral<span class="hot">🔥 Oferta</span></button>
+  </div>
 </div>
 
-<!-- PRICING -->
-<section class="pricing-grid">
-  <div class="price-card">
-    <div class="plan-label">Starter</div>
-    <div class="price-number">
-      <span class="price-currency">€</span>
-      <span class="price-amount">149</span>
+<!-- PANELS -->
+<div class="panels">
+
+  <!-- MENSUAL (PayPal) -->
+  <div class="panel on" id="panel-mensual">
+    <div class="grid">
+      <div class="card">
+        <div class="plan-name">Starter</div>
+        <div class="price-row"><span class="cur">€</span><span class="amount">159</span></div>
+        <div class="period">/ mes · facturación mensual</div>
+        <div class="note"><strong>1 mes de soporte</strong> técnico incluido · cancela cuando quieras</div>
+        <div class="sep"></div>
+        <ul class="features">
+          <li><span class="fi y">✓</span>Bot para web (1 canal)</li>
+          <li><span class="fi y">✓</span>Hasta 50 leads/mes</li>
+          <li><span class="fi y">✓</span>Panel de control</li>
+          <li><span class="fi y">✓</span>Notificaciones por email</li>
+          <li class="dim"><span class="fi n">✕</span>Instagram DMs</li>
+          <li class="dim"><span class="fi n">✕</span>Agendado automático</li>
+        </ul>
+        <button class="btn ghost" onclick="openModal('Starter Mensual',159)">Empezar con Starter — 159€/mes</button>
+      </div>
+      <div class="card green">
+        <div class="badge g">⭐ Más popular</div>
+        <div class="plan-name">Premium</div>
+        <div class="price-row"><span class="cur">€</span><span class="amount">299</span></div>
+        <div class="period">/ mes · facturación mensual</div>
+        <div class="note"><strong>2 meses de soporte</strong> incluidos · desde el 3er mes, soporte a <strong>49€/mes</strong></div>
+        <div class="sep"></div>
+        <ul class="features">
+          <li><span class="fi y">✓</span>Bot web + 3 canales</li>
+          <li><span class="fi y">✓</span>Leads ilimitados</li>
+          <li><span class="fi y">✓</span>Panel en tiempo real</li>
+          <li><span class="fi y">✓</span>Instagram DMs</li>
+          <li><span class="fi y">✓</span>Agendado automático de citas</li>
+          <li><span class="fi y">✓</span>Exportación CSV</li>
+        </ul>
+        <button class="btn primary" onclick="openModal('Premium Mensual',299)">Activar Premium — 299€/mes →</button>
+      </div>
     </div>
-    <div class="price-period">/ año · pago único</div>
-    <div class="price-note"><strong>1 mes de soporte</strong> técnico incluido</div>
-    <div class="sep"></div>
-    <ul class="feature-list">
-      <li><span class="fi yes">✓</span> Bot de captación activo en tu web</li>
-      <li><span class="fi yes">✓</span> Captura automática de leads 24/7</li>
-      <li><span class="fi yes">✓</span> Notificación por email en tiempo real</li>
-      <li><span class="fi yes">✓</span> Panel de gestión de leads</li>
-      <li class="dim"><span class="fi no">✕</span> Panel de métricas avanzado</li>
-      <li class="dim"><span class="fi no">✕</span> Agendado automático de citas</li>
-    </ul>
-    <button class="btn-card ghost" onclick="abrirModal('Starter', 149)">Empezar con Starter — 149€</button>
   </div>
 
-  <div class="price-card featured">
-    <div class="top-badge">⭐ Más popular</div>
-    <div class="plan-label">Premium</div>
-    <div class="price-number">
-      <span class="price-currency">€</span>
-      <span class="price-amount">299</span>
+  <!-- TRIMESTRAL (LemonSqueezy) -->
+  <div class="panel" id="panel-trimestral">
+    <div class="offer-band">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.3rem">🔥</span>
+        <div class="ob-info">
+          <strong>Oferta trimestral — pago único por 3 meses</strong>
+          <small>Precio fijo, sin renovación automática. Tú decides si continúas.</small>
+        </div>
+      </div>
+      <div class="ob-timer">
+        <span id="cd-d2">07</span><small>d</small>&nbsp;
+        <span id="cd-h2">00</span><small>h</small>&nbsp;
+        <span id="cd-m2">00</span><small>m</small>
+      </div>
     </div>
-    <div class="price-period">/ año · pago único</div>
-    <div class="price-note"><strong>2 meses de soporte</strong> incluidos · Desde el 3er mes, soporte por <strong>49€/mes</strong></div>
-    <div class="sep"></div>
-    <ul class="feature-list">
-      <li><span class="fi yes">✓</span> Bot de captación activo en tu web</li>
-      <li><span class="fi yes">✓</span> Captura automática de leads 24/7</li>
-      <li><span class="fi yes">✓</span> Notificación por email en tiempo real</li>
-      <li><span class="fi yes">✓</span> Panel de métricas avanzado</li>
-      <li><span class="fi yes">✓</span> Agendado automático de citas</li>
-      <li><span class="fi yes">✓</span> Prioridad en soporte técnico</li>
-    </ul>
-    <button class="btn-card primary" onclick="abrirModal('Premium', 299)">Activar Premium — 299€</button>
+    <div class="grid">
+      <div class="card red">
+        <div class="plan-name">Starter · Trimestral</div>
+        <div class="price-row" style="gap:8px;align-items:baseline">
+          <span class="old-price">477€</span>
+          <span class="amount red">405€</span>
+        </div>
+        <div class="period">pago único · 3 meses de servicio</div>
+        <div class="save-tag">🔥 Ahorras 72€ · 15% dto.</div>
+        <div class="note r"><strong>Pago único</strong> sin renovación · 1 mes de soporte incluido</div>
+        <div class="sep"></div>
+        <ul class="features">
+          <li><span class="fi y">✓</span>Bot para web (1 canal)</li>
+          <li><span class="fi y">✓</span>Hasta 50 leads/mes</li>
+          <li><span class="fi y">✓</span>Panel de control</li>
+          <li><span class="fi y">✓</span>Notificaciones por email</li>
+          <li class="dim"><span class="fi n">✕</span>Instagram DMs</li>
+          <li class="dim"><span class="fi n">✕</span>Agendado automático</li>
+        </ul>
+        <!-- Reemplaza con tu URL real de LemonSqueezy + ?embed=1 -->
+        <a href="https://TU_TIENDA.lemonsqueezy.com/buy/VARIANT_STARTER_Q?embed=1" class="btn danger lemonsqueezy-button">
+          Pagar 405€ — 3 meses Starter
+        </a>
+      </div>
+      <div class="card green">
+        <div class="badge g">⭐ Más popular</div>
+        <div class="plan-name">Premium · Trimestral</div>
+        <div class="price-row" style="gap:8px;align-items:baseline">
+          <span class="old-price">897€</span>
+          <span class="amount red">675€</span>
+        </div>
+        <div class="period">pago único · 3 meses de servicio</div>
+        <div class="save-tag">🔥 Ahorras 222€ · 25% dto.</div>
+        <div class="note"><strong>Pago único</strong> sin renovación · 2 meses de soporte incluidos</div>
+        <div class="sep"></div>
+        <ul class="features">
+          <li><span class="fi y">✓</span>Bot web + 3 canales</li>
+          <li><span class="fi y">✓</span>Leads ilimitados</li>
+          <li><span class="fi y">✓</span>Panel en tiempo real</li>
+          <li><span class="fi y">✓</span>Instagram DMs</li>
+          <li><span class="fi y">✓</span>Agendado automático de citas</li>
+          <li><span class="fi y">✓</span>Exportación CSV</li>
+        </ul>
+        <!-- Reemplaza con tu URL real de LemonSqueezy + ?embed=1 -->
+        <a href="https://TU_TIENDA.lemonsqueezy.com/buy/VARIANT_PREMIUM_Q?embed=1" class="btn primary lemonsqueezy-button">
+          Pagar 675€ — 3 meses Premium →
+        </a>
+      </div>
+    </div>
   </div>
-</section>
+</div>
+
+<!-- TRUST -->
+<div class="trust">
+  <div class="ti"><div class="td">✓</div>Instalación en 24h</div>
+  <div class="ti"><div class="td">✓</div>Soporte incluido</div>
+  <div class="ti"><div class="td">✓</div>Sin permanencia</div>
+  <div class="ti"><div class="td">✓</div>Pago seguro</div>
+</div>
 
 <!-- SOCIAL PROOF -->
-<div class="social-bar">
+<div class="social">
   <div class="social-inner">
-    <div class="social-stat">
-      <div class="social-num">+94%</div>
-      <div class="social-label">Leads capturados</div>
-    </div>
-    <div class="social-divider"></div>
-    <div class="social-stat">
-      <div class="social-num">24/7</div>
-      <div class="social-label">Bot activo</div>
-    </div>
-    <div class="social-divider"></div>
-    <div class="social-stat">
-      <div class="social-num">&lt;10s</div>
-      <div class="social-label">Aviso al equipo</div>
-    </div>
-    <div class="social-divider"></div>
-    <p class="social-quote">"Desde que instalamos ReActiva captamos un 40% más de consultas. El bot responde mientras el equipo está ocupado y <strong>nunca pierde un contacto</strong>."<br><br>— María Castillo, Clínica Dental Castillo · Madrid</p>
+    <div class="ss"><div class="ss-num">+94%</div><div class="ss-lbl">Leads capturados</div></div>
+    <div class="ss-div"></div>
+    <div class="ss"><div class="ss-num">24/7</div><div class="ss-lbl">Bot activo</div></div>
+    <div class="ss-div"></div>
+    <div class="ss"><div class="ss-num">&lt;10s</div><div class="ss-lbl">Aviso al equipo</div></div>
+    <div class="ss-div"></div>
+    <p class="ss-quote">"Desde que instalamos ReActiva captamos un 40% más de consultas."<br><br>— <strong>María Castillo</strong>, Clínica Dental Castillo · Madrid</p>
   </div>
 </div>
 
 <!-- FAQ -->
 <section class="faq">
   <h2 class="faq-title">Preguntas frecuentes</h2>
-  <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-q">¿Cuánto tarda en instalarse el bot? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">En menos de 24 horas. Te acompañamos paso a paso para que el bot esté funcionando en tu web sin necesidad de conocimientos técnicos.</div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">¿Cuánto tarda en instalarse? <span class="faq-arr">▾</span></div>
+    <div class="faq-a">En menos de 24 horas, sin necesidad de conocimientos técnicos.</div>
   </div>
-  <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-q">¿Qué pasa al tercer mes con el soporte? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">Los primeros meses el soporte técnico está incluido en el precio. A partir de entonces puedes contratar soporte mensual por 49€/mes o gestionar el sistema de forma autónoma.</div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">¿Diferencia entre mensual y trimestral? <span class="faq-arr">▾</span></div>
+    <div class="faq-a">El trimestral es un pago único por 3 meses vía LemonSqueezy, sin renovación automática. Ahorras entre 72€ y 222€. El mensual se paga con PayPal mes a mes.</div>
   </div>
-  <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-q">¿Es seguro el pago? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">Sí. El pago se procesa a través de PayPal. Cifrado SSL, cumplimiento PCI DSS. Nunca vemos ni almacenamos los datos de tu tarjeta.</div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">¿Es seguro el pago? <span class="faq-arr">▾</span></div>
+    <div class="faq-a">Sí. Mensual: PayPal con SSL. Trimestral: LemonSqueezy con certificación PCI DSS.</div>
   </div>
-  <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-q">¿Tiene permanencia? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">No. Es un pago anual único. Si no quieres renovar el año siguiente, simplemente no lo haces. Sin penalizaciones.</div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">¿Tiene permanencia? <span class="faq-arr">▾</span></div>
+    <div class="faq-a">No. Mensual: cancela cuando quieras. Trimestral: pago único sin renovación automática.</div>
   </div>
-  <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-q">¿Funciona con cualquier web de clínica? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">Sí. Compatible con WordPress, Wix, Squarespace o cualquier web con HTML. Se instala copiando un pequeño fragmento de código, en menos de 5 minutos.</div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">¿Funciona con cualquier web? <span class="faq-arr">▾</span></div>
+    <div class="faq-a">Sí. Compatible con WordPress, Wix, Squarespace o cualquier HTML. Se instala en menos de 5 minutos.</div>
   </div>
-  <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-q">¿Qué diferencia hay entre Starter y Premium? <span class="faq-arrow">▾</span></div>
-    <div class="faq-a">Starter incluye captación de leads y notificaciones. Premium añade agendado automático de citas y métricas avanzadas. La mayoría pasan a Premium al renovar.</div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">¿Cuándo caduca la oferta trimestral? <span class="faq-arr">▾</span></div>
+    <div class="faq-a">7 días desde su activación. Después los precios vuelven a su valor estándar.</div>
   </div>
 </section>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay">
+<!-- MODAL (mensual / PayPal) -->
+<div class="overlay" id="overlay">
   <div class="modal">
-    <button class="modal-close" onclick="cerrarModal()">✕</button>
-
-    <!-- FORM SCREEN -->
+    <button class="modal-x" onclick="closeModal()">✕</button>
     <div id="formScreen">
-      <!-- Step indicator -->
-      <div class="step-indicator">
-        <div class="step active" id="step1">
-          <div class="step-num">1</div>
-          <span>Tu cuenta</span>
-        </div>
+      <div class="steps">
+        <div class="step on" id="s1"><div class="step-n">1</div><span>Tu cuenta</span></div>
         <div class="step-line"></div>
-        <div class="step" id="step2">
-          <div class="step-num">2</div>
-          <span>Pago</span>
-        </div>
+        <div class="step" id="s2"><div class="step-n">2</div><span>Pago</span></div>
       </div>
-
-      <div class="modal-plan-badge" id="modalBadge">Plan Starter · 149€/año</div>
-      <h2 id="modalTitle">Activa tu clínica</h2>
-      <p class="modal-sub" id="modalSub">Crea tu cuenta en ReActiva. En menos de 24 horas el bot estará funcionando en tu web.</p>
-
-      <div class="modal-price-recap">
-        <span class="modal-price-recap-label">Total hoy · sin compromiso</span>
-        <span class="modal-price-recap-amount" id="modalPriceDisplay">149€</span>
+      <div class="m-badge" id="mBadge">Plan</div>
+      <h2 id="mTitle">Activa tu clínica</h2>
+      <p class="m-sub" id="mSub">Crea tu cuenta. En menos de 24h el bot estará en tu web.</p>
+      <div class="recap">
+        <span class="recap-lbl">Total hoy · sin compromiso</span>
+        <span class="recap-amt" id="mPrice">159€</span>
       </div>
-
-      <!-- PASO 1: datos de cuenta -->
-      <div id="accountFields">
-        <div class="field">
-          <label>Nombre de la clínica</label>
-          <input type="text" id="inputClinica" placeholder="Clínica Ejemplo" autocomplete="organization">
-        </div>
-        <div class="field">
-          <label>Email de contacto</label>
-          <input type="email" id="inputEmail" placeholder="tu@clinica.com" autocomplete="email">
-        </div>
-        <div class="field">
-          <label>Contraseña</label>
-          <input type="password" id="inputPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
-        </div>
-
-        <p class="err" id="errorMsg"></p>
-
-        <button class="btn-submit" id="btnSubmit" onclick="registrarYContinuar()">
-          <div class="btn-spinner" id="spinner"></div>
-          <span class="btn-label">Continuar al pago →</span>
+      <div id="accountStep">
+        <div class="field"><label>Nombre de la clínica</label><input type="text" id="iClinica" placeholder="Clínica Ejemplo" autocomplete="organization"></div>
+        <div class="field"><label>Email de contacto</label><input type="email" id="iEmail" placeholder="tu@clinica.com" autocomplete="email"></div>
+        <div class="field"><label>Contraseña</label><input type="password" id="iPass" placeholder="Mínimo 8 caracteres" autocomplete="new-password"></div>
+        <div class="errmsg" id="err1"></div>
+        <button class="submit-btn" id="submitBtn" onclick="doRegister()">
+          <div class="spinner" id="spin"></div>
+          <span class="btn-lbl">Continuar al pago →</span>
         </button>
-
-        <p class="secure-note">
-          <svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 1L1 3.5V7C1 10 3.5 12.5 6 13C8.5 12.5 11 10 11 7V3.5L6 1Z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+        <p class="secure">
+          <svg width="11" height="13" viewBox="0 0 12 14" fill="none"><path d="M6 1L1 3.5V7C1 10 3.5 12.5 6 13C8.5 12.5 11 10 11 7V3.5L6 1Z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
           Pago cifrado · Procesado por PayPal
         </p>
       </div>
-
-      <!-- PASO 2: botón PayPal integrado -->
-      <div id="paypalStep" style="display:none;">
-        <p class="err" id="errorMsg2"></p>
-        <div class="paypal-wrapper">
-          <div class="paypal-wrapper-label">Paga con PayPal o tarjeta</div>
-          <div id="paypalContainer"></div>
+      <div id="payStep" style="display:none">
+        <div class="errmsg" id="err2"></div>
+        <div class="pp-box">
+          <div class="pp-box-lbl">Paga con PayPal o tarjeta</div>
+          <div id="ppContainer"></div>
         </div>
-        <p class="secure-note" style="margin-top:14px;">
-          <svg width="12" height="14" viewBox="0 0 12 14" fill="none"><path d="M6 1L1 3.5V7C1 10 3.5 12.5 6 13C8.5 12.5 11 10 11 7V3.5L6 1Z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
-          Tu pago está protegido por PayPal · SSL 256-bit
+        <p class="secure" style="margin-top:12px">
+          <svg width="11" height="13" viewBox="0 0 12 14" fill="none"><path d="M6 1L1 3.5V7C1 10 3.5 12.5 6 13C8.5 12.5 11 10 11 7V3.5L6 1Z" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+          Protegido por PayPal · SSL 256-bit
         </p>
       </div>
     </div>
-
-    <!-- SUCCESS SCREEN -->
-    <div class="success-screen" id="successScreen">
-      <div class="success-icon">✓</div>
+    <div class="success" id="successScreen">
+      <div class="success-ico">✓</div>
       <h2>¡Todo listo!</h2>
-      <p>
-        Tu pago se ha completado y tu cuenta está activa.<br><br>
-        <strong>En menos de 24 horas</strong> el bot estará funcionando en tu web.<br>
-        Revisa tu email para los próximos pasos.
-      </p>
-      <button class="success-btn" onclick="window.location.href='dashboard.html'">Ir al panel →</button>
+      <p>Tu pago se ha completado y tu cuenta está activa.<br><br><strong>En menos de 24 horas</strong> el bot estará en tu web.</p>
+      <button class="success-btn" onclick="location.href='panel.html'">Ir al panel →</button>
     </div>
   </div>
 </div>
 
-<!-- SDK de PayPal — reemplaza TU_CLIENT_ID con tu Client ID real -->
+<footer>
+  <a href="index.html" class="logo" style="text-decoration:none">
+    <svg width="20" height="20" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/></svg>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
+  </a>
+  <span class="fc">© 2025 ReActiva · Automatización para Clínicas Dentales</span>
+  <div class="fl">
+    <a href="index.html">Inicio</a>
+    <a href="panel.html">Panel</a>
+    <a href="login.html">Acceder</a>
+  </div>
+</footer>
+
 <script src="https://www.paypal.com/sdk/js?client-id=Aft4TzRPGR5XowQhpdLGPy5GAJ-GHk9211eKnr_FTfS2CM7T01cwnTSWNyg5Dw-7B5ZfgSZAswhjA1N-&currency=EUR&intent=capture"></script>
-
 <script>
-const BACKEND_URL = "https://reactivaclinicas-production.up.railway.app";
+const API = "https://reactivaclinicas-production.up.railway.app";
+let plan = "Starter Mensual", price = 159, token = null, ppDone = false, toastT;
 
-let planSeleccionado   = "Starter";
-let precioSeleccionado = 149;
-let tokenGlobal        = null;
-let paypalRendered     = false;
+/* COUNTDOWN */
+(function () {
+  const KEY = "ra_end";
+  let end = +localStorage.getItem(KEY) || 0;
+  if (!end) { end = Date.now() + 7 * 864e5; localStorage.setItem(KEY, end); }
+  const pad = n => String(n).padStart(2, "0");
+  function tick() {
+    const d = Math.max(0, end - Date.now());
+    const vals = [Math.floor(d / 864e5), Math.floor(d % 864e5 / 36e5), Math.floor(d % 36e5 / 6e4), Math.floor(d % 6e4 / 1e3)];
+    [["cd-d","cd-h","cd-m","cd-s"], ["cd-d2","cd-h2","cd-m2",null]].forEach(row =>
+      row.forEach((id, i) => { if (id) { const el = document.getElementById(id); if (el) el.textContent = pad(vals[i]); } })
+    );
+  }
+  tick(); setInterval(tick, 1000);
+})();
 
-// ── Toast ──
-let toastTimer;
-function showToast(msg, type = "success") {
-  const toast = document.getElementById("toast");
+/* TABS */
+function switchTab(tab, btn) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("on"));
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("on"));
+  btn.classList.add("on");
+  document.getElementById("panel-" + tab).classList.add("on");
+}
+
+/* TOAST */
+function showToast(msg, type = "ok") {
+  const el = document.getElementById("toast");
   document.getElementById("toastMsg").textContent = msg;
-  toast.className = `toast ${type}`;
-  clearTimeout(toastTimer);
-  requestAnimationFrame(() => {
-    toast.classList.add("show");
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 3800);
-  });
+  el.className = "toast " + type;
+  clearTimeout(toastT);
+  requestAnimationFrame(() => { el.classList.add("show"); toastT = setTimeout(() => el.classList.remove("show"), 3800); });
 }
 
-// ── Abrir modal ──
-function abrirModal(plan, precio) {
-  planSeleccionado   = plan;
-  precioSeleccionado = precio;
-  paypalRendered     = false;
-  tokenGlobal        = null;
-
-  // Reset UI
-  document.getElementById("modalBadge").textContent        = `Plan ${plan} · ${precio}€/año`;
-  document.getElementById("modalPriceDisplay").textContent  = `${precio}€`;
-  document.getElementById("formScreen").style.display      = "block";
-  document.getElementById("successScreen").style.display   = "none";
-  document.getElementById("accountFields").style.display   = "block";
-  document.getElementById("paypalStep").style.display      = "none";
-  document.getElementById("paypalContainer").innerHTML     = "";
-  document.getElementById("errorMsg").style.display        = "none";
-  document.getElementById("modalTitle").textContent        = "Activa tu clínica";
-  document.getElementById("modalSub").textContent          = "Crea tu cuenta en ReActiva. En menos de 24 horas el bot estará funcionando en tu web.";
-  document.getElementById("step1").className               = "step active";
-  document.getElementById("step2").className               = "step";
-  document.getElementById("btnSubmit").style.display       = "flex";
-  document.getElementById("btnSubmit").disabled            = false;
-
-  document.getElementById("modalOverlay").classList.add("active");
+/* MODAL */
+function openModal(p, pr) {
+  plan = p; price = pr; ppDone = false; token = null;
+  document.getElementById("mBadge").textContent = "Plan " + p + " · " + pr + "€";
+  document.getElementById("mPrice").textContent = pr + "€";
+  document.getElementById("formScreen").style.display = "block";
+  document.getElementById("successScreen").style.display = "none";
+  document.getElementById("accountStep").style.display = "block";
+  document.getElementById("payStep").style.display = "none";
+  document.getElementById("ppContainer").innerHTML = "";
+  document.getElementById("err1").style.display = "none";
+  document.getElementById("mTitle").textContent = "Activa tu clínica";
+  document.getElementById("s1").className = "step on";
+  document.getElementById("s2").className = "step";
+  document.getElementById("submitBtn").disabled = false;
+  document.getElementById("overlay").classList.add("on");
   document.body.style.overflow = "hidden";
-  setTimeout(() => document.getElementById("inputClinica").focus(), 100);
+  setTimeout(() => document.getElementById("iClinica").focus(), 100);
 }
+function closeModal() { document.getElementById("overlay").classList.remove("on"); document.body.style.overflow = ""; }
+document.getElementById("overlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeModal(); });
 
-function cerrarModal() {
-  document.getElementById("modalOverlay").classList.remove("active");
-  document.body.style.overflow = "";
-}
-
-document.getElementById("modalOverlay").addEventListener("click", function(e) {
-  if (e.target === this) cerrarModal();
-});
-
-// ── PASO 1: Registro + Login ──
-async function registrarYContinuar() {
-  const clinica = document.getElementById("inputClinica").value.trim();
-  const email   = document.getElementById("inputEmail").value.trim();
-  const pass    = document.getElementById("inputPass").value.trim();
-
-  document.getElementById("errorMsg").style.display = "none";
-  ["inputClinica","inputEmail","inputPass"].forEach(id =>
-    document.getElementById(id).classList.remove("error-state")
-  );
-
-  if (!clinica) return mostrarError("El nombre de la clínica es obligatorio.", "inputClinica");
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-    return mostrarError("Introduce un email válido.", "inputEmail");
-  if (!pass || pass.length < 8)
-    return mostrarError("La contraseña debe tener mínimo 8 caracteres.", "inputPass");
-
-  setLoading(true);
-
+/* REGISTER */
+async function doRegister() {
+  const c = document.getElementById("iClinica").value.trim();
+  const e = document.getElementById("iEmail").value.trim();
+  const p = document.getElementById("iPass").value.trim();
+  hideErr(1);
+  ["iClinica","iEmail","iPass"].forEach(id => document.getElementById(id).classList.remove("bad"));
+  if (!c) return showErr(1, "El nombre de la clínica es obligatorio.", "iClinica");
+  if (!e || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return showErr(1, "Introduce un email válido.", "iEmail");
+  if (!p || p.length < 8) return showErr(1, "La contraseña debe tener mínimo 8 caracteres.", "iPass");
+  setLoad(true);
   try {
-    // Registro
-    const regRes  = await fetch(`${BACKEND_URL}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clinic_name: clinica, email, password: pass })
-    });
-    const regData = await regRes.json();
-    if (!regRes.ok && !regData.error?.toLowerCase().includes("registrado"))
-      throw new Error(regData.error || "Error al crear la cuenta.");
-
-    // Login
-    const loginRes  = await fetch(`${BACKEND_URL}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password: pass })
-    });
-    const loginData = await loginRes.json();
-    if (!loginData.token) throw new Error("No se pudo iniciar sesión.");
-
-    tokenGlobal = loginData.token;
-    localStorage.setItem("reactiva_token", tokenGlobal);
-
-    // Ir al paso 2
-    irAlPasoPago();
-
+    const rr = await fetch(API + "/api/auth/register", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({clinic_name:c, email:e, password:p}) });
+    const rd = await rr.json();
+    if (!rr.ok && !rd.error?.toLowerCase().includes("registrado")) throw new Error(rd.error || "Error al crear la cuenta.");
+    const lr = await fetch(API + "/api/auth/login", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email:e, password:p}) });
+    const ld = await lr.json();
+    if (!ld.token) throw new Error("No se pudo iniciar sesión.");
+    token = ld.token; localStorage.setItem("reactiva_token", token);
+    goToPay();
   } catch (err) {
-    mostrarError(err.message || "Ha ocurrido un error. Inténtalo de nuevo.");
-    showToast(err.message || "Error al registrar.", "error");
-  } finally {
-    setLoading(false);
-  }
+    showErr(1, err.message || "Error. Inténtalo de nuevo.");
+    showToast(err.message || "Error al registrar.", "err");
+  } finally { setLoad(false); }
 }
 
-// ── Mostrar paso 2 (PayPal) ──
-function irAlPasoPago() {
-  document.getElementById("accountFields").style.display = "none";
-  document.getElementById("paypalStep").style.display    = "block";
-  document.getElementById("step1").className = "step done";
-  document.getElementById("step2").className = "step active";
-  document.getElementById("modalTitle").textContent = "Completa el pago";
-  document.getElementById("modalSub").textContent   = "Paga de forma segura con tu cuenta PayPal o con tarjeta de crédito/débito.";
-
-  if (!paypalRendered) renderPayPal();
+function goToPay() {
+  document.getElementById("accountStep").style.display = "none";
+  document.getElementById("payStep").style.display = "block";
+  document.getElementById("s1").className = "step";
+  document.getElementById("s2").className = "step on";
+  document.getElementById("mTitle").textContent = "Completa el pago";
+  if (!ppDone) { ppDone = true; renderPP(); }
 }
 
-// ── Renderizar botón PayPal ──
-function renderPayPal() {
-  paypalRendered = true;
-
+function renderPP() {
   paypal.Buttons({
-    style: {
-      layout : "vertical",
-      color  : "black",   // negro encaja con nuestro diseño oscuro
-      shape  : "rect",
-      label  : "pay",
-      height : 45
-    },
-
+    style: { layout:"vertical", color:"black", shape:"rect", label:"pay", height:44 },
     createOrder: async () => {
-      const res = await fetch(`${BACKEND_URL}/api/pagos/create-order`, {
-        method : "POST",
-        headers: {
-          "Content-Type" : "application/json",
-          "Authorization": `Bearer ${tokenGlobal}`
-        },
-        body: JSON.stringify({ plan: planSeleccionado, amount: precioSeleccionado })
-      });
-      const data = await res.json();
-      if (!data.id) throw new Error("No se pudo crear la orden de pago.");
-      return data.id;
+      const r = await fetch(API + "/api/pagos/create-order", { method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+token}, body:JSON.stringify({plan, amount:price}) });
+      const d = await r.json();
+      if (!d.id) throw new Error("No se pudo crear la orden.");
+      return d.id;
     },
-
     onApprove: async (data) => {
-      setLoading2(true);
+      setPayLoad(true);
       try {
-        const res = await fetch(`${BACKEND_URL}/api/pagos/capture-order`, {
-          method : "POST",
-          headers: {
-            "Content-Type" : "application/json",
-            "Authorization": `Bearer ${tokenGlobal}`
-          },
-          body: JSON.stringify({
-            orderID: data.orderID,
-            plan   : planSeleccionado,
-            amount : precioSeleccionado
-          })
-        });
-        const result = await res.json();
-        if (!result.success) throw new Error(result.error || "Error al confirmar el pago.");
-
-        // Éxito
-        document.getElementById("formScreen").style.display   = "none";
+        const r = await fetch(API + "/api/pagos/capture-order", { method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+token}, body:JSON.stringify({orderID:data.orderID, plan, amount:price}) });
+        const res = await r.json();
+        if (!res.success) throw new Error(res.error || "Error al confirmar.");
+        document.getElementById("formScreen").style.display = "none";
         document.getElementById("successScreen").style.display = "block";
-        showToast("¡Pago completado! Bienvenido a ReActiva ✓", "success");
-
-      } catch (err) {
-        mostrarError2(err.message);
-        showToast(err.message, "error");
-      } finally {
-        setLoading2(false);
-      }
+        showToast("¡Pago completado! Bienvenido a ReActiva ✓");
+      } catch (err) { showErr(2, err.message); showToast(err.message, "err"); }
+      finally { setPayLoad(false); }
     },
-
-    onCancel: () => {
-      mostrarError2("Pago cancelado. Puedes intentarlo de nuevo cuando quieras.");
-    },
-
-    onError: (err) => {
-      console.error("PayPal error:", err);
-      mostrarError2("Error en el pago. Por favor inténtalo de nuevo.");
-      showToast("Error en el pago de PayPal.", "error");
-    }
-
-  }).render("#paypalContainer");
+    onCancel: () => showErr(2, "Pago cancelado. Puedes intentarlo cuando quieras."),
+    onError: (err) => { console.error(err); showErr(2, "Error en el pago. Inténtalo de nuevo."); showToast("Error PayPal.", "err"); }
+  }).render("#ppContainer");
 }
 
-// ── Helpers ──
-function mostrarError(msg, inputId) {
-  const el = document.getElementById("errorMsg");
-  el.textContent = msg;
-  el.style.display = "block";
-  if (inputId) {
-    document.getElementById(inputId).classList.add("error-state");
-    document.getElementById(inputId).focus();
-  }
+function showErr(n, msg, id) {
+  const el = document.getElementById("err" + n); el.textContent = msg; el.style.display = "block";
+  if (id) { const i = document.getElementById(id); i.classList.add("bad"); i.focus(); }
 }
+function hideErr(n) { document.getElementById("err" + n).style.display = "none"; }
+function setLoad(s) { const b = document.getElementById("submitBtn"); b.disabled = s; b.classList.toggle("loading", s); document.getElementById("spin").style.display = s ? "block" : "none"; }
+function setPayLoad(s) { const c = document.getElementById("ppContainer"); c.style.opacity = s ? .5 : 1; c.style.pointerEvents = s ? "none" : "auto"; }
 
-function mostrarError2(msg) {
-  const el = document.getElementById("errorMsg2");
-  el.textContent = msg;
-  el.style.display = "block";
-}
-
-function setLoading(state) {
-  const btn = document.getElementById("btnSubmit");
-  btn.disabled = state;
-  btn.classList.toggle("loading", state);
-  document.getElementById("spinner").style.display = state ? "block" : "none";
-}
-
-function setLoading2(state) {
-  document.getElementById("paypalContainer").style.opacity = state ? "0.5" : "1";
-  document.getElementById("paypalContainer").style.pointerEvents = state ? "none" : "auto";
-}
-
-function toggleFaq(el) { el.classList.toggle("open"); }
-
-["inputClinica","inputEmail","inputPass"].forEach(id => {
-  document.getElementById(id)?.addEventListener("keydown", e => {
-    if (e.key === "Enter") registrarYContinuar();
-  });
+["iClinica","iEmail","iPass"].forEach(id => {
+  const el = document.getElementById(id);
+  el?.addEventListener("keydown", e => { if (e.key === "Enter") doRegister(); });
+  el?.addEventListener("input", () => el.classList.remove("bad"));
 });
 </script>
 </body>

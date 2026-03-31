@@ -1,0 +1,24 @@
+<h2>Admin Panel</h2>
+
+<button onclick="loadCompanies()">Companies</button>
+<button onclick="loadUsers()">Users</button>
+
+<div id="output"></div>
+
+<script>
+const API = "https://tu-backend.com"
+
+async function loadCompanies(){
+  const res = await fetch(`${API}/admin/companies`);
+  const data = await res.json();
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2);
+}
+
+async function loadUsers(){
+  const res = await fetch(`${API}/admin/users`);
+  const data = await res.json();
+  document.getElementById("output").innerText =
+    JSON.stringify(data, null, 2);
+}
+</script>

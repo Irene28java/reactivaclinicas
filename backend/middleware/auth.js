@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { createTenantIfNotExists } = require("../services/tenant.service");
 
 module.exports = function(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -14,8 +15,7 @@ module.exports = function(req, res, next) {
 
         req.user = {
             id: decoded.id,
-            clinic_name: decoded.clinic_name,
-            plan: decoded.plan
+           email: decoded.email
         };
 
         next();
