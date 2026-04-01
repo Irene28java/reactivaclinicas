@@ -18,6 +18,7 @@
     "dotenv": "^17.3.1",
     "express": "^4.22.1",
     "gmail-send": "^1.8.14",
+    "helmet": "^8.1.0",
     "imap-simple": "^5.1.0",
     "jsonwebtoken": "^9.0.3",
     "mailparser": "^3.9.4",

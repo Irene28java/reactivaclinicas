@@ -1,3 +1,4 @@
+// backend/services/tenant.services.js
 const db = require("../database");
 const crypto = require("crypto");
 
@@ -8,13 +9,14 @@ function createTenantIfNotExists(email, callback) {
     (err, user) => {
       if (err) return callback(err);
 
-      // si usuario ya tiene tenant
+      // ✅ SI YA TIENE TENANT → OK
       if (user && user.tenant_id) {
         return callback(null, user.tenant_id);
       }
 
       const tenantId = crypto.randomUUID();
 
+      // crear tenant
       db.run(
         `INSERT INTO tenants (id, name, status)
          VALUES (?, ?, 'active')`,
@@ -22,16 +24,28 @@ function createTenantIfNotExists(email, callback) {
         (err) => {
           if (err) return callback(err);
 
-          db.run(
-            `INSERT INTO users (email, tenant_id, role)
-             VALUES (?, ?, 'owner')`,
-            [email, tenantId],
-            function (err2) {
-              if (err2) return callback(err2);
-
-              callback(null, tenantId);
-            }
-          );
+          // ✅ SI USER EXISTE → UPDATE
+          if (user) {
+            db.run(
+              `UPDATE users SET tenant_id=? WHERE id=?`,
+              [tenantId, user.id],
+              (err2) => {
+                if (err2) return callback(err2);
+                callback(null, tenantId);
+              }
+            );
+          } else {
+            // ✅ SI NO EXISTE → CREATE
+            db.run(
+              `INSERT INTO users (email, tenant_id, role)
+               VALUES (?, ?, 'owner')`,
+              [email, tenantId],
+              function (err2) {
+                if (err2) return callback(err2);
+                callback(null, tenantId);
+              }
+            );
+          }
         }
       );
     }

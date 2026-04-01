@@ -1,15 +1,37 @@
-const OTP_STORE = new Map();
+//backend>services>otpService.js 
 
-function sendOTP(email) {
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    OTP_STORE.set(email, otp);
-    return otp;
+const db = require("../database");
+const bcrypt = require("bcryptjs");
+
+// generar OTP
+function createOTP(email, code) {
+  const hash = bcrypt.hashSync(code, 10);
+
+  db.run(`
+    INSERT INTO otp_codes (email, code_hash, expires_at)
+    VALUES (?, ?, datetime('now', '+5 minutes'))
+  `, [email.toLowerCase(), hash]);
 }
 
-function verifyOTP(email, code) {
-    if (OTP_STORE.get(email) != code) {
-        throw new Error("Invalid OTP");
-    }
+// verificar OTP
+function verifyOTP(email, code, callback) {
+  db.get(`
+    SELECT * FROM otp_codes
+    WHERE email=? AND used=0
+    ORDER BY id DESC LIMIT 1
+  `, [email.toLowerCase()], async (err, row) => {
+
+    if (err || !row) return callback("Invalid OTP");
+
+    const valid = await bcrypt.compare(code, row.code_hash);
+
+    if (!valid) return callback("Invalid OTP");
+
+    // marcar como usado
+    db.run(`UPDATE otp_codes SET used=1 WHERE id=?`, [row.id]);
+
+    callback(null, true);
+  });
 }
 
-module.exports = { sendOTP, verifyOTP };
+module.exports = { createOTP, verifyOTP };

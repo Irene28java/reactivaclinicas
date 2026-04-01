@@ -1,3 +1,5 @@
+//backend>middleware>otpRateLimit.js
+
 const attempts = new Map();
 
 module.exports = function(req, res, next) {
@@ -6,7 +8,6 @@ module.exports = function(req, res, next) {
 
   const data = attempts.get(ip) || { count: 0, time: now };
 
-  // reset cada 10 min
   if (now - data.time > 10 * 60 * 1000) {
     data.count = 0;
     data.time = now;
@@ -15,6 +16,11 @@ module.exports = function(req, res, next) {
   data.count++;
 
   attempts.set(ip, data);
+
+  // 🔥 limpieza simple
+  if (attempts.size > 1000) {
+    attempts.clear();
+  }
 
   if (data.count > 5) {
     return res.status(429).json({

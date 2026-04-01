@@ -4,41 +4,56 @@ const plans = require("../config/plans");
 const paypal = require("../providers/paypal.provider");
 const db = require("../database");
 
-function getPrice(plan) {
-  return plans[plan].price;
-}
+async function confirmPayment({ orderID }) {
 
-async function createCheckout(user, plan) {
-  return paypal.createOrder(getPrice(plan));
-}
+  // 🔒 evitar duplicados
+  const existing = await db.get(
+    "SELECT id FROM payments WHERE order_id = ?",
+    [orderID]
+  );
 
-async function confirmPayment({ orderID, plan, user }) {
+  if (existing) throw new Error("Duplicate payment");
+
   const result = await paypal.capture(orderID);
 
   if (result.status !== "COMPLETED") {
-    throw new Error("Payment failed");
+    throw new Error("Payment not completed");
   }
 
-  const amount = Number(
-    result.purchase_units[0].payments.captures[0].amount.value
-  );
+  const purchase = result.purchase_units?.[0];
+  const capture = purchase?.payments?.captures?.[0];
 
-  if (amount !== getPrice(plan)) {
-    throw new Error("Fraud detected");
+  if (!capture) throw new Error("Invalid PayPal response");
+
+  const amount = Number(capture.amount.value);
+
+  // 🔐 metadata segura
+  const [userId, plan] = purchase.custom_id.split("|");
+
+  if (!plans[plan]) throw new Error("Invalid plan");
+
+  if (amount !== plans[plan].price) {
+    throw new Error("Amount mismatch");
   }
 
-  db.run(
-    `UPDATE users SET plan=?, plan_status='active', plan_started_at=CURRENT_TIMESTAMP WHERE id=?`,
-    [plan, user.id]
+  // 💾 activar usuario
+  await db.run(
+    `UPDATE users 
+     SET plan=?, plan_status='active', plan_started_at=CURRENT_TIMESTAMP 
+     WHERE id=?`,
+    [plan, userId]
   );
 
-  db.run(
+  // 💾 guardar pago
+  await db.run(
     `INSERT INTO payments (clinic_id, plan, amount, order_id, created_at)
      VALUES (?,?,?,?,datetime('now'))`,
-    [user.id, plan, amount, orderID]
+    [userId, plan, amount, orderID]
   );
+
+  console.log("✅ Pago confirmado:", { userId, plan, amount });
 
   return true;
 }
 
-module.exports = { createCheckout, confirmPayment };
+module.exports = { confirmPayment };

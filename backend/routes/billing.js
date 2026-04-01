@@ -1,45 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const fetch = require("node-fetch");
+
+const paypal = require("../providers/paypal.provider");
+const plans = require("../config/plans");
 const db = require("../database");
 
 const auth = require("../middleware/auth");
-const antiFraud = require("../middleware/antiFraud");
-const planCheck = require("../middleware/planCheck");
+const antifraud = require("../middleware/antifraud");
 
-const PAYPAL_API = "https://api-m.paypal.com";
-
-// ──────────────────────────────
-// PLANES (SOURCE OF TRUTH)
-// ──────────────────────────────
-const PLANES = {
-  BASIC: { price: 169, renewal: 29, name: "BASIC" },
-  PREMIUM: { price: 299, renewal: 49, name: "PREMIUM" }
-};
-
-// ──────────────────────────────
-// MIDDLEWARE GLOBAL ROUTE
-// ──────────────────────────────
 router.use(auth);
-router.use(antiFraud);
+router.use(antifraud);
 
-// ──────────────────────────────
-// PAYPAL TOKEN
-// ──────────────────────────────
-async function getAccessToken() {
-  const authHeader = Buffer.from(
-    process.env.PAYPAL_CLIENT_ID + ":" + process.env.PAYPAL_SECRET
-  ).toString("base64");
-
-  const res = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
-    method: "POST",
-    headers: { Authorization: `Basic ${authHeader}` },
-    body: "grant_type=client_credentials"
-  });
-
-  const data = await res.json();
-  return data.access_token;
-}
 
 // ──────────────────────────────
 // CREATE ORDER
@@ -47,35 +18,19 @@ async function getAccessToken() {
 router.post("/create-order", async (req, res) => {
   try {
     const { plan } = req.body;
-    const selectedPlan = PLANES[plan];
+    const selectedPlan = plans[plan];
 
     if (!selectedPlan) {
-      return res.status(400).json({ error: "Plan inválido" });
+      return res.status(400).json({ error: "Invalid plan" });
     }
 
-    const accessToken = await getAccessToken();
-
-    const order = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`
-      },
-      body: JSON.stringify({
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "EUR",
-              value: selectedPlan.price
-            }
-          }
-        ]
-      })
+    const order = await paypal.createOrder({
+      amount: selectedPlan.price,
+      userId: req.user.id,
+      plan
     });
 
-    const data = await order.json();
-    res.json(data);
+    res.json(order);
 
   } catch (err) {
     console.error("CREATE ORDER ERROR:", err);
@@ -83,97 +38,90 @@ router.post("/create-order", async (req, res) => {
   }
 });
 
+
 // ──────────────────────────────
-// CAPTURE ORDER (SaaS SAFE)
+// CAPTURE ORDER (PRO SEGURO)
 // ──────────────────────────────
 router.post("/capture-order", async (req, res) => {
   try {
-    const { orderID, plan } = req.body;
-    const selectedPlan = PLANES[plan];
+    const { orderID } = req.body;
 
-    if (!selectedPlan) {
-      return res.status(400).json({ error: "Plan inválido" });
+    if (!orderID) {
+      return res.status(400).json({ error: "Missing orderID" });
     }
 
-    const accessToken = await getAccessToken();
-
-    const capture = await fetch(
-      `${PAYPAL_API}/v2/checkout/orders/${orderID}/capture`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
-    );
-
-    const result = await capture.json();
+    const result = await paypal.capture(orderID);
 
     if (result.status !== "COMPLETED") {
       return res.status(400).json({ error: "Pago no completado" });
     }
 
+    const unit = result.purchase_units[0];
+
     const paidAmount = Number(
-      result.purchase_units[0].payments.captures[0].amount.value
+      unit.payments.captures[0].amount.value
     );
 
-    const userId = req.user.id;
+    const [userId, plan] = unit.custom_id.split("|");
 
-    // ──────────────────────────────
-    // VALIDAR MONTO (ANTI FRAUDE)
-    // ──────────────────────────────
-    if (paidAmount !== selectedPlan.price) {
+    const selectedPlan = plans[plan];
+
+    // 🔐 VALIDACIÓN ANTIFRAUDE
+    if (!selectedPlan || paidAmount !== selectedPlan.price) {
       return res.status(400).json({
-        error: "Monto inválido (posible manipulación)"
+        error: "Fraud detected"
       });
     }
 
-    // ──────────────────────────────
-    // EVITAR DUPLICADOS
-    // ──────────────────────────────
-    db.get(
-      `SELECT id FROM payments WHERE order_id=?`,
-      [orderID],
-      (err, row) => {
-        if (row) {
-          return res.json({ success: true, already_processed: true });
-        }
+    // 🔁 PREVENIR PAGOS DUPLICADOS
+    const existing = await new Promise(resolve => {
+      db.get(
+        `SELECT id FROM payments WHERE order_id=?`,
+        [orderID],
+        (err, row) => resolve(row)
+      );
+    });
 
-        // ──────────────────────────────
-        // GUARDAR PAGO
-        // ──────────────────────────────
-        db.run(
-          `INSERT INTO payments
-          (clinic_id, plan, amount, order_id, ip, user_agent, created_at)
-          VALUES (?,?,?,?,?,?,?)`,
-          [
-            userId,
-            selectedPlan.name,
-            paidAmount,
-            orderID,
-            req.ip,
-            req.headers["user-agent"],
-            new Date().toISOString()
-          ]
-        );
+    if (existing) {
+      return res.json({ success: true, duplicate: true });
+    }
 
-        // ──────────────────────────────
-        // ACTIVAR PLAN (SaaS CORE)
-        // ──────────────────────────────
-        db.run(
-          `UPDATE users
-           SET plan = ?, plan_status = 'active', plan_started_at = CURRENT_TIMESTAMP
-           WHERE id = ?`,
-          [selectedPlan.name, userId]
-        );
+    // 📅 CALCULAR DURACIÓN (CLAVE)
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + selectedPlan.duration_days);
 
-        res.json({
-          success: true,
-          plan: selectedPlan.name
-        });
-      }
+    // 💾 GUARDAR PAGO
+    db.run(
+      `INSERT INTO payments 
+      (clinic_id, plan, amount, order_id, ip, user_agent, created_at)
+      VALUES (?,?,?,?,?,?,datetime('now'))`,
+      [
+        userId,
+        plan,
+        paidAmount,
+        orderID,
+        req.ip,
+        req.headers["user-agent"]
+      ]
     );
+
+    // 🚀 ACTIVAR PLAN CON EXPIRACIÓN
+    db.run(
+      `UPDATE users 
+       SET 
+         plan = ?, 
+         plan_status = 'active',
+         plan_started_at = CURRENT_TIMESTAMP,
+         plan_expires_at = ?
+       WHERE id = ?`,
+      [plan, expiresAt.toISOString(), userId]
+    );
+
+    res.json({
+      success: true,
+      plan,
+      expires_at: expiresAt
+    });
 
   } catch (err) {
     console.error("CAPTURE ERROR:", err);
