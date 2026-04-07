@@ -1,46 +1,52 @@
-// backend/routes/webhook.js
+//backend>route>webhook.js
 const express = require("express");
 const router = express.Router();
 const fetch = require("node-fetch");
-const { procesarMensaje } = require("./bot");
 const db = require("../database");
+const { procesarMensaje } = require("./bot");
 
+// ──────────────────────────────
+// CONFIG
+// ──────────────────────────────
 const VERIFY_TOKEN = "reactiva_verify_2024";
 
-// ───────── VERIFICACIÓN DEL WEBHOOK ─────────
-router.get("/", (req, res) => {
+// ──────────────────────────────
+// 1. META WEBHOOK (FACEBOOK + INSTAGRAM)
+// ──────────────────────────────
+
+// ✅ Verificación
+router.get("/meta", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
 
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
-    console.log("Webhook verificado ✅");
+    console.log("Meta Webhook verificado ✅");
     return res.status(200).send(challenge);
   } else {
-    console.warn("Webhook no verificado ❌");
     return res.sendStatus(403);
   }
 });
 
-// ───────── RECIBIR MENSAJES ─────────
-router.post("/", async (req, res) => {
+// ✅ Recepción de mensajes
+router.post("/meta", async (req, res) => {
   const body = req.body;
 
   if (body.object !== "page") return res.sendStatus(404);
 
-  res.status(200).send("EVENT_RECEIVED"); // responder rápido a Meta
+  res.status(200).send("EVENT_RECEIVED");
 
   for (const entry of body.entry) {
     let events = entry.messaging || [];
 
-    // ───── Instagram messages (IG DM) ─────
+    // Instagram
     if (entry.changes) {
       for (const change of entry.changes) {
         if (change.field === "messages" && change.value) {
           const msg = change.value;
           events.push({
             sender: { id: msg.sender_id },
-            message: { text: msg.text || null, attachments: msg.attachments || [] },
+            message: { text: msg.text || "", attachments: msg.attachments || [] },
             canal: "instagram"
           });
         }
@@ -53,55 +59,45 @@ router.post("/", async (req, res) => {
       const attachments = event.message?.attachments || [];
       const canal = event.canal || "facebook";
 
-      if (!senderId && !messageText && !attachments.length) continue;
+      if (!senderId) continue;
 
-      const clinicId = 1; // tu clínica por defecto
+      const clinicId = 1;
 
-      // ───── CREAR O BUSCAR LEAD ─────
-      const lead = await db.getOrCreateLead(senderId, clinicId);
+      try {
+        const lead = await db.getOrCreateLead(senderId, clinicId);
 
-      // ───── GUARDAR MENSAJE DEL USUARIO ─────
-      await db.saveMessage({
-        lead_id: lead.id,
-        text: messageText,
-        from: "user",
-        canal,
-        attachments
-      });
+        await db.saveMessage({
+          lead_id: lead.id,
+          text: messageText,
+          from: "user",
+          canal,
+          attachments
+        });
 
-      // ───── ENVIAR AL PANEL EN TIEMPO REAL ─────
-      global.io.to("clinic_" + clinicId).emit("nuevo_mensaje", {
-        leadId: lead.id,
-        text: messageText,
-        from: "user",
-        attachments
-      });
+        global.io?.to("clinic_" + clinicId).emit("nuevo_mensaje", {
+          leadId: lead.id,
+          text: messageText,
+          from: "user"
+        });
 
-      // ───── PROCESAR MENSAJE CON EL BOT ─────
-      procesarMensaje(
-        messageText,
-        { leadId: lead.id, clinicId, canal, attachments },
-        async (respuesta) => {
-          try {
-            // Guardar respuesta del bot en DB
+        procesarMensaje(
+          messageText,
+          { leadId: lead.id, clinicId, canal, attachments },
+          async (respuesta) => {
             await db.saveMessage({
               lead_id: lead.id,
               text: respuesta.texto,
               from: "bot"
             });
 
-            // Emitir respuesta al panel
-            global.io.to("clinic_" + clinicId).emit("nuevo_mensaje", {
+            global.io?.to("clinic_" + clinicId).emit("nuevo_mensaje", {
               leadId: lead.id,
               text: respuesta.texto,
               from: "bot"
             });
 
-            // ───── ENVIAR RESPUESTA AL USUARIO ─────
-            const PAGE_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-
             await fetch(
-              `https://graph.facebook.com/v25.0/me/messages?access_token=${PAGE_TOKEN}`,
+              `https://graph.facebook.com/v18.0/me/messages?access_token=${process.env.PAGE_ACCESS_TOKEN}`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -112,12 +108,87 @@ router.post("/", async (req, res) => {
                 })
               }
             );
-          } catch (err) {
-            console.error("Error enviando mensaje:", err);
           }
-        }
-      );
+        );
+
+      } catch (err) {
+        console.error("META ERROR:", err);
+      }
     }
+  }
+});
+
+// ──────────────────────────────
+// 2. PAYPAL WEBHOOK
+// ──────────────────────────────
+router.post("/paypal", async (req, res) => {
+  try {
+    const event = req.body;
+
+    if (event.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+
+      const capture = event.resource;
+      const orderID = capture.supplementary_data.related_ids.order_id;
+      const amount = Number(capture.amount.value);
+
+      db.get(`SELECT id FROM payments WHERE order_id=?`, [orderID], (err, row) => {
+        if (row) return res.sendStatus(200);
+
+        db.run(`
+          INSERT INTO payments (order_id, amount, created_at)
+          VALUES (?, ?, ?)
+        `, [orderID, amount, new Date().toISOString()]);
+
+        console.log("✅ Pago PayPal registrado:", orderID);
+      });
+    }
+
+    res.sendStatus(200);
+  } catch (err) {
+    console.error("PAYPAL WEBHOOK ERROR:", err);
+    res.sendStatus(500);
+  }
+});
+
+// ──────────────────────────────
+// 3. LEMONSQUEEZY WEBHOOK
+// ──────────────────────────────
+router.post("/lemon", async (req, res) => {
+  try {
+    const event = req.body;
+
+    if (event.meta?.event_name === "order_created") {
+
+      const data = event.data;
+      const email = data.attributes.user_email;
+      const amount = data.attributes.total / 100;
+
+      db.get(`SELECT id FROM users WHERE email=?`, [email], (err, user) => {
+
+        if (!user) return res.sendStatus(200);
+
+        db.run(`
+          UPDATE users
+          SET plan='PREMIUM',
+              plan_status='active',
+              plan_started_at=CURRENT_TIMESTAMP
+          WHERE id=?
+        `, [user.id]);
+
+        db.run(`
+          INSERT INTO payments (clinic_id, plan, amount, created_at)
+          VALUES (?, ?, ?, ?)
+        `, [user.id, "PREMIUM", amount, new Date().toISOString()]);
+
+        console.log("✅ Lemon pago activado para:", email);
+      });
+    }
+
+    res.sendStatus(200);
+
+  } catch (err) {
+    console.error("LEMON WEBHOOK ERROR:", err);
+    res.sendStatus(500);
   }
 });
 

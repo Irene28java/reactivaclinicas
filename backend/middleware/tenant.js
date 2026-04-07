@@ -1,17 +1,28 @@
-// middleware/antifraud.js
+// middleware/tenant.js
+const db = require("../database");
 
-module.exports = function antifraud(req, res, next) {
-  const ip = req.ip;
-  const ua = req.headers["user-agent"];
-  const tenantId = req.user?.tenant_id;
+module.exports = function tenant(req, res, next) {
+  try {
+    const user = req.user;
 
-  if (!ip || !ua) {
-    return res.status(403).json({ error: "Blocked" });
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (!user.tenant_id) {
+      return res.status(403).json({ error: "No tenant assigned" });
+    }
+
+    // 🔥 inyectar tenant en request
+    req.tenant = {
+      id: user.tenant_id,
+      role: user.role
+    };
+
+    next();
+
+  } catch (err) {
+    console.error("TENANT ERROR:", err);
+    res.status(500).json({ error: "Tenant error" });
   }
-
-  if (ua.includes("bot") || ua.includes("curl")) {
-    return res.status(403).json({ error: "Bot detected" });
-  }
-
-  next();
 };
