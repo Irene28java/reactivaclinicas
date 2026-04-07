@@ -180,6 +180,16 @@ db.serialize(() => {
     )
   `);
 
+  db.run(`
+CREATE TABLE IF NOT EXISTS appointments (
+  id INTEGER PRIMARY KEY,
+  lead_id INTEGER,
+  fecha TEXT,
+  estado TEXT DEFAULT 'pendiente',
+  created_at TEXT
+)
+`);
+
   // ─────────────────────────────
   // 🤖 BOT RESPUESTAS
   // ─────────────────────────────
