@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReActiva · Cómo funciona</title>
+
+<style>
+:root {
+  --bg: #0f172a;
+  --panel: #111827;
+  --accent: #6366f1;
+  --text: #ffffff;
+  --muted: rgba(255,255,255,0.6);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* LAYOUT */
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+/* IZQUIERDA */
+.left {
+  width: 50%;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.left h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.left p {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.step {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+}
+
+/* DERECHA */
+.right {
+  width: 50%;
+  background: #020617;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo {
+  width: 90%;
+  max-width: 420px;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+
+/* CHAT */
+.chat {
+  max-height: 200px;
+  overflow: hidden;
+}
+
+.msg {
+  font-size: 13px;
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  animation: fadeIn 0.4s;
+}
+
+/* COUNTER */
+.counter {
+  color: #22c55e;
+  margin-bottom: 10px;
+}
+
+/* BOTÓN */
+button {
+  margin-top: 30px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* ANIMACIÓN */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1;}
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .left, .right {
+    width: 100%;
+    padding: 30px;
+  }
+
+  .left h1 {
+    font-size: 1.8rem;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- IZQUIERDA -->
+  <div class="left">
+
+    <h1 id="title">Captamos pacientes automáticamente</h1>
+    <p id="desc">Tu clínica genera leads sin esfuerzo, 24/7.</p>
+
+    <div class="step" id="extra">
+      Conecta tu web o redes y el sistema empieza a trabajar solo.
+    </div>
+
+    <button onclick="goApp()">Entrar al sistema →</button>
+
+  </div>
+
+  <!-- DERECHA -->
+  <div class="right">
+
+    <div class="demo">
+
+      <div class="counter" id="counter">0 leads hoy</div>
+
+      <div class="chat" id="chat"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const steps = [
+  {
+    title: "Captamos pacientes automáticamente",
+    desc: "Instagram, web y campañas trabajan para ti",
+    extra: "Los leads entran sin que hagas nada."
+  },
+  {
+    title: "Respondemos al instante",
+    desc: "El bot responde como recepcionista",
+    extra: "Sin perder clientes por no contestar."
+  },
+  {
+    title: "Agendamos citas automáticamente",
+    desc: "Tus pacientes reservan solos",
+    extra: "Sin llamadas, sin gestión manual."
+  },
+  {
+    title: "Instalación en 24h",
+    desc: "Pagas → conectamos todo por ti",
+    extra: "Sin técnicos, sin complicaciones."
+  }
+];
+
+let step = 0;
+
+setInterval(() => {
+  step = (step + 1) % steps.length;
+
+  document.getElementById("title").innerText = steps[step].title;
+  document.getElementById("desc").innerText = steps[step].desc;
+  document.getElementById("extra").innerText = steps[step].extra;
+
+}, 3500);
+
+// DEMO
+let leads = 0;
+
+const names = ["Ana", "Carlos", "Laura", "Miguel", "Sofía"];
+const services = ["Implantes", "Limpieza", "Ortodoncia"];
+
+setInterval(() => {
+
+  leads++;
+  document.getElementById("counter").innerText = leads + " leads hoy";
+
+  const msg = document.createElement("div");
+  msg.className = "msg";
+
+  msg.innerText =
+    names[Math.floor(Math.random()*names.length)] +
+    " quiere " +
+    services[Math.floor(Math.random()*services.length)];
+
+  const chat = document.getElementById("chat");
+  chat.prepend(msg);
+
+  if (chat.children.length > 6) {
+    chat.lastChild.remove();
+  }
+
+}, 1200);
+
+// BOTÓN
+function goApp() {
+  window.location.href = "/index.html";
+}
+</script>
+
+</body>
+</html>
