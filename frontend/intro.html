@@ -3,336 +3,911 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ReActiva · Cómo funciona</title>
-
+<title>ReActiva · Clínicas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --dorado:#6366f1;
-  --gris-texto:rgba(255,255,255,0.6);
+  --n:#07090d;
+  --w:#f0ede8;
+  --g:#00e676;
+  --vd:rgba(0,230,118,.08);
+  --vb:rgba(0,230,118,.22);
+  --vm:rgba(0,230,118,.45);
+  --g1:#0f1318;
+  --g2:#141920;
+  --g3:#1a2028;
+  --gt:#6e7a8a;
+  --az:#4ea8f0;
+  --or:#d4a843;
+  --border:rgba(255,255,255,.05);
 }
 
-body{
-  margin:0;
-  font-family:-apple-system, BlinkMacSystemFont, sans-serif;
-  background:#0b0f1a;
-  color:white;
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+html,body{
+  height:100%;
+  overflow:hidden;
+  font-family:'Syne',sans-serif;
+  background:var(--n);
+  color:var(--w);
+}
+
+/* ─── NOISE OVERLAY ─── */
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* ─── INTRO OVERLAY ─── */
+#intro{
+  position:fixed;
+  inset:0;
+  background:var(--n);
+  z-index:500;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:40px 24px;
+  transition:opacity .7s ease, visibility .7s ease;
+}
+#intro.out{opacity:0;visibility:hidden;pointer-events:none}
+
+/* Ambient glow top-center */
+#intro::before{
+  content:'';
+  position:absolute;
+  top:-80px;left:50%;
+  transform:translateX(-50%);
+  width:480px;height:280px;
+  background:radial-gradient(ellipse at center, rgba(0,230,118,.07) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.i-logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+
+.i-mark{
+  width:36px;height:36px;
+  border-radius:10px;
+  background:var(--vd);
+  border:1px solid var(--vb);
+  display:flex;align-items:center;justify-content:center;
+}
+.i-mark svg{width:18px;height:18px;}
+
+.i-wordmark{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.7rem;
+  font-weight:700;
+  color:var(--w);
+  letter-spacing:.02em;
+}
+
+.i-sub{
+  font-size:.6rem;
+  font-weight:600;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--gt);
+  margin-bottom:52px;
+}
+
+.i-steps{width:100%;max-width:380px;position:relative;}
+
+.istep{display:none;text-align:center;}
+.istep.active{display:block;animation:fadeUp .55s ease forwards;}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.i-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--g);
+  background:var(--vd);
+  border:1px solid var(--vb);
+  padding:4px 12px;border-radius:100px;
+  margin-bottom:22px;
+}
+.i-tag::before{
+  content:'';width:5px;height:5px;border-radius:50%;
+  background:var(--g);
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,230,118,.4)}
+  50%{opacity:.7;box-shadow:0 0 0 5px rgba(0,230,118,0)}
+}
+
+.istep h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.7rem,6.5vw,2.4rem);
+  font-weight:700;
+  line-height:1.18;
+  color:var(--w);
+  margin-bottom:14px;
+}
+.istep h2 em{font-style:italic;color:var(--g);}
+
+.istep p{
+  font-size:.78rem;
+  color:var(--gt);
+  line-height:1.75;
+  font-weight:400;
+  margin-bottom:36px;
+  max-width:300px;
+  margin-left:auto;margin-right:auto;
+}
+
+.btn-main{
+  padding:13px 36px;
+  background:var(--g);
+  color:var(--n);
+  font-family:'Syne',sans-serif;
+  font-size:.73rem;
+  font-weight:700;
+  letter-spacing:.05em;
+  border:none;border-radius:10px;
+  cursor:pointer;
+  transition:all .25s ease;
+  box-shadow:0 0 0 rgba(0,230,118,0);
+}
+.btn-main:hover{
+  background:#1fffa0;
+  box-shadow:0 4px 24px rgba(0,230,118,.35);
+  transform:translateY(-1px);
+}
+
+.i-dots{
+  display:flex;gap:8px;justify-content:center;margin-top:40px;
+}
+.idot{
+  height:3px;border-radius:100px;
+  background:rgba(255,255,255,.1);
+  transition:all .4s ease;
+  width:20px;
+}
+.idot.on{background:var(--g);width:36px;box-shadow:0 0 8px rgba(0,230,118,.5);}
+
+.i-fine{
+  position:absolute;bottom:24px;
+  font-size:.58rem;letter-spacing:.18em;
+  color:rgba(255,255,255,.18);text-transform:uppercase;
+}
+
+/* ─── MAIN APP ─── */
+#app{width:100%;height:100vh;overflow:hidden;}
+
+.track{
+  display:flex;height:100%;
+  transition:transform .72s cubic-bezier(.77,0,.18,1);
+  will-change:transform;
+}
+
+.slide{
+  min-width:100vw;height:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:32px 28px;
+  text-align:center;
+  position:relative;
   overflow:hidden;
 }
 
-/* INTRO OVERLAY */
-.intro-overlay{
-  position:fixed;
-  inset:0;
-
-  /* Fallback (si no soporta blur) */
-  background:rgba(10,12,17,0.96);
-
-  /* Blur moderno */
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px); /* Safari / iOS */
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
-.intro-box{
-  width:90%;
-  max-width:420px;
-  text-align:center;
+/* Ambient per-slide */
+.slide::before{
+  content:'';
+  position:absolute;
+  top:-120px;left:50%;transform:translateX(-50%);
+  width:600px;height:350px;
+  background:radial-gradient(ellipse,rgba(0,230,118,.05) 0%,transparent 70%);
+  pointer-events:none;
 }
 
-.intro-step{display:none;}
-.intro-step.active{display:block;}
+/* Top bar */
+.s-topbar{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;
+  background:rgba(7,9,13,.6);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.s-logo{
+  display:flex;align-items:center;gap:8px;
+}
+.s-logo-mark{
+  width:26px;height:26px;border-radius:7px;
+  background:var(--vd);border:1px solid var(--vb);
+  display:flex;align-items:center;justify-content:center;
+}
+.s-logo-mark svg{width:13px;height:13px;}
+.s-logo-txt{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:700;
+}
+.s-live{
+  display:flex;align-items:center;gap:5px;
+  background:var(--vd);border:1px solid var(--vb);
+  color:var(--g);font-size:.6rem;font-weight:700;
+  padding:4px 11px;border-radius:100px;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.ld{width:5px;height:5px;border-radius:50%;background:var(--g);animation:pulse 1.5s infinite;}
 
-.intro-box h2{
-  font-size:2rem;
-  margin-bottom:12px;
+/* Content */
+.s-step{
+  font-size:.6rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gt);margin-bottom:16px;
 }
 
-.intro-box p{
-  font-size:0.9rem;
-  color:var(--gris-texto);
-  margin-bottom:28px;
-}
-
-.intro-box button{
-  padding:14px 28px;
-  background:var(--dorado);
-  border:none;
-  border-radius:8px;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.premium-note{
-  font-size:0.78rem;
-  opacity:0.7;
-  margin-top:10px;
-}
-
-/* WRAPPER */
-.wrapper{
-  display:flex;
-  width:400%;
-  height:100vh;
-  transition:transform 0.6s ease;
-}
-
-.screen{
-  width:100vw;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  padding:30px;
-  text-align:center;
-}
-
-h1{
-  font-size:1.9rem;
+.slide h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.9rem,7vw,3rem);
+  font-weight:700;line-height:1.15;
   margin-bottom:10px;
 }
+.slide h1 em{font-style:italic;color:var(--g);}
 
-p{
-  font-size:0.95rem;
-  color:var(--gris-texto);
-  max-width:320px;
+.slide > .desc{
+  font-size:.78rem;color:var(--gt);max-width:290px;
+  line-height:1.75;font-weight:400;margin-bottom:28px;
 }
 
-/* CHAT */
-.chat{
-  margin-top:25px;
-  width:100%;
-  max-width:320px;
-  background:#111827;
+/* Card */
+.card{
+  width:100%;max-width:340px;
+  background:var(--g1);
+  border:1px solid rgba(255,255,255,.06);
   border-radius:14px;
-  padding:15px;
-  text-align:left;
+  padding:18px;text-align:left;
+  margin-bottom:26px;
+}
+.card-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.card-title{
+  font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gt);
+}
+.badge{
+  font-size:.58rem;font-weight:700;padding:3px 9px;border-radius:100px;
+}
+.badge-g{background:var(--vd);color:var(--g);border:1px solid var(--vb);}
+.badge-b{background:rgba(78,168,240,.1);color:var(--az);border:1px solid rgba(78,168,240,.25);}
+
+/* Pills row */
+.pills{
+  display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:26px;
+}
+.pill{
+  font-size:.62rem;font-weight:600;letter-spacing:.06em;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+  color:var(--w);padding:6px 14px;border-radius:100px;
+}
+.pill.on{
+  background:var(--vd);border-color:var(--vb);color:var(--g);
 }
 
+/* Chat */
+.chat{display:flex;flex-direction:column;gap:7px;}
 .msg{
-  padding:10px;
-  border-radius:8px;
-  margin-bottom:8px;
-  font-size:13px;
+  padding:9px 13px;border-radius:9px;font-size:.74rem;line-height:1.5;font-weight:400;
+}
+.msg.user{
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);
+  align-self:flex-end;color:var(--w);
+}
+.msg.bot{
+  background:var(--vd);border:1px solid var(--vb);color:var(--g);
+}
+.typing{
+  display:flex;gap:4px;align-items:center;padding:9px 13px;
+}
+.typing span{
+  width:5px;height:5px;border-radius:50%;background:var(--g);opacity:.4;
+  animation:blink 1.2s infinite;
+}
+.typing span:nth-child(2){animation-delay:.2s;}
+.typing span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:.9}}
+
+/* Status rows */
+.status-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid var(--border);font-size:.74rem;
+}
+.status-row:last-child{border-bottom:none;padding-bottom:0;}
+.sr-label{color:var(--gt);font-weight:500;}
+.sr-val{display:flex;align-items:center;gap:6px;font-weight:600;}
+.dot-g{width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);}
+.dot-o{width:6px;height:6px;border-radius:50%;background:var(--or);}
+
+/* Metrics */
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.mc{
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;padding:14px 12px;text-align:center;
+}
+.mc.full{grid-column:1/-1;background:var(--vd);border-color:var(--vb);}
+.mc-val{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;font-weight:700;display:block;
+  line-height:1;margin-bottom:4px;
+}
+.mc.full .mc-val{color:var(--g);font-size:2.3rem;}
+.mc-lbl{font-size:.58rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gt);}
+.mc.full .mc-lbl{color:rgba(0,230,118,.6);}
+
+/* Nav button */
+.btn-next{
+  padding:13px 32px;
+  background:var(--g);color:var(--n);
+  font-family:'Syne',sans-serif;font-size:.73rem;font-weight:700;
+  border:none;border-radius:10px;cursor:pointer;
+  transition:all .25s;
+  box-shadow:0 0 0 rgba(0,230,118,0);
+}
+.btn-next:hover{
+  background:#1fffa0;
+  box-shadow:0 4px 24px rgba(0,230,118,.35);
+  transform:translateY(-1px);
+}
+.btn-ghost{
+  padding:13px 32px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  color:var(--w);
+  font-family:'Syne',sans-serif;font-size:.73rem;font-weight:600;
+  border-radius:10px;cursor:pointer;
+  transition:all .25s;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.08);}
+
+.tags-row{
+  display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:14px;
+}
+.tag-item{
+  font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,255,255,.25);
+  display:flex;align-items:center;gap:5px;
+}
+.tag-item::before{
+  content:'';width:4px;height:4px;border-radius:50%;
+  background:var(--g);opacity:.5;
 }
 
-.user{
-  background:rgba(255,255,255,0.08);
-  text-align:right;
+/* Progress */
+.prog{
+  position:fixed;bottom:0;left:0;right:0;height:2px;
+  background:rgba(255,255,255,.04);z-index:800;
+}
+.prog-fill{
+  height:100%;
+  background:linear-gradient(90deg,rgba(0,200,80,.6),var(--g));
+  transition:width .72s ease;
+  box-shadow:0 0 8px rgba(0,230,118,.4);
 }
 
-.bot{
-  background:rgba(99,102,241,0.2);
+.counter{
+  position:fixed;bottom:14px;right:22px;
+  font-size:.6rem;font-weight:700;letter-spacing:.2em;
+  color:rgba(255,255,255,.2);z-index:801;
+  display:none;
 }
 
-/* PANEL */
-.panel{
-  margin-top:20px;
-  width:100%;
-  max-width:320px;
-  background:#111827;
-  border-radius:14px;
-  padding:15px;
+/* Grid col helper */
+.two-btn{display:flex;gap:10px;width:100%;max-width:340px;}
+.two-btn .btn-next{flex:1;}
+.two-btn .btn-ghost{flex:1;}
+
+/* ── INSTALL MODAL STEPS ── */
+@keyframes mup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.ins-step{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  cursor:pointer;transition:all .25s;
+}
+.ins-step:hover .ins-num{border-color:var(--g);color:var(--g);}
+.ins-step.done{background:none;}
+.ins-step.done .ins-num{
+  background:var(--g);border-color:var(--g);
+  color:var(--n);font-size:.7rem;
+}
+.ins-step.done .ins-label{color:var(--g);}
+
+.ins-num{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,.12);
+  color:var(--gt);font-size:.68rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .3s;margin-top:1px;
 }
 
-.metric{
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  margin-bottom:6px;
+.ins-body{flex:1;}
+.ins-label{font-size:.8rem;font-weight:700;margin-bottom:3px;color:var(--w);transition:color .3s;}
+.ins-desc{font-size:.72rem;color:var(--gt);line-height:1.6;margin-bottom:8px;}
+
+.ins-code{
+  background:#090c10;border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;padding:10px 12px;
+  font-family:monospace;font-size:.72rem;
+  color:#7ee8a2;line-height:1.75;
+  white-space:pre;overflow-x:auto;
+  margin-bottom:5px;
 }
 
-.green{color:#22c55e}
-
-/* BUTTON */
-button{
-  margin-top:30px;
-  padding:14px;
-  width:100%;
-  max-width:320px;
-  border:none;
-  border-radius:10px;
-  background:#6366f1;
-  color:white;
-  font-size:1rem;
-  cursor:pointer;
+.ins-copy{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:.63rem;font-weight:600;
+  color:var(--gt);background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:6px;padding:3px 9px;
+  cursor:pointer;transition:all .2s;font-family:'Syne',sans-serif;
 }
+.ins-copy:hover{color:var(--g);border-color:var(--vb);}
+.ins-copy.ok{color:var(--g);border-color:var(--vb);}
 
-/* SMALL */
-.small{
-  font-size:12px;
-  opacity:0.6;
-  margin-top:12px;
-}
-
-/* DOTS */
-.dots{
-  position:fixed;
-  bottom:15px;
-  width:100%;
-  text-align:center;
-}
-
-.dot{
-  display:inline-block;
-  width:6px;
-  height:6px;
-  margin:4px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.3);
-}
-
-.dot.active{
-  background:#6366f1;
+.ic{
+  color:var(--g);background:var(--vd);
+  padding:1px 5px;border-radius:4px;
+  font-size:.7rem;
 }
 </style>
 </head>
-
 <body>
 
-<!-- INTRO -->
-<div id="introOverlay" class="intro-overlay">
-  <div class="intro-box">
+<!-- ══════════ INTRO ══════════ -->
+<div id="intro">
 
-    <div class="intro-step active">
-      <h2>Bienvenido a ReActiva</h2>
-      <p>Automatiza tu clínica y no pierdas ni un solo cliente.</p>
-      <button onclick="nextIntro()">Siguiente →</button>
+  <div class="i-logo">
+    <div class="i-mark">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="#00e676" stroke-width="1.2" fill="none"/>
+        <circle cx="9" cy="9" r="2" fill="#00e676"/>
+      </svg>
+    </div>
+    <span class="i-wordmark">ReActiva</span>
+  </div>
+  <div class="i-sub">Automatización para Clínicas Dentales</div>
+
+  <div class="i-steps">
+
+    <div class="istep active">
+      <div class="i-tag">Sistema activo</div>
+      <h2>La clínica dental<br>que <em>nunca cierra</em></h2>
+      <p>Capturamos cada lead, respondemos cada consulta y llenamos tu agenda — sin que muevas un dedo.</p>
+      <button class="btn-main" onclick="nextIntro()">Empezar →</button>
     </div>
 
-    <div class="intro-step">
-      <h2>Captura leads 24/7</h2>
-      <p>Respondemos por ti en Instagram, Facebook y email.</p>
-      <button onclick="nextIntro()">Siguiente →</button>
+    <div class="istep">
+      <div class="i-tag">Multicanal</div>
+      <h2>Instagram, Messenger<br><em>y Email</em></h2>
+      <p>Respondemos por ti en los tres canales con mensajes personalizados para cada tipo de paciente.</p>
+      <button class="btn-main" onclick="nextIntro()">Siguiente →</button>
     </div>
 
-    <div class="intro-step">
-      <h2>Todo listo</h2>
-      <p class="premium-note">
-        Sin permanencia · Instalación incluida · Activación inmediata
-      </p>
-      <button onclick="startApp()">Empezar →</button>
+    <div class="istep">
+      <div class="i-tag">Sin riesgo</div>
+      <h2>Sin permanencia.<br><em>Activo en 24 h.</em></h2>
+      <p>Instalación incluida · Soporte dedicado · Resultados desde el primer día.</p>
+      <button class="btn-main" onclick="startApp()">Ver cómo funciona →</button>
+    </div>
+
+  </div>
+
+  <div class="i-dots">
+    <div class="idot on"></div>
+    <div class="idot"></div>
+    <div class="idot"></div>
+  </div>
+
+  <div class="i-fine">© ReActiva · Tecnología para clínicas de élite</div>
+</div>
+
+<!-- ══════════ SLIDES ══════════ -->
+<div id="app">
+<div class="track" id="track">
+
+<!-- SLIDE 1 -->
+<div class="slide">
+  <div class="s-topbar">
+    <div class="s-logo">
+      <div class="s-logo-mark">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="#00e676" stroke-width="1.3" fill="none"/><circle cx="9" cy="9" r="2" fill="#00e676"/></svg>
+      </div>
+      <span class="s-logo-txt">ReActiva</span>
+    </div>
+    <div class="s-live"><div class="ld"></div>Sistema activo</div>
+  </div>
+
+  <div class="s-step">Paso 01 de 04</div>
+  <h1>Regístrate<br>en <em>un minuto</em></h1>
+  <p class="desc">Con tu email profesional accedes de inmediato a todo el panel de gestión de tu clínica.</p>
+
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-title">Acceso instantáneo</span>
+      <span class="badge badge-g">Sin tarjeta</span>
+    </div>
+    <div class="status-row">
+      <span class="sr-label">Configuración</span>
+      <span class="sr-val"><span class="dot-g"></span>Automática</span>
+    </div>
+    <div class="status-row">
+      <span class="sr-label">Panel disponible</span>
+      <span class="sr-val"><span class="dot-g"></span>Al instante</span>
+    </div>
+    <div class="status-row">
+      <span class="sr-label">Soporte</span>
+      <span class="sr-val"><span class="dot-g"></span>Incluido</span>
+    </div>
+  </div>
+
+  <button class="btn-next" onclick="goSlide(1)">Siguiente →</button>
+</div>
+
+<!-- SLIDE 2 -->
+<div class="slide">
+  <div class="s-topbar">
+    <div class="s-logo">
+      <div class="s-logo-mark">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="#00e676" stroke-width="1.3" fill="none"/><circle cx="9" cy="9" r="2" fill="#00e676"/></svg>
+      </div>
+      <span class="s-logo-txt">ReActiva</span>
+    </div>
+    <div class="s-live"><div class="ld"></div>Sistema activo</div>
+  </div>
+
+  <div class="s-step">Paso 02 de 04</div>
+  <h1>Todos tus canales,<br><em>conectados</em></h1>
+  <p class="desc">Integramos Instagram, Messenger y Email en minutos. Nosotros lo hacemos todo por ti.</p>
+
+  <div class="pills">
+    <span class="pill on">Instagram</span>
+    <span class="pill on">Messenger</span>
+    <span class="pill on">Email</span>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-title">Estado de integración</span>
+      <span class="badge badge-g">En vivo</span>
+    </div>
+    <div class="status-row">
+      <span class="sr-label">Instagram DM</span>
+      <span class="sr-val"><span class="dot-g"></span>Conectado</span>
+    </div>
+    <div class="status-row">
+      <span class="sr-label">Messenger</span>
+      <span class="sr-val"><span class="dot-g"></span>Conectado</span>
+    </div>
+    <div class="status-row">
+      <span class="sr-label">Email corporativo</span>
+      <span class="sr-val"><span class="dot-o"></span>Configurando</span>
+    </div>
+  </div>
+
+  <button class="btn-next" onclick="goSlide(2)">Siguiente →</button>
+</div>
+
+<!-- SLIDE 3 -->
+<div class="slide">
+  <div class="s-topbar">
+    <div class="s-logo">
+      <div class="s-logo-mark">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="#00e676" stroke-width="1.3" fill="none"/><circle cx="9" cy="9" r="2" fill="#00e676"/></svg>
+      </div>
+      <span class="s-logo-txt">ReActiva</span>
+    </div>
+    <div class="s-live"><div class="ld"></div>Bot activo</div>
+  </div>
+
+  <div class="s-step">Paso 03 de 04</div>
+  <h1>Tu asistente<br><em>trabaja solo</em></h1>
+  <p class="desc">Responde, califica y captura cada paciente potencial de forma automática y personalizada.</p>
+
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-title">Conversación real</span>
+      <span class="badge badge-b">IA activa</span>
+    </div>
+    <div class="chat">
+      <div class="msg user">Hola, me interesa el blanqueamiento</div>
+      <div class="msg bot">¡Hola! Encantados. ¿Me dices tu nombre?</div>
+      <div class="msg user">María García</div>
+      <div class="msg bot">Perfecto, María. ¿Cuál es tu teléfono?</div>
+      <div class="typing"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <button class="btn-next" onclick="goSlide(3)">Siguiente →</button>
+</div>
+
+<!-- SLIDE 4 -->
+<div class="slide">
+  <div class="s-topbar">
+    <div class="s-logo">
+      <div class="s-logo-mark">
+        <svg viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="#00e676" stroke-width="1.3" fill="none"/><circle cx="9" cy="9" r="2" fill="#00e676"/></svg>
+      </div>
+      <span class="s-logo-txt">ReActiva</span>
+    </div>
+    <div class="s-live"><div class="ld"></div>Sistema activo</div>
+  </div>
+
+  <div class="s-step">Paso 04 de 04</div>
+  <h1>Pacientes listos.<br><em>Ingresos reales.</em></h1>
+  <p class="desc">Solo intervienes cuando el paciente está cualificado y listo para confirmar su cita.</p>
+
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-title">Resumen mensual</span>
+      <span class="badge badge-g">Este mes</span>
+    </div>
+    <div class="metrics">
+      <div class="mc">
+        <span class="mc-val">55</span>
+        <span class="mc-lbl">Leads</span>
+      </div>
+      <div class="mc">
+        <span class="mc-val">30</span>
+        <span class="mc-lbl">Citas</span>
+      </div>
+      <div class="mc full">
+        <span class="mc-val">15.400 €</span>
+        <span class="mc-lbl">Ingresos generados</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-next" onclick="openInstall()" style="width:100%;max-width:340px;">
+    Empezar ahora →
+  </button>
+
+  <div class="tags-row">
+    <span class="tag-item">Sin permanencia</span>
+    <span class="tag-item">Instalación incluida</span>
+    <span class="tag-item">Activo en 24 h</span>
+  </div>
+</div>
+
+</div><!-- /track -->
+</div><!-- /app -->
+
+<!-- ══════════ INSTALL MODAL ══════════ -->
+<div id="installOverlay" style="
+  display:none;position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(18px);
+  align-items:center;justify-content:center;padding:20px;
+">
+  <div id="installModal" style="
+    background:#0d1218;border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;width:100%;max-width:400px;
+    max-height:90vh;overflow-y:auto;
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.06) transparent;
+    padding:28px 24px;position:relative;
+    animation:mup .35s cubic-bezier(.2,.8,.3,1);
+  ">
+
+    <!-- Header -->
+    <button onclick="closeInstall()" style="
+      position:absolute;top:14px;right:14px;
+      background:rgba(255,255,255,.05);border:none;color:var(--gt);
+      width:26px;height:26px;border-radius:50%;font-size:.9rem;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+    ">✕</button>
+
+    <div style="
+      display:inline-flex;align-items:center;gap:6px;
+      background:var(--vd);border:1px solid var(--vb);
+      color:var(--g);font-size:.6rem;font-weight:700;
+      letter-spacing:.15em;text-transform:uppercase;
+      padding:3px 11px;border-radius:100px;margin-bottom:14px;
+    ">
+      <span style="width:5px;height:5px;border-radius:50%;background:var(--g);display:inline-block;animation:pulse 1.5s infinite;"></span>
+      Instalación incluida
+    </div>
+
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.65rem;font-weight:700;line-height:1.15;margin-bottom:8px;">
+      En marcha en<br><em style="color:var(--g);font-style:italic;">menos de 5 minutos</em>
+    </h2>
+    <p style="font-size:.76rem;color:var(--gt);line-height:1.7;margin-bottom:22px;">
+      Un comando y tu bot arranca solo. Sin servidores, sin configuración compleja.
+    </p>
+
+    <!-- STEP 1 -->
+    <div class="ins-step" id="ins1" onclick="markStep(1)">
+      <div class="ins-num" id="inn1">1</div>
+      <div class="ins-body">
+        <div class="ins-label">Instala el backend</div>
+        <div class="ins-desc">Copia y ejecuta esto en tu terminal. Instala todo automáticamente.</div>
+        <div class="ins-code" id="icode1">cd backend
+npm install
+cp .env.example .env
+npm start</div>
+        <button class="ins-copy" id="icopy1" onclick="copyIns(event,'icode1','icopy1')">⎘ Copiar</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="ins-step" id="ins2" onclick="markStep(2)">
+      <div class="ins-num" id="inn2">2</div>
+      <div class="ins-body">
+        <div class="ins-label">Configura tus canales</div>
+        <div class="ins-desc">Abre el <code class="ic">.env</code> generado y añade tus tokens:</div>
+        <div class="ins-code" id="icode2">INSTAGRAM_TOKEN=tu_token
+MESSENGER_PAGE_TOKEN=tu_token
+EMAIL_USER=tu@clinica.com
+EMAIL_PASS=tu_contraseña</div>
+        <button class="ins-copy" id="icopy2" onclick="copyIns(event,'icode2','icopy2')">⎘ Copiar</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="ins-step" id="ins3" onclick="markStep(3)">
+      <div class="ins-num" id="inn3">3</div>
+      <div class="ins-body">
+        <div class="ins-label">Añade el widget a tu web</div>
+        <div class="ins-desc">Pega antes del cierre de <code class="ic">&lt;/body&gt;</code> en tu web:</div>
+        <div class="ins-code" id="icode3">&lt;script src="https://cdn.reactiva.app/widget.js"
+  data-key="TU_API_KEY"&gt;&lt;/script&gt;</div>
+        <button class="ins-copy" id="icopy3" onclick="copyIns(event,'icode3','icopy3')">⎘ Copiar</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="ins-step" id="ins4" onclick="markStep(4)" style="border-bottom:none;">
+      <div class="ins-num" id="inn4">4</div>
+      <div class="ins-body">
+        <div class="ins-label">Conecta en el panel</div>
+        <div class="ins-desc">
+          Ve a <strong style="color:var(--w);">Configuración → Canales</strong> en tu panel y conecta Instagram, Messenger y Email con un clic.<br><br>
+          <span style="color:var(--g);font-weight:600;">✓ El bot arranca solo en menos de 60 segundos.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado visual -->
+    <div style="
+      margin-top:18px;
+      background:var(--vd);border:1px solid var(--vb);
+      border-radius:11px;padding:13px 15px;
+      display:flex;align-items:center;gap:12px;
+    ">
+      <div style="
+        width:38px;height:38px;border-radius:50%;flex-shrink:0;
+        background:rgba(0,230,118,.15);border:1px solid var(--vb);
+        display:flex;align-items:center;justify-content:center;
+        font-size:1.1rem;
+      ">✓</div>
+      <div>
+        <div style="font-size:.78rem;font-weight:700;color:var(--g);margin-bottom:2px;">ReActiva instalado correctamente</div>
+        <div style="font-size:.7rem;color:var(--gt);">Accede a tu panel · Conecta tus redes · Empieza a capturar leads</div>
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <div style="display:flex;gap:9px;margin-top:18px;">
+      <button onclick="closeInstall()" style="
+        flex:1;padding:12px;background:rgba(255,255,255,.04);
+        border:1px solid rgba(255,255,255,.09);color:var(--w);
+        font-family:'Syne',sans-serif;font-size:.73rem;font-weight:600;
+        border-radius:10px;cursor:pointer;transition:all .25s;
+      ">Ver planes</button>
+      <button onclick="goLogin()" style="
+        flex:1;padding:12px;background:var(--g);color:var(--n);
+        border:none;font-family:'Syne',sans-serif;font-size:.73rem;font-weight:700;
+        border-radius:10px;cursor:pointer;transition:all .25s;
+      ">Ir al panel →</button>
     </div>
 
   </div>
 </div>
 
-<!-- SLIDES -->
-<div class="wrapper" id="wrapper">
-
-<div class="screen">
-  <h1>1. Te registras</h1>
-  <p>Entras con tu email y en 1 minuto estás dentro.</p>
-  <button onclick="nextSlide()">Siguiente →</button>
-</div>
-
-<div class="screen">
-  <h1>2. Instalamos todo</h1>
-  <p>Conectamos web, Instagram y WhatsApp.</p>
-
-  <div class="chat">
-    <div class="msg bot">Sistema conectado ✅</div>
-    <div class="msg bot">Bot activo en todos los canales</div>
-  </div>
-
-  <button onclick="nextSlide()">Siguiente →</button>
-</div>
-
-<div class="screen">
-  <h1>3. El bot trabaja</h1>
-  <p>Responde y captura clientes automáticamente.</p>
-
-  <div class="chat">
-    <div class="msg user">Quiero blanqueamiento</div>
-    <div class="msg bot">¿Tu nombre?</div>
-    <div class="msg user">María</div>
-    <div class="msg bot">¿Teléfono?</div>
-  </div>
-
-  <button onclick="nextSlide()">Siguiente →</button>
-</div>
-
-<div class="screen">
-  <h1>4. Tú cierras</h1>
-  <p>Recibes pacientes listos.</p>
-
-  <div class="panel">
-    <div class="metric">Leads <span class="green">55</span></div>
-    <div class="metric">Citas <span>30</span></div>
-    <div class="metric">Ingresos <span>15.400€</span></div>
-  </div>
-
-  <button onclick="goLogin()">Empezar ahora →</button>
-
-  <p class="small">
-    Sin permanencia · Instalación incluida · Activo en 24h
-  </p>
-</div>
-
-</div>
-
-<!-- DOTS -->
-<div class="dots">
-  <span class="dot active"></span>
-  <span class="dot"></span>
-  <span class="dot"></span>
-  <span class="dot"></span>
-</div>
+<div class="prog"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+<div class="counter" id="ctr">01 / 04</div>
 
 <script>
-// INTRO
-let introStep = 0;
-let introSteps;
-
-document.addEventListener("DOMContentLoaded", ()=>{
-  introSteps = document.querySelectorAll(".intro-step");
-
-  // detectar móvil
-  if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
-    document.querySelectorAll(".premium-note").forEach(el=>{
-      el.innerHTML = "Optimizado para móvil · Sin instalación · Listo en segundos";
-    });
-  }
-});
+// ── INTRO
+let iStep=0;
+const iSteps=document.querySelectorAll('.istep');
+const iDots=document.querySelectorAll('.idot');
 
 function nextIntro(){
-  introSteps[introStep].classList.remove("active");
-  introStep++;
-  if(introSteps[introStep]){
-    introSteps[introStep].classList.add("active");
+  iSteps[iStep].classList.remove('active');
+  iDots[iStep].classList.remove('on');
+  iStep++;
+  if(iSteps[iStep]){
+    iSteps[iStep].classList.add('active');
+    iDots[iStep].classList.add('on');
   }
 }
 
 function startApp(){
-  document.getElementById("introOverlay").style.display = "none";
+  document.getElementById('intro').classList.add('out');
+  document.getElementById('ctr').style.display='block';
+  updateProg(0);
 }
 
-// SLIDES
-let step = 0;
+// ── SLIDES
+let cur=0;
+const track=document.getElementById('track');
+const pf=document.getElementById('pf');
+const ctr=document.getElementById('ctr');
+const TOTAL=4;
+const NUMS=['01','02','03','04'];
 
-function updateDots(){
-  document.querySelectorAll(".dot").forEach((d,i)=>{
-    d.classList.toggle("active", i===step);
-  });
+function goSlide(n){
+  cur=n;
+  track.style.transform=`translateX(-${cur*100}vw)`;
+  updateProg(cur);
 }
 
-function nextSlide(){
-  step++;
-  if(step>3) step=3;
-
-  document.getElementById("wrapper").style.transform =
-    `translateX(-${step*100}vw)`;
-
-  updateDots();
+function updateProg(n){
+  pf.style.width=((n+1)/TOTAL*100)+'%';
+  ctr.textContent=NUMS[n]+' / 04';
 }
 
 function goLogin(){
-  window.location.href = "login.html";
+  window.location.href='login.html';
 }
-</script>
 
+// ── INSTALL MODAL
+function openInstall(){
+  const ov=document.getElementById('installOverlay');
+  ov.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeInstall(){
+  document.getElementById('installOverlay').style.display='none';
+  document.body.style.overflow='';
+}
+document.getElementById('installOverlay').addEventListener('click',function(e){
+  if(e.target===this) closeInstall();
+});
+
+const doneSt=new Set();
+function markStep(n){
+  const step=document.getElementById('ins'+n);
+  const num=document.getElementById('inn'+n);
+  if(doneSt.has(n)){doneSt.delete(n);step.classList.remove('done');num.textContent=n;}
+  else{doneSt.add(n);step.classList.add('done');num.textContent='✓';}
+}
+function copyIns(e,codeId,btnId){
+  e.stopPropagation();
+  const text=document.getElementById(codeId).textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById(btnId);
+    btn.textContent='✓ Copiado';btn.classList.add('ok');
+    setTimeout(()=>{btn.textContent='⎘ Copiar';btn.classList.remove('ok');},2000);
+  });
+}
+
+// Touch swipe
+let tx=0;
+track.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+track.addEventListener('touchend',e=>{
+  const dx=tx-e.changedTouches[0].clientX;
+  if(Math.abs(dx)>50){
+    if(dx>0&&cur<TOTAL-1) goSlide(cur+1);
+    if(dx<0&&cur>0) goSlide(cur-1);
+  }
+},{passive:true});
+</script>
 </body>
 </html>
