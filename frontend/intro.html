@@ -6,231 +6,331 @@
 <title>ReActiva · Cómo funciona</title>
 
 <style>
-:root {
-  --bg: #0f172a;
-  --panel: #111827;
-  --accent: #6366f1;
-  --text: #ffffff;
-  --muted: rgba(255,255,255,0.6);
+:root{
+  --dorado:#6366f1;
+  --gris-texto:rgba(255,255,255,0.6);
 }
 
-* {
-  box-sizing: border-box;
+body{
+  margin:0;
+  font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+  background:#0b0f1a;
+  color:white;
+  overflow:hidden;
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
+/* INTRO OVERLAY */
+.intro-overlay{
+  position:fixed;
+  inset:0;
+
+  /* Fallback (si no soporta blur) */
+  background:rgba(10,12,17,0.96);
+
+  /* Blur moderno */
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px); /* Safari / iOS */
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.intro-box{
+  width:90%;
+  max-width:420px;
+  text-align:center;
 }
 
-/* LAYOUT */
-.container {
-  display: flex;
-  height: 100vh;
+.intro-step{display:none;}
+.intro-step.active{display:block;}
+
+.intro-box h2{
+  font-size:2rem;
+  margin-bottom:12px;
 }
 
-/* IZQUIERDA */
-.left {
-  width: 50%;
-  padding: 60px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.intro-box p{
+  font-size:0.9rem;
+  color:var(--gris-texto);
+  margin-bottom:28px;
 }
 
-.left h1 {
-  font-size: 2.5rem;
-  margin-bottom: 10px;
+.intro-box button{
+  padding:14px 28px;
+  background:var(--dorado);
+  border:none;
+  border-radius:8px;
+  font-weight:700;
+  cursor:pointer;
 }
 
-.left p {
-  color: var(--muted);
-  font-size: 1.1rem;
+.premium-note{
+  font-size:0.78rem;
+  opacity:0.7;
+  margin-top:10px;
 }
 
-.step {
-  margin-top: 20px;
-  padding: 15px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 10px;
+/* WRAPPER */
+.wrapper{
+  display:flex;
+  width:400%;
+  height:100vh;
+  transition:transform 0.6s ease;
 }
 
-/* DERECHA */
-.right {
-  width: 50%;
-  background: #020617;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.screen{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:30px;
+  text-align:center;
 }
 
-.demo {
-  width: 90%;
-  max-width: 420px;
-  background: var(--panel);
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+h1{
+  font-size:1.9rem;
+  margin-bottom:10px;
+}
+
+p{
+  font-size:0.95rem;
+  color:var(--gris-texto);
+  max-width:320px;
 }
 
 /* CHAT */
-.chat {
-  max-height: 200px;
-  overflow: hidden;
+.chat{
+  margin-top:25px;
+  width:100%;
+  max-width:320px;
+  background:#111827;
+  border-radius:14px;
+  padding:15px;
+  text-align:left;
 }
 
-.msg {
-  font-size: 13px;
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.05);
-  animation: fadeIn 0.4s;
+.msg{
+  padding:10px;
+  border-radius:8px;
+  margin-bottom:8px;
+  font-size:13px;
 }
 
-/* COUNTER */
-.counter {
-  color: #22c55e;
-  margin-bottom: 10px;
+.user{
+  background:rgba(255,255,255,0.08);
+  text-align:right;
 }
 
-/* BOTÓN */
-button {
-  margin-top: 30px;
-  padding: 14px;
-  border: none;
-  border-radius: 10px;
-  background: var(--accent);
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
+.bot{
+  background:rgba(99,102,241,0.2);
 }
 
-/* ANIMACIÓN */
-@keyframes fadeIn {
-  from {opacity: 0; transform: translateY(10px);}
-  to {opacity: 1;}
+/* PANEL */
+.panel{
+  margin-top:20px;
+  width:100%;
+  max-width:320px;
+  background:#111827;
+  border-radius:14px;
+  padding:15px;
 }
 
-/* RESPONSIVE */
-@media (max-width: 900px) {
-  .container {
-    flex-direction: column;
-  }
+.metric{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  margin-bottom:6px;
+}
 
-  .left, .right {
-    width: 100%;
-    padding: 30px;
-  }
+.green{color:#22c55e}
 
-  .left h1 {
-    font-size: 1.8rem;
-  }
+/* BUTTON */
+button{
+  margin-top:30px;
+  padding:14px;
+  width:100%;
+  max-width:320px;
+  border:none;
+  border-radius:10px;
+  background:#6366f1;
+  color:white;
+  font-size:1rem;
+  cursor:pointer;
+}
+
+/* SMALL */
+.small{
+  font-size:12px;
+  opacity:0.6;
+  margin-top:12px;
+}
+
+/* DOTS */
+.dots{
+  position:fixed;
+  bottom:15px;
+  width:100%;
+  text-align:center;
+}
+
+.dot{
+  display:inline-block;
+  width:6px;
+  height:6px;
+  margin:4px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.3);
+}
+
+.dot.active{
+  background:#6366f1;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- INTRO -->
+<div id="introOverlay" class="intro-overlay">
+  <div class="intro-box">
 
-  <!-- IZQUIERDA -->
-  <div class="left">
-
-    <h1 id="title">Captamos pacientes automáticamente</h1>
-    <p id="desc">Tu clínica genera leads sin esfuerzo, 24/7.</p>
-
-    <div class="step" id="extra">
-      Conecta tu web o redes y el sistema empieza a trabajar solo.
+    <div class="intro-step active">
+      <h2>Bienvenido a ReActiva</h2>
+      <p>Automatiza tu clínica y no pierdas ni un solo cliente.</p>
+      <button onclick="nextIntro()">Siguiente →</button>
     </div>
 
-    <button onclick="goApp()">Entrar al sistema →</button>
+    <div class="intro-step">
+      <h2>Captura leads 24/7</h2>
+      <p>Respondemos por ti en Instagram, Facebook y email.</p>
+      <button onclick="nextIntro()">Siguiente →</button>
+    </div>
 
-  </div>
-
-  <!-- DERECHA -->
-  <div class="right">
-
-    <div class="demo">
-
-      <div class="counter" id="counter">0 leads hoy</div>
-
-      <div class="chat" id="chat"></div>
-
+    <div class="intro-step">
+      <h2>Todo listo</h2>
+      <p class="premium-note">
+        Sin permanencia · Instalación incluida · Activación inmediata
+      </p>
+      <button onclick="startApp()">Empezar →</button>
     </div>
 
   </div>
+</div>
+
+<!-- SLIDES -->
+<div class="wrapper" id="wrapper">
+
+<div class="screen">
+  <h1>1. Te registras</h1>
+  <p>Entras con tu email y en 1 minuto estás dentro.</p>
+  <button onclick="nextSlide()">Siguiente →</button>
+</div>
+
+<div class="screen">
+  <h1>2. Instalamos todo</h1>
+  <p>Conectamos web, Instagram y WhatsApp.</p>
+
+  <div class="chat">
+    <div class="msg bot">Sistema conectado ✅</div>
+    <div class="msg bot">Bot activo en todos los canales</div>
+  </div>
+
+  <button onclick="nextSlide()">Siguiente →</button>
+</div>
+
+<div class="screen">
+  <h1>3. El bot trabaja</h1>
+  <p>Responde y captura clientes automáticamente.</p>
+
+  <div class="chat">
+    <div class="msg user">Quiero blanqueamiento</div>
+    <div class="msg bot">¿Tu nombre?</div>
+    <div class="msg user">María</div>
+    <div class="msg bot">¿Teléfono?</div>
+  </div>
+
+  <button onclick="nextSlide()">Siguiente →</button>
+</div>
+
+<div class="screen">
+  <h1>4. Tú cierras</h1>
+  <p>Recibes pacientes listos.</p>
+
+  <div class="panel">
+    <div class="metric">Leads <span class="green">55</span></div>
+    <div class="metric">Citas <span>30</span></div>
+    <div class="metric">Ingresos <span>15.400€</span></div>
+  </div>
+
+  <button onclick="goLogin()">Empezar ahora →</button>
+
+  <p class="small">
+    Sin permanencia · Instalación incluida · Activo en 24h
+  </p>
+</div>
 
 </div>
 
-<script>
-const steps = [
-  {
-    title: "Captamos pacientes automáticamente",
-    desc: "Instagram, web y campañas trabajan para ti",
-    extra: "Los leads entran sin que hagas nada."
-  },
-  {
-    title: "Respondemos al instante",
-    desc: "El bot responde como recepcionista",
-    extra: "Sin perder clientes por no contestar."
-  },
-  {
-    title: "Agendamos citas automáticamente",
-    desc: "Tus pacientes reservan solos",
-    extra: "Sin llamadas, sin gestión manual."
-  },
-  {
-    title: "Instalación en 24h",
-    desc: "Pagas → conectamos todo por ti",
-    extra: "Sin técnicos, sin complicaciones."
-  }
-];
+<!-- DOTS -->
+<div class="dots">
+  <span class="dot active"></span>
+  <span class="dot"></span>
+  <span class="dot"></span>
+  <span class="dot"></span>
+</div>
 
+<script>
+// INTRO
+let introStep = 0;
+let introSteps;
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  introSteps = document.querySelectorAll(".intro-step");
+
+  // detectar móvil
+  if(/Android|iPhone|iPad/i.test(navigator.userAgent)){
+    document.querySelectorAll(".premium-note").forEach(el=>{
+      el.innerHTML = "Optimizado para móvil · Sin instalación · Listo en segundos";
+    });
+  }
+});
+
+function nextIntro(){
+  introSteps[introStep].classList.remove("active");
+  introStep++;
+  if(introSteps[introStep]){
+    introSteps[introStep].classList.add("active");
+  }
+}
+
+function startApp(){
+  document.getElementById("introOverlay").style.display = "none";
+}
+
+// SLIDES
 let step = 0;
 
-setInterval(() => {
-  step = (step + 1) % steps.length;
+function updateDots(){
+  document.querySelectorAll(".dot").forEach((d,i)=>{
+    d.classList.toggle("active", i===step);
+  });
+}
 
-  document.getElementById("title").innerText = steps[step].title;
-  document.getElementById("desc").innerText = steps[step].desc;
-  document.getElementById("extra").innerText = steps[step].extra;
+function nextSlide(){
+  step++;
+  if(step>3) step=3;
 
-}, 3500);
+  document.getElementById("wrapper").style.transform =
+    `translateX(-${step*100}vw)`;
 
-// DEMO
-let leads = 0;
+  updateDots();
+}
 
-const names = ["Ana", "Carlos", "Laura", "Miguel", "Sofía"];
-const services = ["Implantes", "Limpieza", "Ortodoncia"];
-
-setInterval(() => {
-
-  leads++;
-  document.getElementById("counter").innerText = leads + " leads hoy";
-
-  const msg = document.createElement("div");
-  msg.className = "msg";
-
-  msg.innerText =
-    names[Math.floor(Math.random()*names.length)] +
-    " quiere " +
-    services[Math.floor(Math.random()*services.length)];
-
-  const chat = document.getElementById("chat");
-  chat.prepend(msg);
-
-  if (chat.children.length > 6) {
-    chat.lastChild.remove();
-  }
-
-}, 1200);
-
-// BOTÓN
-function goApp() {
-  window.location.href = "/index.html";
+function goLogin(){
+  window.location.href = "login.html";
 }
 </script>
 
