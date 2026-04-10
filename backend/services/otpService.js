@@ -23,15 +23,17 @@ function verifyOTP(email, code, callback) {
 
     if (err || !row) return callback("Invalid OTP");
 
+    // 🔥 VALIDACIÓN DE EXPIRACIÓN (CRÍTICO)
+    if (new Date(row.expires_at) < new Date()) {
+      return callback("OTP expirado");
+    }
+
     const valid = await bcrypt.compare(code, row.code_hash);
 
     if (!valid) return callback("Invalid OTP");
 
-    // marcar como usado
     db.run(`UPDATE otp_codes SET used=1 WHERE id=?`, [row.id]);
 
     callback(null, true);
   });
 }
-
-module.exports = { createOTP, verifyOTP };
