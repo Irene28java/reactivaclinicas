@@ -9,7 +9,7 @@
 :root{
   --n:#07090d;
   --w:#f0ede8;
-  --g:#00e676;
+  --g:#f7e62b;
   --vd:rgba(0,230,118,.08);
   --vb:rgba(0,230,118,.22);
   --vm:rgba(0,230,118,.45);
@@ -66,6 +66,9 @@ body::after{
   width:480px;height:280px;
   background:radial-gradient(ellipse at center, rgba(0,230,118,.07) 0%, transparent 70%);
   pointer-events:none;
+}
+#app{
+  display:none;
 }
 
 .i-logo{
@@ -840,9 +843,14 @@ function nextIntro(){
 
 function startApp(){
   document.getElementById('intro').classList.add('out');
-  document.getElementById('ctr').style.display='block';
-  updateProg(0);
+
+  setTimeout(() => {
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('ctr').style.display = 'block';
+    updateProg(0);
+  }, 700);
 }
+
 
 // ── SLIDES
 let cur=0;
