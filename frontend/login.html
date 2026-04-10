@@ -7,437 +7,619 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --negro:       #0a0c11;
-  --blanco:      #f5f3f0;
-  --dorado:      #f7e62b;
-  --dorado-dim:  rgba(212,165,115,0.08);
-  --dorado-borde: rgba(212,165,115,0.22);
-  --gris:        #121620;
-  --gris2:       #1a1f2e;
-  --gris3:       #232d3d;
-  --gris-texto:  #8892a3;
-  --azul:        #5B7C99;
-  --rojo:        #E74C3C;
+  --n: #07090d;
+  --w: #f0ede8;
+--g:#f7e62b;
+  --vd: rgba(0,230,118,.08);
+  --vb: rgba(0,230,118,.22);
+  --vm: rgba(0,230,118,.45);
+  --g1: #0f1318;
+  --g2: #141920;
+  --g3: #1a2028;
+  --gt: #6e7a8a;
+  --az: #4ea8f0;
+  --or: #d4a843;
+  --rj: #ff5c5c;
+  --border: rgba(255,255,255,.06);
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box }
+html, body { height:100%; font-family:'Syne',sans-serif; background:var(--n); color:var(--w); overflow:hidden }
 
+/* NOISE */
+body::after {
+  content:''; position:fixed; inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:9999;
 }
 
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{height:100%}
-body{font-family:'Syne',sans-serif;background:var(--negro);color:var(--blanco);min-height:100vh;display:flex;overflow:hidden}
+/* TOAST */
+.toast {
+  position:fixed; top:24px; right:24px; z-index:9998;
+  display:flex; align-items:center; gap:10px;
+  padding:13px 18px; border-radius:12px;
+  font-size:.82rem; font-weight:600; min-width:260px;
+  transform:translateY(-14px) translateX(20px); opacity:0;
+  transition:all .35s cubic-bezier(.2,.8,.3,1);
+  backdrop-filter:blur(12px);
+}
+.toast.show { transform:translateY(0) translateX(0); opacity:1 }
+.toast.success { background:rgba(0,230,118,.1); border:1px solid var(--vb); color:var(--g) }
+.toast.error   { background:rgba(255,92,92,.1);  border:1px solid rgba(255,92,92,.3); color:var(--rj) }
+.toast.info    { background:var(--g2);            border:1px solid var(--border); color:var(--w) }
 
-/* ── TOAST ── */
-.toast{position:fixed;top:24px;right:24px;z-index:9999;display:flex;align-items:center;gap:10px;padding:14px 18px;border-radius:12px;font-size:0.85rem;font-weight:600;max-width:320px;pointer-events:none;transform:translateY(-12px) translateX(20px);opacity:0;transition:all 0.35s cubic-bezier(.2,.8,.3,1)}
-.toast.show{transform:translateY(0) translateX(0);opacity:1}
-.toast.success{background:#0d2218;border:1px solid var(--verde-borde);color:var(--verde)}
-.toast.error{background:#200d12;border:1px solid rgba(255,77,106,0.3);color:var(--error)}
-.toast.info{background:#111720;border:1px solid rgba(255,255,255,0.1);color:var(--blanco)}
-.toast-icon{font-size:1rem;flex-shrink:0}
+/* LAYOUT */
+.layout { display:flex; height:100vh; }
 
-/* ── LEFT PANEL ── */
-.left-panel{width:52%;position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:48px 56px;background:linear-gradient(135deg,#0a0f14 0%,#071209 100%);overflow:hidden}
-.left-panel::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,230,118,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.04) 1px,transparent 1px);background-size:60px 60px;animation:gridSlide 20s linear infinite}
-@keyframes gridSlide{from{transform:translate(0,0)}to{transform:translate(60px,60px)}}
-.left-panel::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,230,118,0.12) 0%,transparent 70%);top:-100px;left:-100px;animation:orbPulse 6s ease-in-out infinite}
-@keyframes orbPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:0.7}}
-.left-content{position:relative;z-index:2}
-.left-logo{display:flex;align-items:center;gap:10px;margin-bottom:60px;text-decoration:none}
-.logo-text-login{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--blanco)}
-.left-headline{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,3.5vw,3.2rem);font-weight:700;line-height:1.1;margin-bottom:20px}
-.left-headline em{font-style:italic;color:var(--verde)}
-.left-desc{color:var(--gris-texto);font-size:0.9rem;line-height:1.75;max-width:380px;margin-bottom:48px}
-.testimonial{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:24px 28px;max-width:400px;position:relative}
-.testimonial::before{content:'"';position:absolute;top:-18px;left:20px;font-family:'Cormorant Garamond',serif;font-size:5rem;color:var(--verde);line-height:1;opacity:0.6}
-.test-text{font-size:0.88rem;color:#c5cdd8;line-height:1.7;margin-bottom:16px;margin-top:8px}
-.test-author{display:flex;align-items:center;gap:10px}
-.test-avatar{width:34px;height:34px;border-radius:50%;background:var(--verde-dim);border:1px solid var(--verde-borde);color:var(--verde);font-size:0.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
-.test-name{font-size:0.82rem;font-weight:700}
-.test-clinic{font-size:0.72rem;color:var(--gris-texto)}
-.left-stats{display:flex;gap:32px;margin-top:auto;padding-top:32px;border-top:1px solid rgba(255,255,255,0.06);position:relative;z-index:2}
-.lstat-num{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--verde);line-height:1}
-.lstat-label{font-size:0.7rem;color:var(--gris-texto);margin-top:3px}
+/* LEFT */
+.left {
+  width:52%; position:relative;
+  display:flex; flex-direction:column;
+  padding:52px 60px; overflow:hidden;
+  background:linear-gradient(145deg, #080d0a 0%, var(--n) 100%);
+}
+.left-glow {
+  position:absolute; top:-80px; left:-80px;
+  width:520px; height:520px; border-radius:50%;
+  background:radial-gradient(circle, rgba(0,230,118,.09) 0%, transparent 65%);
+  pointer-events:none;
+}
+.left-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(0,230,118,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,230,118,.04) 1px, transparent 1px);
+  background-size:56px 56px;
+  animation:gridMove 22s linear infinite;
+  pointer-events:none;
+}
+@keyframes gridMove { from{background-position:0 0} to{background-position:56px 56px} }
 
-/* ── RIGHT PANEL ── */
-.right-panel{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 56px;background:var(--negro);position:relative}
-.form-card{width:100%;max-width:400px;animation:formReveal 0.7s cubic-bezier(.2,.8,.3,1) both}
-@keyframes formReveal{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-.form-eyebrow{font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--verde);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.form-eyebrow::before{content:'';width:20px;height:1px;background:var(--verde);opacity:0.5}
-.form-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;line-height:1.1;margin-bottom:8px}
-.form-sub{color:var(--gris-texto);font-size:0.85rem;margin-bottom:36px;line-height:1.6}
+.left-inner { position:relative; z-index:2; display:flex; flex-direction:column; height:100%; }
 
-/* ── STEPS ── */
-.step{transition:all 0.4s cubic-bezier(.2,.8,.3,1)}
-.step.hidden{display:none}
+.logo-link {
+  display:inline-flex; align-items:center; gap:10px;
+  text-decoration:none; margin-bottom:56px;
+}
+.logo-mark {
+  width:38px; height:38px; border-radius:11px;
+  background:var(--vd); border:1px solid var(--vb);
+  display:flex; align-items:center; justify-content:center;
+}
+.logo-mark svg { width:20px; height:20px; }
+.logo-word {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.55rem; font-weight:700; color:var(--w);
+}
+.logo-word span { color:var(--g); }
 
-/* ── FIELDS ── */
-.field-group{margin-bottom:16px}
-.field-label{display:block;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:8px}
-.field-wrap{position:relative}
-.field-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--gris-texto);pointer-events:none;transition:color 0.2s}
-.field-input{width:100%;padding:13px 14px 13px 40px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:var(--blanco);font-family:'Syne',sans-serif;font-size:0.9rem;outline:none;transition:all 0.25s}
-.field-input:focus{border-color:var(--verde);background:rgba(0,230,118,0.04);box-shadow:0 0 0 3px rgba(0,230,118,0.08)}
-.field-input:focus + .field-icon,
-.field-wrap:focus-within .field-icon{color:var(--verde)}
-.field-input::placeholder{color:rgba(110,122,138,0.7)}
-.field-input.error-state{border-color:var(--error);background:var(--error-dim);box-shadow:0 0 0 3px rgba(255,77,106,0.08)}
+.headline {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,3vw,3rem);
+  font-weight:700; line-height:1.1;
+  margin-bottom:18px;
+}
+.headline em { font-style:italic; color:var(--g); }
 
-/* OTP inputs grandes */
-.otp-inputs{display:flex;gap:10px;margin-top:4px}
-.otp-digit{flex:1;height:56px;text-align:center;font-size:1.4rem;font-weight:700;font-family:'Syne',sans-serif;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:var(--blanco);outline:none;transition:all 0.25s;caret-color:var(--verde)}
-.otp-digit:focus{border-color:var(--verde);background:rgba(0,230,118,0.06);box-shadow:0 0 0 3px rgba(0,230,118,0.1)}
-.otp-digit.filled{border-color:rgba(0,230,118,0.4);background:rgba(0,230,118,0.05)}
-.otp-digit.error-state{border-color:var(--error);background:var(--error-dim)}
+.desc {
+  font-size:.88rem; color:var(--gt);
+  line-height:1.8; max-width:360px;
+  margin-bottom:44px;
+}
 
-/* ── BUTTON ── */
-.btn-login{width:100%;padding:15px;background:var(--verde);color:var(--negro);border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:0.92rem;font-weight:700;cursor:pointer;letter-spacing:0.03em;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;transition:all 0.25s;margin-top:20px}
-.btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.15) 50%,transparent 100%);transform:translateX(-100%);transition:transform 0.5s}
-.btn-login:hover:not(:disabled)::before{transform:translateX(100%)}
-.btn-login:hover:not(:disabled){background:#1fffa0;box-shadow:0 8px 32px rgba(0,230,118,0.4);transform:translateY(-2px)}
-.btn-login:active:not(:disabled){transform:translateY(0)}
-.btn-login:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-.btn-spinner{display:none;width:18px;height:18px;border:2.5px solid rgba(0,0,0,0.2);border-top-color:var(--negro);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn-login.loading .btn-text{opacity:0.7}
-.btn-login.loading .btn-spinner{display:block}
+/* TESTIMONIO */
+.testimonial {
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:16px; padding:22px 26px;
+  max-width:420px; position:relative;
+}
+.quote-mark {
+  font-family:'Cormorant Garamond',serif;
+  font-size:4.5rem; color:var(--g);
+  line-height:1; opacity:.5;
+  position:absolute; top:-14px; left:18px;
+}
+.test-text {
+  font-size:.84rem; color:rgba(240,237,232,.75);
+  line-height:1.75; margin-bottom:16px; margin-top:10px;
+}
+.test-author { display:flex; align-items:center; gap:10px; }
+.test-av {
+  width:34px; height:34px; border-radius:50%;
+  background:var(--vd); border:1px solid var(--vb);
+  color:var(--g); font-size:.78rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.test-name { font-size:.82rem; font-weight:700; margin-bottom:1px; }
+.test-clinic { font-size:.7rem; color:var(--gt); }
 
-/* ── HELPER TEXT ── */
-.field-hint{font-size:0.75rem;color:var(--gris-texto);margin-top:6px;line-height:1.5}
-.resend-row{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
-.resend-btn{background:none;border:none;color:var(--verde);font-family:'Syne',sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;padding:0;opacity:0.6;transition:opacity 0.2s}
-.resend-btn:hover:not(:disabled){opacity:1}
-.resend-btn:disabled{cursor:not-allowed}
-.resend-timer{font-size:0.75rem;color:var(--gris-texto)}
+/* STATS */
+.stats {
+  display:flex; gap:36px; margin-top:auto;
+  padding-top:30px;
+  border-top:1px solid rgba(255,255,255,.05);
+}
+.stat-num {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.9rem; font-weight:700;
+  color:var(--g); line-height:1;
+  margin-bottom:3px;
+}
+.stat-lbl { font-size:.68rem; color:var(--gt); font-weight:500; }
 
-/* ── EMAIL PREVIEW ── */
-.email-preview{display:flex;align-items:center;justify-content:space-between;background:rgba(0,230,118,0.06);border:1px solid var(--verde-borde);border-radius:10px;padding:11px 14px;margin-bottom:20px}
-.email-preview-addr{font-size:0.83rem;font-weight:600;color:var(--verde)}
-.email-preview-change{background:none;border:none;color:var(--gris-texto);font-family:'Syne',sans-serif;font-size:0.75rem;cursor:pointer;transition:color 0.2s;padding:0}
-.email-preview-change:hover{color:var(--blanco)}
+/* RIGHT */
+.right {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  padding:48px 64px; background:var(--n);
+  position:relative;
+}
+/* subtle right glow */
+.right::before {
+  content:''; position:absolute; bottom:-100px; right:-100px;
+  width:400px; height:400px; border-radius:50%;
+  background:radial-gradient(circle, rgba(78,168,240,.04) 0%, transparent 65%);
+  pointer-events:none;
+}
 
-/* Mobile */
-@media(max-width:800px){.left-panel{display:none}.right-panel{padding:40px 24px}}
+.form-wrap {
+  width:100%; max-width:410px;
+  animation:formIn .65s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes formIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+.form-eyebrow {
+  font-size:.65rem; font-weight:700;
+  letter-spacing:.18em; text-transform:uppercase;
+  color:var(--g); margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.form-eyebrow::before {
+  content:''; width:18px; height:1.5px;
+  background:var(--g); opacity:.5;
+}
+.form-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.3rem; font-weight:700; line-height:1.1;
+  margin-bottom:7px;
+}
+.form-sub { font-size:.83rem; color:var(--gt); line-height:1.65; margin-bottom:34px; }
+
+/* STEP */
+.step { animation:stepIn .4s cubic-bezier(.2,.8,.3,1) both; }
+.step.hidden { display:none; }
+@keyframes stepIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* FIELD */
+.fgroup { margin-bottom:16px; }
+.flabel {
+  display:block; font-size:.65rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:var(--gt); margin-bottom:8px;
+}
+.fwrap { position:relative; }
+.ficon {
+  position:absolute; left:14px; top:50%; transform:translateY(-50%);
+  font-size:.85rem; color:var(--gt); pointer-events:none;
+  transition:color .2s;
+}
+.finput {
+  width:100%; padding:13px 14px 13px 42px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:11px; color:var(--w);
+  font-family:'Syne',sans-serif; font-size:.88rem;
+  outline:none; transition:all .25s;
+}
+.finput::placeholder { color:var(--gt); }
+.finput:focus {
+  border-color:var(--vb);
+  background:rgba(0,230,118,.04);
+  box-shadow:0 0 0 3px rgba(0,230,118,.08);
+}
+.finput.err { border-color:var(--rj); background:rgba(255,92,92,.05); box-shadow:0 0 0 3px rgba(255,92,92,.08); }
+
+/* OTP */
+.otp-row { display:flex; gap:10px; }
+.otp-d {
+  flex:1; height:58px; text-align:center;
+  font-size:1.5rem; font-weight:700;
+  font-family:'Syne',sans-serif;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:11px; color:var(--w);
+  outline:none; transition:all .25s;
+  caret-color:var(--g);
+}
+.otp-d:focus {
+  border-color:var(--vb);
+  background:rgba(0,230,118,.06);
+  box-shadow:0 0 0 3px rgba(0,230,118,.1);
+}
+.otp-d.filled { border-color:rgba(0,230,118,.35); background:rgba(0,230,118,.04); }
+.otp-d.err    { border-color:var(--rj); background:rgba(255,92,92,.05); }
+
+/* EMAIL PREVIEW */
+.email-pill {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--vd); border:1px solid var(--vb);
+  border-radius:10px; padding:10px 14px;
+  margin-bottom:20px;
+}
+.email-pill-addr { font-size:.82rem; font-weight:700; color:var(--g); }
+.email-pill-btn {
+  background:none; border:none; color:var(--gt);
+  font-family:'Syne',sans-serif; font-size:.73rem;
+  cursor:pointer; transition:color .2s;
+}
+.email-pill-btn:hover { color:var(--w); }
+
+/* RESEND */
+.resend-row {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:12px;
+}
+.resend-btn {
+  background:none; border:none; color:var(--g);
+  font-family:'Syne',sans-serif; font-size:.78rem; font-weight:600;
+  cursor:pointer; transition:opacity .2s; padding:0;
+}
+.resend-btn:disabled { opacity:.35; cursor:not-allowed; }
+.resend-btn:not(:disabled):hover { opacity:.8; }
+.resend-timer { font-size:.73rem; color:var(--gt); }
+
+/* BUTTON */
+.btn-main {
+  width:100%; padding:14px; margin-top:20px;
+  background:var(--g); color:var(--n);
+  border:none; border-radius:11px;
+  font-family:'Syne',sans-serif; font-size:.86rem; font-weight:700;
+  cursor:pointer; letter-spacing:.03em;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  position:relative; overflow:hidden;
+  transition:all .25s;
+}
+.btn-main::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+  transform:translateX(-100%); transition:transform .5s;
+}
+.btn-main:hover:not(:disabled)::before { transform:translateX(100%); }
+.btn-main:hover:not(:disabled) {
+  background:#1fffa0;
+  box-shadow:0 6px 28px rgba(0,230,118,.38);
+  transform:translateY(-2px);
+}
+.btn-main:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+.btn-main.loading { pointer-events:none; }
+
+.spinner {
+  display:none; width:17px; height:17px;
+  border:2.5px solid rgba(0,0,0,.15);
+  border-top-color:var(--n); border-radius:50%;
+  animation:spin .7s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.btn-main.loading .spinner { display:block; }
+.btn-main.loading .btn-txt { opacity:.65; }
+
+/* SKIP / DEMO */
+.skip-row {
+  display:flex; align-items:center; gap:10px;
+  margin-top:20px;
+}
+.skip-line { flex:1; height:1px; background:var(--border); }
+.skip-txt { font-size:.68rem; color:var(--gt); white-space:nowrap; }
+.btn-demo {
+  width:100%; padding:12px; margin-top:14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:11px; color:var(--w);
+  font-family:'Syne',sans-serif; font-size:.84rem; font-weight:600;
+  cursor:pointer; transition:all .25s;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+}
+.btn-demo:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.14); }
+
+/* MOBILE */
+@media(max-width:800px){
+  .left { display:none; }
+  .right { padding:32px 24px; }
+}
 </style>
 </head>
 <body>
 
-<!-- TOAST -->
 <div class="toast" id="toast">
-  <span class="toast-icon" id="toastIcon"></span>
-  <span id="toastMsg"></span>
+  <span id="toast-ico"></span>
+  <span id="toast-msg"></span>
 </div>
 
-<!-- LEFT PANEL -->
-<div class="left-panel">
-  <div class="left-content">
-    <a href="index.html" class="left-logo">
-      <svg width="34" height="34" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/><path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/><path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/><polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span class="logo-text-login"><span style="color:#00e676;font-weight:400">Re</span>Activa<span style="color:#00e676">.</span></span>
-    </a>
-    <h2 class="left-headline">Tu clínica nunca<br>pierde un cliente<br><em>mientras duermes</em></h2>
-    <p class="left-desc">El bot trabaja 24/7 capturando leads, recogiendo datos y notificando a tu equipo al instante.</p>
-    <div class="testimonial">
-      <p class="test-text">Desde que instalamos ReActiva captamos un 40% más de consultas. El bot responde mientras el equipo está ocupado y nunca pierde un contacto.</p>
-      <div class="test-author">
-        <div class="test-avatar">MC</div>
+<div class="layout">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="left-glow"></div>
+    <div class="left-grid"></div>
+    <div class="left-inner">
+
+      <a href="index.html" class="logo-link">
+        <div class="logo-mark">
+          <svg viewBox="0 0 18 18" fill="none">
+            <path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="#00e676" stroke-width="1.3" fill="none"/>
+            <circle cx="9" cy="9" r="2.2" fill="#00e676"/>
+          </svg>
+        </div>
+        <span class="logo-word"><span>Re</span>Activa<span>.</span></span>
+      </a>
+
+      <h2 class="headline">Tu clínica nunca<br>pierde un cliente<br><em>mientras duermes</em></h2>
+      <p class="desc">El bot trabaja 24/7 capturando leads, respondiendo consultas y llenando tu agenda automáticamente.</p>
+
+      <div class="testimonial">
+        <div class="quote-mark">"</div>
+        <p class="test-text">Desde que instalamos ReActiva captamos un 40% más de consultas. El bot responde mientras el equipo está ocupado y nunca pierde un contacto.</p>
+        <div class="test-author">
+          <div class="test-av">MC</div>
+          <div>
+            <div class="test-name">María Castillo</div>
+            <div class="test-clinic">Clínica Dental Castillo · Madrid</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
         <div>
-          <div class="test-name">María Castillo</div>
-          <div class="test-clinic">Clínica Dental Castillo · Madrid</div>
+          <div class="stat-num">+94%</div>
+          <div class="stat-lbl">Leads capturados</div>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="left-stats">
-    <div><div class="lstat-num">+94%</div><div class="lstat-label">Leads capturados</div></div>
-    <div><div class="lstat-num">24/7</div><div class="lstat-label">Bot activo</div></div>
-    <div><div class="lstat-num">&lt;10s</div><div class="lstat-label">Aviso al equipo</div></div>
-  </div>
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="right-panel">
-  <div class="form-card">
-
-    <a href="index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:28px;">
-      <svg width="34" height="34" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="14" fill="#00e676" fill-opacity="0.1"/><rect width="64" height="64" rx="14" stroke="#00e676" stroke-opacity="0.25" stroke-width="1.5"/><path d="M10 32 C10 18 20 6 32 6" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M10 32 C10 46 20 58 32 58" stroke="#00e676" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M14 32 C14 22 21 12 32 12" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/><path d="M14 32 C14 42 21 52 32 52" stroke="#00e676" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.25"/><circle cx="40" cy="22" r="8.5" fill="#00e676" fill-opacity="0.88"/><rect x="22" y="40" width="6" height="8" rx="1.5" fill="#00e676" opacity="0.45"/><rect x="30" y="34" width="6" height="14" rx="1.5" fill="#00e676" opacity="0.7"/><rect x="38" y="28" width="6" height="20" rx="1.5" fill="#00e676"/><polyline points="36,18 39.5,22 47,14" stroke="#07090d" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span style="font-weight:700;color:#fff;font-size:1.2rem">ReActiva</span>
-    </a>
-
-    <!-- STEP 1: EMAIL -->
-    <div id="step1">
-      <span class="form-eyebrow">Accede a tu panel</span>
-      <h2 class="form-title">Bienvenido</h2>
-      <p class="form-sub">Introduce tu correo y te enviamos un código de acceso.</p>
-
-      <div class="field-group">
-        <label class="field-label" for="emailInput">Correo electrónico</label>
-        <div class="field-wrap">
-          <input type="email" id="emailInput" class="field-input" placeholder="tucorreo@dominio.com" autocomplete="email" required>
-          <span class="field-icon">✉</span>
+        <div>
+          <div class="stat-num">24/7</div>
+          <div class="stat-lbl">Bot activo</div>
+        </div>
+        <div>
+          <div class="stat-num">&lt;10s</div>
+          <div class="stat-lbl">Aviso al equipo</div>
         </div>
       </div>
 
-      <button class="btn-login" id="btnSendCode">
-        <span class="btn-spinner" id="spinner1"></span>
-        <span class="btn-text">Enviar código</span>
-        <span>→</span>
-      </button>
     </div>
-
-    <!-- STEP 2: OTP -->
-    <div id="step2" class="hidden">
-      <span class="form-eyebrow">Verificación</span>
-      <h2 class="form-title">Código enviado</h2>
-      <p class="form-sub">Introduce el código de 6 dígitos que hemos enviado a:</p>
-
-      <div class="email-preview" id="emailPreview">
-        <span class="email-preview-addr" id="emailDisplay"></span>
-        <button class="email-preview-change" id="btnChangeEmail">Cambiar</button>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">Código de verificación</label>
-        <div class="otp-inputs" id="otpInputs">
-          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-index="0">
-          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-index="1">
-          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-index="2">
-          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-index="3">
-          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-index="4">
-          <input class="otp-digit" type="text" inputmode="numeric" maxlength="1" data-index="5">
-        </div>
-      </div>
-
-      <div class="resend-row">
-        <button class="resend-btn" id="btnResend" disabled>Reenviar código</button>
-        <span class="resend-timer" id="resendTimer">Espera <span id="countdown">60</span>s</span>
-      </div>
-
-      <button class="btn-login" id="btnVerify" disabled>
-        <span class="btn-spinner" id="spinner2"></span>
-        <span class="btn-text">Verificar y entrar</span>
-        <span>→</span>
-      </button>
-    </div>
-
   </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="form-wrap">
+
+      <!-- Mobile logo -->
+      <a href="index.html" style="display:none;align-items:center;gap:8px;text-decoration:none;margin-bottom:28px;" id="mob-logo">
+        <div class="logo-mark"><svg viewBox="0 0 18 18" fill="none"><path d="M9 2L15.5 6V12L9 16L2.5 12V6L9 2Z" stroke="#00e676" stroke-width="1.3" fill="none"/><circle cx="9" cy="9" r="2.2" fill="#00e676"/></svg></div>
+        <span class="logo-word"><span>Re</span>Activa<span>.</span></span>
+      </a>
+
+      <!-- STEP 1: Email -->
+      <div id="step1" class="step">
+        <div class="form-eyebrow">Accede a tu panel</div>
+        <h2 class="form-title">Bienvenido de vuelta</h2>
+        <p class="form-sub">Introduce tu correo y te enviamos un código de acceso instantáneo.</p>
+
+        <div class="fgroup">
+          <label class="flabel" for="emailIn">Correo electrónico</label>
+          <div class="fwrap">
+            <input type="email" id="emailIn" class="finput" placeholder="tucorreo@clinica.com" autocomplete="email">
+            <span class="ficon">✉</span>
+          </div>
+        </div>
+
+        <button class="btn-main" id="btnSend">
+          <span class="spinner" id="sp1"></span>
+          <span class="btn-txt">Enviar código de acceso</span>
+          <span>→</span>
+        </button>
+
+        <!-- DEMO ENTRY -->
+        <div class="skip-row">
+          <div class="skip-line"></div>
+          <span class="skip-txt">o entra directamente</span>
+          <div class="skip-line"></div>
+        </div>
+        <button class="btn-demo" onclick="enterDemo()">
+          <span>▦</span> Ver demo del panel
+        </button>
+      </div>
+
+      <!-- STEP 2: OTP -->
+      <div id="step2" class="step hidden">
+        <div class="form-eyebrow">Verificación</div>
+        <h2 class="form-title">Código enviado</h2>
+        <p class="form-sub">Introduce el código de 6 dígitos enviado a:</p>
+
+        <div class="email-pill" id="emailPill">
+          <span class="email-pill-addr" id="emailDisp"></span>
+          <button class="email-pill-btn" id="btnChange">Cambiar</button>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel">Código de verificación</label>
+          <div class="otp-row" id="otpRow">
+            <input class="otp-d" type="text" inputmode="numeric" maxlength="1" data-i="0">
+            <input class="otp-d" type="text" inputmode="numeric" maxlength="1" data-i="1">
+            <input class="otp-d" type="text" inputmode="numeric" maxlength="1" data-i="2">
+            <input class="otp-d" type="text" inputmode="numeric" maxlength="1" data-i="3">
+            <input class="otp-d" type="text" inputmode="numeric" maxlength="1" data-i="4">
+            <input class="otp-d" type="text" inputmode="numeric" maxlength="1" data-i="5">
+          </div>
+        </div>
+
+        <div class="resend-row">
+          <button class="resend-btn" id="btnResend" disabled>Reenviar código</button>
+          <span class="resend-timer" id="resTimer">Espera <span id="cdown">60</span>s</span>
+        </div>
+
+        <button class="btn-main" id="btnVerify" disabled>
+          <span class="spinner" id="sp2"></span>
+          <span class="btn-txt">Verificar y entrar</span>
+          <span>→</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <script>
 const API = "https://reactivaclinicas-production.up.railway.app";
+let currentEmail = "", countdownRef;
 
-// ── Toast ──
-let toastTimer;
-function showToast(msg, type = "info") {
-  const toast  = document.getElementById("toast");
-  const icon   = document.getElementById("toastIcon");
-  const msgEl  = document.getElementById("toastMsg");
-  const icons  = { success:"✓", error:"✕", info:"ℹ" };
-
-  toast.className = `toast ${type}`;
-  icon.textContent  = icons[type];
-  msgEl.textContent = msg;
-
-  clearTimeout(toastTimer);
-  requestAnimationFrame(() => {
-    toast.classList.add("show");
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 3800);
-  });
+/* ── toast ── */
+let toastT;
+function toast(msg, type="info") {
+  const el=document.getElementById("toast");
+  const icons={success:"✓",error:"✕",info:"ℹ"};
+  el.className="toast "+type;
+  document.getElementById("toast-ico").textContent=icons[type]||"ℹ";
+  document.getElementById("toast-msg").textContent=msg;
+  clearTimeout(toastT);
+  requestAnimationFrame(()=>{ el.classList.add("show"); toastT=setTimeout(()=>el.classList.remove("show"),3800); });
 }
 
-// ── Estado ──
-let currentEmail = "";
-let countdownInterval;
+/* ── Mobile logo ── */
+if(window.innerWidth<=800) document.getElementById("mob-logo").style.display="flex";
 
-// ── Elementos ──
-const step1       = document.getElementById("step1");
-const step2       = document.getElementById("step2");
-const emailInput  = document.getElementById("emailInput");
-const btnSend     = document.getElementById("btnSendCode");
-const btnVerify   = document.getElementById("btnVerify");
-const btnResend   = document.getElementById("btnResend");
-const btnChange   = document.getElementById("btnChangeEmail");
-const emailDisplay= document.getElementById("emailDisplay");
-const otpDigits   = Array.from(document.querySelectorAll(".otp-digit"));
-const spinner1    = document.getElementById("spinner1");
-const spinner2    = document.getElementById("spinner2");
-const countdown   = document.getElementById("countdown");
-const resendTimer = document.getElementById("resendTimer");
-
-// ── PASO 1: Enviar código ──
+/* ── Step 1 ── */
+const emailIn=document.getElementById("emailIn");
+const btnSend=document.getElementById("btnSend");
+emailIn.addEventListener("keydown",e=>{ if(e.key==="Enter") sendCode(); });
 btnSend.addEventListener("click", sendCode);
-emailInput.addEventListener("keydown", e => { if (e.key === "Enter") sendCode(); });
 
 async function sendCode() {
-  const email = emailInput.value.trim();
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    emailInput.classList.add("error-state");
-    showToast("Introduce un correo electrónico válido", "error");
-    emailInput.focus();
-    setTimeout(() => emailInput.classList.remove("error-state"), 2500);
+  const email=emailIn.value.trim();
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    emailIn.classList.add("err");
+    toast("Introduce un correo electrónico válido","error");
+    emailIn.focus();
+    setTimeout(()=>emailIn.classList.remove("err"),2500);
     return;
   }
-
-  setLoading(btnSend, spinner1, true);
-
+  setLoad(btnSend,document.getElementById("sp1"),true);
   try {
-    const res  = await fetch(`${API}/api/request-otp`, {
-      method : "POST",
-      headers: { "Content-Type": "application/json" },
-      body   : JSON.stringify({ email })
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || "No se pudo enviar el código");
-    }
-
-    currentEmail          = email;
-    emailDisplay.textContent = email;
-    step1.classList.add("hidden");
-    step2.classList.remove("hidden");
+    const res=await fetch(`${API}/api/request-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});
+    const data=await res.json();
+    if(!res.ok) throw new Error(data.error||"No se pudo enviar el código");
+    currentEmail=email;
+    document.getElementById("emailDisp").textContent=email;
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
     otpDigits[0].focus();
     startCountdown();
-    showToast("Código enviado a tu correo 📧", "success");
-
-  } catch (err) {
-    showToast(err.message || "Error al enviar el código. Inténtalo de nuevo.", "error");
+    toast("Código enviado a tu correo","success");
+  } catch(err) {
+    toast(err.message||"Error al enviar. Intenta de nuevo.","error");
   } finally {
-    setLoading(btnSend, spinner1, false);
+    setLoad(btnSend,document.getElementById("sp1"),false);
   }
 }
 
-// ── OTP inputs — navegación automática ──
-otpDigits.forEach((digit, idx) => {
-  digit.addEventListener("input", e => {
-    const val = e.target.value.replace(/\D/g, "");
-    e.target.value = val.slice(-1);
+/* ── OTP ── */
+const otpDigits=Array.from(document.querySelectorAll(".otp-d"));
+const btnVerify=document.getElementById("btnVerify");
 
-    if (val && idx < 5) otpDigits[idx + 1].focus();
-
-    digit.classList.toggle("filled", !!val);
-    digit.classList.remove("error-state");
-
-    // Activar botón si todos rellenos
-    const code = otpDigits.map(d => d.value).join("");
-    btnVerify.disabled = code.length < 6;
-    if (code.length === 6) btnVerify.focus();
+otpDigits.forEach((d,i)=>{
+  d.addEventListener("input",e=>{
+    const v=e.target.value.replace(/\D/g,"");
+    e.target.value=v.slice(-1);
+    d.classList.toggle("filled",!!v);
+    d.classList.remove("err");
+    if(v && i<5) otpDigits[i+1].focus();
+    const code=otpDigits.map(x=>x.value).join("");
+    btnVerify.disabled=code.length<6;
+    if(code.length===6) btnVerify.focus();
   });
-
-  digit.addEventListener("keydown", e => {
-    if (e.key === "Backspace" && !digit.value && idx > 0) {
-      otpDigits[idx - 1].focus();
-      otpDigits[idx - 1].value = "";
-      otpDigits[idx - 1].classList.remove("filled");
-    }
-    if (e.key === "Enter") {
-      const code = otpDigits.map(d => d.value).join("");
-      if (code.length === 6) verifyCode();
-    }
+  d.addEventListener("keydown",e=>{
+    if(e.key==="Backspace"&&!d.value&&i>0){ otpDigits[i-1].focus(); otpDigits[i-1].value=""; otpDigits[i-1].classList.remove("filled"); }
+    if(e.key==="Enter"){ const code=otpDigits.map(x=>x.value).join(""); if(code.length===6) verifyCode(); }
   });
-
-  // Soporte para pegar el código completo
-  digit.addEventListener("paste", e => {
+  d.addEventListener("paste",e=>{
     e.preventDefault();
-    const pasted = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6);
-    pasted.split("").forEach((ch, i) => {
-      if (otpDigits[i]) {
-        otpDigits[i].value = ch;
-        otpDigits[i].classList.add("filled");
-      }
-    });
-    const next = Math.min(pasted.length, 5);
+    const p=(e.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6);
+    p.split("").forEach((ch,j)=>{ if(otpDigits[j]){otpDigits[j].value=ch;otpDigits[j].classList.add("filled");} });
+    const next=Math.min(p.length,5);
     otpDigits[next].focus();
-    btnVerify.disabled = pasted.length < 6;
+    btnVerify.disabled=p.length<6;
   });
 });
 
-// ── PASO 2: Verificar código ──
 btnVerify.addEventListener("click", verifyCode);
 
 async function verifyCode() {
-  const code = otpDigits.map(d => d.value).join("");
-  if (code.length < 6) return;
-
-  setLoading(btnVerify, spinner2, true);
-
+  const code=otpDigits.map(d=>d.value).join("");
+  if(code.length<6) return;
+  setLoad(btnVerify,document.getElementById("sp2"),true);
   try {
-    const res  = await fetch(`${API}/api/verify-otp`, {
-      method : "POST",
-      headers: { "Content-Type": "application/json" },
-      body   : JSON.stringify({ email: currentEmail, code })
-    });
-    const data = await res.json();
-
-    if (data.token) {
-      localStorage.setItem("reactiva_token", data.token);
-      showToast("¡Acceso correcto! Entrando…", "success");
-      setTimeout(() => window.location.href = "dashboard.html", 800);
-    } else {
-      throw new Error(data.error || "Código incorrecto");
-    }
-
-  } catch (err) {
-    otpDigits.forEach(d => { d.classList.add("error-state"); d.value = ""; d.classList.remove("filled"); });
-    btnVerify.disabled = true;
-    showToast(err.message || "Código incorrecto. Inténtalo de nuevo.", "error");
+    const res=await fetch(`${API}/api/verify-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:currentEmail,code})});
+    const data=await res.json();
+    if(data.token){
+      localStorage.setItem("reactiva_token",data.token);
+      localStorage.setItem("reactiva_email",currentEmail);
+      toast("¡Acceso correcto! Entrando…","success");
+      setTimeout(()=>window.location.href="dashboard.html",800);
+    } else throw new Error(data.error||"Código incorrecto");
+  } catch(err) {
+    otpDigits.forEach(d=>{ d.classList.add("err"); d.value=""; d.classList.remove("filled"); });
+    btnVerify.disabled=true;
+    toast(err.message||"Código incorrecto. Inténtalo de nuevo.","error");
     otpDigits[0].focus();
   } finally {
-    setLoading(btnVerify, spinner2, false);
+    setLoad(btnVerify,document.getElementById("sp2"),false);
   }
 }
 
-// ── Reenviar ──
-btnResend.addEventListener("click", async () => {
-  if (btnResend.disabled) return;
-  btnResend.disabled = true;
+/* ── Reenviar ── */
+document.getElementById("btnResend").addEventListener("click",async()=>{
+  document.getElementById("btnResend").disabled=true;
   startCountdown();
-
   try {
-    await fetch(`${API}/api/request-otp`, {
-      method : "POST",
-      headers: { "Content-Type": "application/json" },
-      body   : JSON.stringify({ email: currentEmail })
-    });
-    showToast("Código reenviado 📧", "info");
-  } catch {
-    showToast("Error al reenviar. Inténtalo de nuevo.", "error");
-  }
+    await fetch(`${API}/api/request-otp`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:currentEmail})});
+    toast("Código reenviado","info");
+  } catch { toast("Error al reenviar. Inténtalo de nuevo.","error"); }
 });
 
-// ── Cambiar email ──
-btnChange.addEventListener("click", () => {
-  clearInterval(countdownInterval);
-  step2.classList.add("hidden");
-  step1.classList.remove("hidden");
-  otpDigits.forEach(d => { d.value = ""; d.classList.remove("filled","error-state"); });
-  btnVerify.disabled = true;
-  emailInput.focus();
-  emailInput.select();
+/* ── Cambiar email ── */
+document.getElementById("btnChange").addEventListener("click",()=>{
+  clearInterval(countdownRef);
+  document.getElementById("step2").classList.add("hidden");
+  document.getElementById("step1").classList.remove("hidden");
+  otpDigits.forEach(d=>{ d.value=""; d.classList.remove("filled","err"); });
+  btnVerify.disabled=true;
+  emailIn.focus(); emailIn.select();
 });
 
-// ── Countdown ──
+/* ── Countdown ── */
 function startCountdown() {
-  clearInterval(countdownInterval);
-  let secs = 60;
-  countdown.textContent = secs;
-  resendTimer.style.display = "inline";
-  btnResend.disabled = true;
-
-  countdownInterval = setInterval(() => {
-    secs--;
-    countdown.textContent = secs;
-    if (secs <= 0) {
-      clearInterval(countdownInterval);
-      btnResend.disabled = false;
-      resendTimer.style.display = "none";
-    }
-  }, 1000);
+  clearInterval(countdownRef);
+  let s=60;
+  document.getElementById("cdown").textContent=s;
+  document.getElementById("resTimer").style.display="inline";
+  document.getElementById("btnResend").disabled=true;
+  countdownRef=setInterval(()=>{
+    s--;
+    document.getElementById("cdown").textContent=s;
+    if(s<=0){ clearInterval(countdownRef); document.getElementById("btnResend").disabled=false; document.getElementById("resTimer").style.display="none"; }
+  },1000);
 }
 
-// ── Loading helper ──
-function setLoading(btn, spinner, state) {
-  btn.disabled = state;
-  spinner.style.display = state ? "block" : "none";
-  btn.classList.toggle("loading", state);
+/* ── DEMO: acceso directo sin backend ── */
+function enterDemo() {
+  localStorage.setItem("reactiva_token","demo_token");
+  localStorage.setItem("reactiva_email","demo@reactiva.app");
+  toast("Entrando en modo demo…","success");
+  setTimeout(()=>window.location.href="dashboard.html",700);
+}
+
+/* ── Loading helper ── */
+function setLoad(btn,sp,state) {
+  btn.disabled=state; sp.style.display=state?"block":"none";
+  btn.classList.toggle("loading",state);
 }
 </script>
 </body>
